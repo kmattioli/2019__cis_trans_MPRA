@@ -1,0 +1,15 @@
+analyzing single-end reads
+checking for 239653 barcodes...
+parsing fastq file, starting at 2019-07-19 14:12:57
+done parsing fastq file (36336474 total reads), ended at 2019-07-19 14:38:28
+================ SINGLE-END READS, LENIENT ====================
+**** Found 174809 unique barcodes with perfect matches to constant downstream element TCTAGAATTA ***
+**** Those unique barcodes comprised 35505441 total reads ***
+**** which corresponds to 97.71295090437229 percent of total reads ****
+
+================ SINGLE-END READS, STRICT ====================
+**** Found 174728 unique barcodes with perfect matches to constant downstream element TCTAGAATTA and 10 extra bases ***
+**** Those unique barcodes comprised 35353629 total reads ***
+**** which corresponds to 97.29515582607162 percent of total reads ****
+
+wrote single-end lenient barcodes to file ../data/02__mpra/01__counts/JR2627_S2_bothlanes_BARCODES.txt
