@@ -122,16 +122,42 @@ data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
 len(data_filt_tile2_sp)
 
 
-# ## 3. count of cis/trans interactions
+# ## count of cis/trans/both
 
 # In[14]:
+
+
+len(data_filt_sp)
+
+
+# In[15]:
+
+
+len(data_filt_sp[(data_filt_sp["cis_status_one"] != "no cis effect") & (data_filt_sp["trans_status_one"] == "no trans effect")])
+
+
+# In[16]:
+
+
+len(data_filt_sp[(data_filt_sp["cis_status_one"] == "no cis effect") & (data_filt_sp["trans_status_one"] != "no trans effect")])
+
+
+# In[17]:
+
+
+len(data_filt_sp[(data_filt_sp["cis_status_one"] != "no cis effect") & (data_filt_sp["trans_status_one"] != "no trans effect")])
+
+
+# ## 3. count of cis/trans interactions
+
+# In[18]:
 
 
 int_order = ["no cis/trans int. effect", "significant cis/trans int. effect"]
 int_pal = {"no cis/trans int. effect": "gray", "significant cis/trans int. effect": "black"}
 
 
-# In[15]:
+# In[19]:
 
 
 dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
@@ -139,7 +165,7 @@ titles = ["both tiles", "tile1 only", "tile2 only"]
 labels = ["both_tiles", "tile1_only", "tile2_only"]
 
 
-# In[16]:
+# In[20]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -153,12 +179,13 @@ for df, title, label in zip(dfs, titles, labels):
     ax.set_title(title)
     
     tot = 0
+    colors = ["white", "black"]
     for i, l in enumerate(int_order):
         n = len(df[df["cis_trans_int_status"] == l])
         tot += n
-        ax.annotate(str(n), xy=(i, 2), xycoords="data", xytext=(0, 0), 
+        ax.annotate(str(n), xy=(i, 20), xycoords="data", xytext=(0, 0), 
                     textcoords="offset pixels", ha='center', va='bottom', 
-                    color="white", size=fontsize)
+                    color=colors[i], size=fontsize)
     print("percent cis/trans sig: %s" % (n/tot))
 
     plt.show()
@@ -168,14 +195,14 @@ for df, title, label in zip(dfs, titles, labels):
 
 # ## 5. effect size differences across biotypes
 
-# In[17]:
+# In[21]:
 
 
 min_switch_order = ["CAGE turnover - eRNA", "CAGE turnover - lncRNA", "CAGE turnover - mRNA", 
                     "eRNA", "lncRNA", "mRNA"]
 
 
-# In[18]:
+# In[22]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -212,7 +239,7 @@ for df, title, label in zip(dfs, titles, labels):
 
 # ## 6. percent sig across biotypes
 
-# In[19]:
+# In[23]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -247,7 +274,7 @@ for df, title, label in zip(dfs, titles, labels):
 
 # ## 7. look generally at significant interactions
 
-# In[20]:
+# In[24]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -285,14 +312,14 @@ for df, title, label in zip(dfs, titles, labels):
 
 # ## 8. look at highest cis/trans interactions
 
-# In[21]:
+# In[25]:
 
 
 sig_int = data_filt_tile1_sp[data_filt_tile1_sp["cis_trans_int_status"] != "no cis/trans int. effect"]
 len(sig_int)
 
 
-# In[22]:
+# In[26]:
 
 
 sig_int_filt = sig_int[((sig_int["logFC_cis_HUES64"] < 0) & (sig_int["logFC_cis_mESC"] > 0)) |
@@ -300,7 +327,7 @@ sig_int_filt = sig_int[((sig_int["logFC_cis_HUES64"] < 0) & (sig_int["logFC_cis_
 len(sig_int_filt)
 
 
-# In[23]:
+# In[27]:
 
 
 sub = sig_int_filt[["hg19_id", "mm9_id", "biotype_hg19", "biotype_mm9", "biotype_switch_minimal", "logFC_int", "logFC_cis_HUES64", "logFC_cis_mESC",
@@ -308,13 +335,13 @@ sub = sig_int_filt[["hg19_id", "mm9_id", "biotype_hg19", "biotype_mm9", "biotype
 sub
 
 
-# In[24]:
+# In[28]:
 
 
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[25]:
+# In[29]:
 
 
 for row in sub.iterrows():
@@ -341,7 +368,7 @@ for row in sub.iterrows():
 
 # ## 9. look at cis/trans when subsetting by native
 
-# In[26]:
+# In[30]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -415,13 +442,13 @@ for df, title, label in zip(dfs, titles, labels):
 
 # ## 10. look at invidiual directionality of cis/trans
 
-# In[27]:
+# In[31]:
 
 
 df.columns
 
 
-# In[28]:
+# In[32]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -457,7 +484,7 @@ for df, title, label in zip(dfs, titles, labels):
     fig.savefig("direc_v_comp.%s.pdf" % label, dpi="figure", bbox_inches="tight")
 
 
-# In[29]:
+# In[33]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -466,11 +493,11 @@ for df, title, label in zip(dfs, titles, labels):
                    (df["trans_status_one"] == "significant trans effect")]
     tots = cis_trans.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
     
-    comp = cis_trans[((cis_trans["cis_status_det_one"].str.contains("higher in human") & 
-                        cis_trans["trans_status_det_one"].str.contains("higher in mouse")) |
+    direc = cis_trans[((cis_trans["cis_status_det_one"].str.contains("higher in human") & 
+                        cis_trans["trans_status_det_one"].str.contains("higher in human")) |
                        (cis_trans["cis_status_det_one"].str.contains("higher in mouse") &
-                        cis_trans["trans_status_det_one"].str.contains("higher in human")))]
-    sig = comp.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
+                        cis_trans["trans_status_det_one"].str.contains("higher in mouse")))]
+    sig = direc.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
     clean_sig = tots.merge(sig, on="biotype_switch_minimal", how="left").fillna(0)
     clean_sig["percent_sig"] = (clean_sig["hg19_id_y"]/clean_sig["hg19_id_x"])*100
     
@@ -480,7 +507,7 @@ for df, title, label in zip(dfs, titles, labels):
 
     ax.set_xticklabels(min_switch_order, rotation=50, ha='right', va='top')
     ax.set_xlabel("")
-    ax.set_ylabel("% of seq. pairs with\ncompensatory cis/trans effects")
+    ax.set_ylabel("% of seq. pairs with\ndirectional cis/trans effects")
     ax.set_title(title)
     ax.axvline(x=2.5, linestyle="dashed", color="black")
     

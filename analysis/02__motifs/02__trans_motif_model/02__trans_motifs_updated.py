@@ -881,7 +881,7 @@ len(sig_results)
 uniq_motifs_sig = list(sig_results["index"].unique())
 
 
-# In[ ]:
+# In[87]:
 
 
 strength_results = pd.DataFrame()
@@ -911,7 +911,7 @@ for i, motif_id in enumerate(uniq_motifs_sig):
     print("(#%s) %s" % (i+1, motif_id))
 
 
-# In[ ]:
+# In[88]:
 
 
 print(len(strength_results))
@@ -919,7 +919,7 @@ strength_results_mrg = strength_results.merge(sig_motifs, on="index")
 strength_results_mrg.head()
 
 
-# In[ ]:
+# In[89]:
 
 
 uniq_motifs_sig1 = uniq_motifs_sig[0:41]
@@ -932,14 +932,14 @@ print(len(uniq_motifs_sig3))
 print(len(uniq_motifs_sig4))
 
 
-# In[ ]:
+# In[90]:
 
 
 pal = {False: "gray", True: sns.color_palette("Set2")[2]}
 hue_order = [False, True]
 
 
-# In[ ]:
+# In[91]:
 
 
 fig = plt.figure(figsize=(15, 2))

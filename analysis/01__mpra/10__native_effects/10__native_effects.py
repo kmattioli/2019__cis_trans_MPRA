@@ -411,3 +411,43 @@ for df, title, label in zip(dfs, titles, labels):
     fig.savefig("perc_sig_native_minimal_biotype_switch.%s.pdf" % label, dpi="figure", bbox_inches="tight")
     plt.close()
 
+
+# ## 7. direc v. comp in native status
+
+# In[31]:
+
+
+for df, title, label in zip(dfs, titles, labels):
+    res = {}
+    native = df[df["native_status"] != "no native effect"]
+    no_native = df[df["native_status"] == "no native effect"]
+    
+    native_cis_trans = native[(native["cis_status_one"] == "significant cis effect") & 
+                              (native["trans_status_one"] == "significant trans effect")]
+    no_native_cis_trans = no_native[(no_native["cis_status_one"] == "significant cis effect") & 
+                                    (no_native["trans_status_one"] == "significant trans effect")]
+    
+    native_direc = native_cis_trans[((native_cis_trans["cis_status_det_one"].str.contains("higher in human") & 
+                                      native_cis_trans["trans_status_det_one"].str.contains("higher in human")) |
+                                     (native_cis_trans["cis_status_det_one"].str.contains("higher in mouse") &
+                                      native_cis_trans["trans_status_det_one"].str.contains("higher in mouse")))]
+    no_native_direc = no_native_cis_trans[((no_native_cis_trans["cis_status_det_one"].str.contains("higher in human") & 
+                                      no_native_cis_trans["trans_status_det_one"].str.contains("higher in human")) |
+                                     (no_native_cis_trans["cis_status_det_one"].str.contains("higher in mouse") &
+                                      no_native_cis_trans["trans_status_det_one"].str.contains("higher in mouse")))]
+    
+    res["perc_native_direc"] = (len(native_direc)/len(native_cis_trans))*100
+    res["perc_no_native_direc"] = (len(no_native_direc)/len(no_native_cis_trans)*100)
+    res = pd.DataFrame.from_dict(res, orient="index").reset_index()
+            
+    order = ["perc_no_native_direc", "perc_native_direc"]
+    pal = {"perc_no_native_direc": "gray", "perc_native_direc": sns.color_palette("Set2")[2]}
+    fig, ax = plt.subplots(figsize=(1, 2), nrows=1, ncols=1)
+    
+    sns.barplot(data=res, x="index", y=0, order=order, palette=pal, ax=ax)
+    ax.set_xticklabels(["no native effects", "native effects"], rotation=50, ha="right", va="top")
+    ax.set_xlabel("")
+    ax.set_ylabel("% of pairs with cis & trans effects showingdirectional effects")
+    plt.show()
+    plt.close()
+
