@@ -236,6 +236,12 @@ for df, title, label in zip(dfs, titles, labels):
 
 min_switch_order = ["CAGE turnover - eRNA", "CAGE turnover - lncRNA", "CAGE turnover - mRNA", 
                     "eRNA", "lncRNA", "mRNA"]
+min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2], 
+                  "CAGE turnover - lncRNA": sns.color_palette("Set2")[2],
+                  "CAGE turnover - mRNA": sns.color_palette("Set2")[2],
+                  "eRNA": sns.color_palette("Set2")[7], 
+                  "lncRNA": sns.color_palette("Set2")[7], 
+                  "mRNA": sns.color_palette("Set2")[7]}
 
 
 # In[20]:
@@ -273,9 +279,160 @@ for df, title, label in zip(dfs, titles, labels):
     plt.close()
 
 
+# In[21]:
+
+
+for df, title, label in zip(dfs, titles, labels):
+    df["abs_logFC_trans"] = np.abs(df["logFC_trans_one"])
+
+    fig = plt.figure(figsize=(2.5, 1.5))
+    ax = sns.boxplot(data=df, x="biotype_switch_minimal", y="abs_logFC_trans", 
+                     flierprops = dict(marker='o', markersize=5), 
+                     order=min_switch_order, palette=min_switch_pal)
+    mimic_r_boxplot(ax)
+
+    ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
+    ax.set_xlabel("")
+    ax.set_ylabel("trans effect size")
+    ax.set_title(title)
+
+    for i, l in enumerate(min_switch_order):
+        sub = df[df["biotype_switch_minimal"] == l]
+        n = len(sub)
+        print("%s median eff size: %s" % (l, sub["abs_logFC_trans"].median()))
+        color = min_switch_pal[l]
+        ax.annotate(str(n), xy=(i, -0.3), xycoords="data", xytext=(0, 0), 
+                    textcoords="offset pixels", ha='center', va='bottom', 
+                    color=color, size=fontsize)
+        
+    ### pvals ###
+    vals1 = np.asarray(df[df["biotype_switch_minimal"] == "CAGE turnover - eRNA"]["abs_logFC_trans"])
+    vals2 = np.asarray(df[df["biotype_switch_minimal"] == "CAGE turnover - lncRNA"]["abs_logFC_trans"])
+    vals3 = np.asarray(df[df["biotype_switch_minimal"] == "CAGE turnover - mRNA"]["abs_logFC_trans"])
+    vals4 = np.asarray(df[df["biotype_switch_minimal"] == "eRNA"]["abs_logFC_trans"])
+    vals5 = np.asarray(df[df["biotype_switch_minimal"] == "lncRNA"]["abs_logFC_trans"])
+    vals6 = np.asarray(df[df["biotype_switch_minimal"] == "mRNA"]["abs_logFC_trans"])
+    
+    vals1 = vals1[~np.isnan(vals1)]
+    vals2 = vals2[~np.isnan(vals2)]
+    vals3 = vals3[~np.isnan(vals3)]
+    vals4 = vals4[~np.isnan(vals4)]
+    vals5 = vals5[~np.isnan(vals5)]
+    vals6 = vals6[~np.isnan(vals6)]
+    
+    _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
+    _, pval13 = stats.mannwhitneyu(vals1, vals3, alternative="two-sided", use_continuity=False)
+    _, pval23 = stats.mannwhitneyu(vals2, vals3, alternative="two-sided", use_continuity=False)
+    _, pval45 = stats.mannwhitneyu(vals4, vals5, alternative="two-sided", use_continuity=False)
+    _, pval46 = stats.mannwhitneyu(vals4, vals6, alternative="two-sided", use_continuity=False)
+    _, pval56 = stats.mannwhitneyu(vals5, vals6, alternative="two-sided", use_continuity=False)
+    
+    print(pval12)
+    print(pval13)
+    print(pval23)
+    print(pval45)
+    print(pval46)
+    print(pval56)
+    
+    annotate_pval(ax, 0.2, 0.8, 1.25, 0, 1.25, pval12, fontsize-1)
+    annotate_pval(ax, 1.2, 1.8, 1.25, 0, 1.25, pval13, fontsize-1)
+    annotate_pval(ax, 0, 2, 1.75, 0, 1.75, pval23, fontsize-1)
+    annotate_pval(ax, 3.2, 3.8, 1.25, 0, 1.25, pval45, fontsize-1)
+    annotate_pval(ax, 4.2, 4.8, 1.25, 0, 1.25, pval56, fontsize-1)
+    annotate_pval(ax, 3, 5, 1.75, 0, 1.75, pval46, fontsize-1)
+
+    ax.set_ylim((-0.4, 2))
+    ax.axvline(x=2.5, linestyle="dashed", color="black")
+
+    plt.show()
+    fig.savefig("trans_minimal_biotype_switch_effectsize_boxplot.%s.pdf" % label, dpi="figure", bbox_inches="tight")
+    plt.close()
+
+
+# In[22]:
+
+
+def cage_status(row):
+    if "CAGE turnover" in row.biotype_switch_minimal:
+        return "turnover"
+    else:
+        return "conserved"
+
+
+# In[23]:
+
+
+def one_biotype(row):
+    if row.minimal_biotype_hg19 == "no CAGE activity":
+        return row.minimal_biotype_mm9
+    else:
+        return row.minimal_biotype_hg19
+
+
+# In[24]:
+
+
+pal = {"conserved": sns.color_palette("Set2")[7], "turnover": sns.color_palette("Set2")[2]}
+
+
+# In[25]:
+
+
+for df, title, pltname in zip(dfs, titles, labels):
+    df["abs_logFC_trans"] = np.abs(df["logFC_trans_one"])
+    df["cage_status"] = df.apply(cage_status, axis=1)
+    df["one_biotype"] = df.apply(one_biotype, axis=1)
+    
+    fig = plt.figure(figsize=(2.75, 1.5))
+
+    ax = sns.boxplot(data=df, x="one_biotype", y="abs_logFC_trans", hue="cage_status",
+                     flierprops = dict(marker='o', markersize=5),
+                     order=["eRNA", "lncRNA", "mRNA"], hue_order=["turnover", "conserved"], palette=pal)
+    mimic_r_boxplot(ax)
+
+    ax.set_xticklabels(["eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
+    ax.set_xlabel("")
+    ax.set_ylabel("trans effect size")
+    plt.legend(loc=2, bbox_to_anchor=(1.05, 1))
+
+    ys = [0.75, 0.75, 0.75]
+    for i, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
+        sub = df[df["one_biotype"] == label]
+        sub1 = sub[sub["cage_status"] == "turnover"]
+        sub2 = sub[sub["cage_status"] == "conserved"]
+
+        vals1 = np.asarray(sub1["abs_logFC_trans"])
+        vals2 = np.asarray(sub2["abs_logFC_trans"])
+
+        vals1 = vals1[~np.isnan(vals1)]
+        vals2 = vals2[~np.isnan(vals2)]
+
+        u, pval = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
+        print(pval)
+
+        if pval >= 0.05:
+            annotate_pval(ax, i-0.1, i+0.1, ys[i], 0, ys[i], pval, fontsize-1)
+        else:
+            annotate_pval(ax, i-0.1, i+0.1, ys[i], 0, ys[i], pval, fontsize-1)
+
+        n1 = len(vals1)
+        n2 = len(vals2)
+
+        ax.annotate(str(n1), xy=(i-0.2, -0.3), xycoords="data", xytext=(0, 0), 
+                    textcoords="offset pixels", ha='center', va='bottom', 
+                    color=pal["turnover"], size=fontsize)
+        ax.annotate(str(n2), xy=(i+0.2, -0.3), xycoords="data", xytext=(0, 0), 
+                    textcoords="offset pixels", ha='center', va='bottom', 
+                    color=pal["conserved"], size=fontsize)
+
+    ax.set_ylim((-0.4, 2))
+    ax.set_title(title)
+    fig.savefig("trans_effect_biotype_sep_cage.%s.pdf" % pltname, dpi="figure", bbox_inches="tight")
+
+
 # ## 6. percent sig across biotypes
 
-# In[21]:
+# In[26]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -289,7 +446,7 @@ for df, title, label in zip(dfs, titles, labels):
     ax = sns.barplot(data=clean_sig, x="biotype_switch_minimal", y="percent_sig", 
                      order=min_switch_order, color=sns.color_palette("Set2")[2])
 
-    ax.set_xticklabels(min_switch_order, rotation=50, ha='right', va='top')
+    ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
     ax.set_xlabel("")
     ax.set_ylabel("% of seq. pairs with\ntrans effects")
     ax.set_title(title)

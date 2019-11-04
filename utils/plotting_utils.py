@@ -155,13 +155,13 @@ def annotate_pval(ax, x1, x2, y, h, text_y, val, fontsize):
     from decimal import Decimal
     ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1, c="black", linewidth=0.5)
     if val < 0.0001:
-        #text = "{:.2e}".format(Decimal(val))
-        text = "**"
+        text = "{:.2e}".format(Decimal(val))
+        #text = "**"
     elif val < 0.05:
-        #text = "%.4f" % val
-        text = "*"
+        text = "%.3f" % val
+        #text = "*"
     else:
-        text = "n.s."
+        text = "%.2f" % val
     ax.text((x1+x2)*.5, text_y, text, ha='center', va='bottom', color="black", size=fontsize)
 
 

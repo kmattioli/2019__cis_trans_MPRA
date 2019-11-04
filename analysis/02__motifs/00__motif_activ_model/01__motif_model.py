@@ -116,7 +116,7 @@ index_f = "../../../data/01__design/02__index/TWIST_pool4_v8_final.with_element_
 # In[11]:
 
 
-tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.UPDATED_WITH_DIV.txt"
+tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED.txt"
 
 
 # In[12]:
@@ -179,28 +179,28 @@ motifs = pd.read_table(motifs_f, sep="\t")
 motifs.head()
 
 
-# In[21]:
+# In[20]:
 
 
 elem_map = pd.read_table(elem_map_f, sep="\t")
 elem_map.head()
 
 
-# In[22]:
+# In[21]:
 
 
 motif_map = pd.read_table(motif_map_f, sep="\t")
 motif_map.head()
 
 
-# In[23]:
+# In[22]:
 
 
 motif_info = pd.read_table(motif_info_f, sep="\t")
 motif_info.head()
 
 
-# In[24]:
+# In[23]:
 
 
 hESC_tf = pd.read_table(hESC_tf_f)
@@ -210,21 +210,21 @@ hESC_tf.head()
 
 # ## 2. calculate GC and CpG content per element
 
-# In[25]:
+# In[24]:
 
 
 data["gc_content"] = data.apply(calculate_gc, axis=1)
 data.sample(5)
 
 
-# In[26]:
+# In[25]:
 
 
 data["cpg_content"] = data.apply(calculate_cpg, axis=1)
 data.sample(5)
 
 
-# In[27]:
+# In[26]:
 
 
 data["HUES64_log"] = np.log10(data["HUES64"]+1)
@@ -232,14 +232,14 @@ data["mESC_log"] = np.log10(data["mESC"]+1)
 data.sample(5)
 
 
-# In[28]:
+# In[27]:
 
 
 data["avg_activ"] = data[["HUES64", "mESC"]].mean(axis=1)
 data["avg_activ_log"] = np.log10(data["avg_activ"]+1)
 
 
-# In[29]:
+# In[28]:
 
 
 data["HUES64_box"] = boxcox(data["HUES64"])[0]
@@ -248,7 +248,7 @@ data["avg_activ_box"] = boxcox(data["avg_activ"])[0]
 data.sample(5)
 
 
-# In[30]:
+# In[29]:
 
 
 data["short_elem"] = data["index"].str.split("__", expand=True)[0]
@@ -257,7 +257,7 @@ data.sample(5)
 
 # ## 3. build reduced model (CG + CpG content)
 
-# In[31]:
+# In[30]:
 
 
 scaled_features = StandardScaler().fit_transform(data[["avg_activ_box", "gc_content", "cpg_content"]])
@@ -269,27 +269,27 @@ data_norm["short_elem"] = data["short_elem"]
 data_norm.head()
 
 
-# In[32]:
+# In[31]:
 
 
 data_filt = data_norm[((data_norm["HUES64_padj"] < QUANT_ALPHA) | (data_norm["mESC_padj"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[33]:
+# In[32]:
 
 
 avg_mod = smf.ols(formula='avg_activ_box ~ gc_content + cpg_content', 
                    data=data_norm).fit()
 
 
-# In[34]:
+# In[33]:
 
 
 avg_mod.summary()
 
 
-# In[35]:
+# In[34]:
 
 
 res = avg_mod.resid
@@ -300,14 +300,14 @@ ax.set_title("Normal QQ: average hESC/mESC model")
 fig.savefig("avg_activ_qq.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[36]:
+# In[35]:
 
 
 reduced_llf = avg_mod.llf
 reduced_llf
 
 
-# In[37]:
+# In[36]:
 
 
 reduced_rsq = avg_mod.rsquared
@@ -316,13 +316,13 @@ reduced_rsq
 
 # ## 4. add individual motifs to the model
 
-# In[38]:
+# In[37]:
 
 
 len(motifs)
 
 
-# In[39]:
+# In[38]:
 
 
 # only analyze the "best" motifs as determined by lambert et al
@@ -330,7 +330,7 @@ best_motifs = motif_info[~pd.isnull(motif_info["Best Motif(s)? (Figure 2A)"])]
 len(best_motifs)
 
 
-# In[40]:
+# In[39]:
 
 
 # only analyze the TFs that are expressed in hESCs or mESCs
@@ -340,7 +340,7 @@ print(len(hESC_expr))
 print(len(mESC_expr))
 
 
-# In[41]:
+# In[40]:
 
 
 best_motifs = best_motifs[((best_motifs["HGNC symbol"].isin(hESC_expr["gene_name"])) |
@@ -348,7 +348,7 @@ best_motifs = best_motifs[((best_motifs["HGNC symbol"].isin(hESC_expr["gene_name
 len(best_motifs)
 
 
-# In[42]:
+# In[41]:
 
 
 best_motifs["short_id"] = best_motifs["CIS-BP ID"].str.split(".", expand=True)[0]
@@ -356,14 +356,14 @@ mapped_best_motifs = motifs[motifs["#pattern name"].isin(best_motifs["short_id"]
 len(mapped_best_motifs)
 
 
-# In[43]:
+# In[42]:
 
 
 uniq_motifs = list(best_motifs["short_id"].unique())
 print(len(uniq_motifs))
 
 
-# In[44]:
+# In[43]:
 
 
 motif_results = {}
@@ -395,14 +395,14 @@ for i, motif_id in enumerate(uniq_motifs):
     motif_results[motif_id] = {"lr_test": lr, "pval": p, "rsq": rsq, "beta": beta}
 
 
-# In[45]:
+# In[44]:
 
 
 motif_results = pd.DataFrame.from_dict(motif_results, orient="index").reset_index()
 motif_results.head()
 
 
-# In[46]:
+# In[45]:
 
 
 motif_results["padj"] = multicomp.multipletests(motif_results["pval"], method="fdr_bh")[1]
@@ -411,34 +411,34 @@ len(motif_results[motif_results["padj"] < 0.05])
 
 # ## 5. merge motifs w/ TF info
 
-# In[47]:
+# In[46]:
 
 
 all_motif_results = motif_results.merge(best_motifs[["short_id", "HGNC symbol"]], left_on="index", right_on="short_id")
 all_motif_results.sample(5)
 
 
-# In[48]:
+# In[47]:
 
 
 all_motif_results["activ_or_repr"] = all_motif_results.apply(activ_or_repress, axis=1)
 all_motif_results.sample(5)
 
 
-# In[49]:
+# In[48]:
 
 
 sig_motif_results = all_motif_results[all_motif_results["padj"] < 0.05]
 len(sig_motif_results)
 
 
-# In[50]:
+# In[49]:
 
 
 sig_motif_results.sort_values(by="rsq", ascending=False).head()
 
 
-# In[51]:
+# In[50]:
 
 
 sig_motif_results.activ_or_repr.value_counts()
@@ -446,32 +446,32 @@ sig_motif_results.activ_or_repr.value_counts()
 
 # ## 6. plot results
 
-# In[52]:
+# In[51]:
 
 
 over_1p = sig_motif_results[sig_motif_results["rsq"] >= 0.001].sort_values(by="rsq", ascending=False)
 len(over_1p)
 
 
-# In[53]:
+# In[52]:
 
 
 over_1p.activ_or_repr.value_counts()
 
 
-# In[54]:
+# In[53]:
 
 
 sns.palplot(sns.color_palette("pastel"))
 
 
-# In[55]:
+# In[54]:
 
 
 pal = {"repressing": sns.color_palette("pastel")[3], "activating": sns.color_palette("pastel")[0]}
 
 
-# In[56]:
+# In[55]:
 
 
 full_pal = {}
@@ -479,7 +479,7 @@ for i, row in over_1p.iterrows():
     full_pal[row["HGNC symbol"]] = pal[row["activ_or_repr"]]
 
 
-# In[57]:
+# In[56]:
 
 
 fig, axarr = plt.subplots(figsize=(6, 10), nrows=1, ncols=3)
@@ -514,21 +514,21 @@ plt.subplots_adjust(wspace=0.7)
 
 # ## 7. merge elements with metadata (tss_id, biotype)
 
-# In[58]:
+# In[57]:
 
 
 motifs_merged = mapped_best_motifs.merge(elem_map, left_on="sequence name", right_on="elem_key")
 motifs_merged.head()
 
 
-# In[59]:
+# In[58]:
 
 
 motifs_merged = motifs_merged.merge(index_elem, left_on="elem", right_on="element")
 motifs_merged.head()
 
 
-# In[60]:
+# In[59]:
 
 
 motifs_merged["tss_id"] = motifs_merged["name"].str.split("__", expand=True)[1]
@@ -537,24 +537,24 @@ motifs_merged["tss_tile_num"] = motifs_merged["name"].str.split("__", expand=Tru
 motifs_merged.sample(5)
 
 
-# In[61]:
+# In[60]:
 
 
 human_df = motifs_merged[(motifs_merged["species"] == "HUMAN") | (motifs_merged["name"] == "random_sequence")]
 mouse_df = motifs_merged[(motifs_merged["species"] == "MOUSE") | (motifs_merged["name"] == "random_sequence")]
 
-human_df = human_df.merge(tss_map[["hg19_id", "biotype_hg19", "cleaner_biotype_hg19", 
-                                   "minimal_biotype_hg19", "stem_exp_hg19", "orig_species"]], 
+human_df = human_df.merge(tss_map[["hg19_id", "biotype_hg19", "minimal_biotype_hg19", 
+                                   "stem_exp_hg19", "orig_species"]], 
                           left_on="tss_id", right_on="hg19_id", how="left")
-mouse_df = mouse_df.merge(tss_map[["mm9_id", "biotype_mm9", "cleaner_biotype_mm9", 
-                                   "minimal_biotype_mm9", "stem_exp_mm9", "orig_species"]], 
+mouse_df = mouse_df.merge(tss_map[["mm9_id", "biotype_mm9", "minimal_biotype_mm9", 
+                                   "stem_exp_mm9", "orig_species"]], 
                           left_on="tss_id", right_on="mm9_id", how="left")
 mouse_df.sample(5)
 
 
 # ## 8. find enrichment of motifs across biotypes
 
-# In[62]:
+# In[61]:
 
 
 biotype_motif_res = {}
@@ -620,34 +620,34 @@ for i, row in sig_motif_results.iterrows():
     
 
 
-# In[63]:
+# In[62]:
 
 
 biotype_res = pd.DataFrame.from_dict(biotype_motif_res, orient="index").reset_index()
 biotype_res.head()
 
 
-# In[64]:
+# In[63]:
 
 
 biotype_melt = pd.melt(biotype_res, id_vars="index")
 biotype_melt.head()
 
 
-# In[65]:
+# In[64]:
 
 
 biotype_melt["padj"] = multicomp.multipletests(biotype_melt["value"], method="fdr_bh")[1]
 len(biotype_melt[biotype_melt["padj"] < 0.05])
 
 
-# In[66]:
+# In[65]:
 
 
 biotype_melt.sample(5)
 
 
-# In[67]:
+# In[66]:
 
 
 def is_sig(row):
@@ -657,21 +657,21 @@ def is_sig(row):
         return 0
 
 
-# In[68]:
+# In[67]:
 
 
 biotype_melt["sig"] = biotype_melt.apply(is_sig, axis=1)
 biotype_melt.head()
 
 
-# In[69]:
+# In[68]:
 
 
 biotype_res = biotype_melt.pivot(index="index", columns="variable")["padj"]
 biotype_res.head()
 
 
-# In[70]:
+# In[69]:
 
 
 def no_cage_vars(row):
@@ -705,26 +705,26 @@ biotype_res["mRNA_enr"] = biotype_res.apply(mrna_vars, axis=1)
 biotype_res = biotype_res.reset_index()
 
 
-# In[71]:
+# In[70]:
 
 
 biotype_res.head()
 
 
-# In[72]:
+# In[71]:
 
 
 biotype_melt = pd.melt(biotype_res, id_vars="index", value_vars=["no_CAGE_enr", "eRNA_enr", "lncRNA_enr", "mRNA_enr"])
 biotype_melt.head()
 
 
-# In[73]:
+# In[72]:
 
 
 sub.head()
 
 
-# In[74]:
+# In[73]:
 
 
 all_tfs = over_1p["HGNC symbol"].unique()
@@ -732,7 +732,7 @@ print(len(all_tfs))
 all_tfs[0:5]
 
 
-# In[75]:
+# In[74]:
 
 
 all_tfs1 = all_tfs[0:72]
@@ -743,7 +743,7 @@ print(len(all_tfs2))
 print(len(all_tfs3))
 
 
-# In[76]:
+# In[75]:
 
 
 for tfs, xlims, pt in zip([all_tfs1, all_tfs2, all_tfs3],
@@ -791,13 +791,13 @@ for tfs, xlims, pt in zip([all_tfs1, all_tfs2, all_tfs3],
 
 # ## 7. write file
 
-# In[77]:
+# In[76]:
 
 
 len(all_motif_results)
 
 
-# In[78]:
+# In[77]:
 
 
 all_motif_results = all_motif_results.merge(biotype_res[["index", "no_CAGE_enr", "eRNA_enr", "lncRNA_enr",
@@ -805,7 +805,7 @@ all_motif_results = all_motif_results.merge(biotype_res[["index", "no_CAGE_enr",
 all_motif_results.head()
 
 
-# In[79]:
+# In[78]:
 
 
 all_motif_results.to_csv("../../../data/04__mapped_motifs/sig_motifs.txt", sep="\t", index=False)

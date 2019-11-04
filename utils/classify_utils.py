@@ -43,18 +43,21 @@ def biotype_switch_clean(row):
 
 
 def biotype_switch_minimal(row):
-    if row.minimal_biotype_hg19 == row.minimal_biotype_mm9:
-        return row.minimal_biotype_hg19
-    elif row.minimal_biotype_hg19 == "no CAGE activity":
-        other = row.minimal_biotype_mm9
-        return "CAGE turnover - %s" % other
-    elif row.minimal_biotype_mm9 == "no CAGE activity":
-        other = row.minimal_biotype_hg19
-        return "CAGE turnover - %s" % other
-    elif "reclassified" in row.minimal_biotype_hg19 or "reclassified" in row.minimal_biotype_mm9:
-        return "reclassified"
+    if pd.isnull(row.minimal_biotype_hg19):
+        return np.nan
     else:
-        return "biotype switch"
+        if row.minimal_biotype_hg19 == row.minimal_biotype_mm9:
+            return row.minimal_biotype_hg19
+        elif row.minimal_biotype_hg19 == "no CAGE activity":
+            other = row.minimal_biotype_mm9
+            return "CAGE turnover - %s" % other
+        elif row.minimal_biotype_mm9 == "no CAGE activity":
+            other = row.minimal_biotype_hg19
+            return "CAGE turnover - %s" % other
+        elif "reclassified" in row.minimal_biotype_hg19 or "reclassified" in row.minimal_biotype_mm9:
+            return "reclassified"
+        else:
+            return "biotype switch"
 
 
 # In[5]:

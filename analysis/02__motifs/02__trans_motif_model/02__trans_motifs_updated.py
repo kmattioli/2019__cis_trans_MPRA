@@ -146,7 +146,7 @@ sig_motifs_f = "../../../data/04__mapped_motifs/sig_motifs.txt"
 # In[13]:
 
 
-tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.UPDATED_WITH_DIV.txt"
+tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED.txt"
 
 
 # In[14]:
@@ -575,14 +575,14 @@ orth_expr[orth_expr["gene_name_human"] == "POU5F1B"]
 orth_expr.head()
 
 
-# In[60]:
+# In[59]:
 
 
 trans_orth = motif_results_mrg.merge(orth_expr, left_on="HGNC symbol", right_on="gene_name_human")
 len(trans_orth)
 
 
-# In[61]:
+# In[60]:
 
 
 # fisher's exact to see if trans are enriched in DE TFs
@@ -607,7 +607,7 @@ print(odds)
 print(p)
 
 
-# In[62]:
+# In[61]:
 
 
 trans_orth_sig = trans_orth[trans_orth["padj_trans"] < 0.05]
@@ -617,14 +617,14 @@ trans_orth_sig["corrected_l2fc"] = -trans_orth_sig["log2FoldChange"]
 len(trans_orth_sig)
 
 
-# In[63]:
+# In[62]:
 
 
 trans_orth_sub = trans_orth_sig[trans_orth_sig["sig"] == "sig"]
 len(trans_orth_sub)
 
 
-# In[64]:
+# In[63]:
 
 
 fig = plt.figure(figsize=(4.5, 9))
@@ -669,7 +669,7 @@ fig.savefig("trans_motif_enrichment.with_expr.pdf", dpi="figure", bbox_inches="t
 plt.close()
 
 
-# In[68]:
+# In[64]:
 
 
 # filter to those where direction matches
@@ -677,13 +677,13 @@ trans_orth_sub["direction_match"] = trans_orth_sub.apply(direction_match, axis=1
 trans_orth_sub.direction_match.value_counts()
 
 
-# In[70]:
+# In[65]:
 
 
 trans_orth_match = trans_orth_sub[trans_orth_sub["direction_match"] == "match"]
 
 
-# In[73]:
+# In[66]:
 
 
 fig = plt.figure(figsize=(4, 4))
@@ -730,14 +730,14 @@ plt.close()
 
 # ## 7. join w/ % similarity information
 
-# In[74]:
+# In[67]:
 
 
 orth_sub = orth[["Gene name", "Mouse gene name", "%id. target Mouse gene identical to query gene"]]
 orth_sub.columns = ["human_gene_name", "mouse_gene_name", "perc_similarity"]
 
 
-# In[75]:
+# In[68]:
 
 
 trans_orth = trans_orth.merge(orth_sub, left_on="HGNC symbol", right_on="human_gene_name").drop_duplicates()
@@ -745,7 +745,7 @@ print(len(trans_orth))
 trans_orth.sample(5)
 
 
-# In[76]:
+# In[69]:
 
 
 trans_orth["corrected_l2fc"] = -trans_orth_sub["log2FoldChange"]
@@ -754,20 +754,20 @@ trans_orth["sig_status"] = trans_orth.apply(sig_status, axis=1)
 trans_orth.head()
 
 
-# In[77]:
+# In[70]:
 
 
 trans_orth.sig_status.value_counts()
 
 
-# In[78]:
+# In[71]:
 
 
 order = ["not sig", "sig"]
 palette = {"not sig": "gray", "sig": sns.color_palette("Set2")[2]}
 
 
-# In[79]:
+# In[72]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -804,7 +804,7 @@ fig.savefig("trans_v_l2fc_boxplot.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[80]:
+# In[73]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -843,45 +843,45 @@ plt.close()
 
 # ## 8. look at strength of motifs associated w/ trans effects
 
-# In[81]:
+# In[74]:
 
 
 data_filt.head()
 
 
-# In[82]:
+# In[75]:
 
 
 human_motifs.columns
 
 
-# In[83]:
+# In[76]:
 
 
 trans_ids = data_filt[data_filt["trans_status"] == "significant trans effect"]["tss_index"].unique()
 len(trans_ids)
 
 
-# In[84]:
+# In[77]:
 
 
 filt_ids = list(data_filt["tss_index"].unique())
 len(filt_ids)
 
 
-# In[85]:
+# In[78]:
 
 
 len(sig_results)
 
 
-# In[86]:
+# In[79]:
 
 
 uniq_motifs_sig = list(sig_results["index"].unique())
 
 
-# In[87]:
+# In[80]:
 
 
 strength_results = pd.DataFrame()
@@ -911,7 +911,7 @@ for i, motif_id in enumerate(uniq_motifs_sig):
     print("(#%s) %s" % (i+1, motif_id))
 
 
-# In[88]:
+# In[81]:
 
 
 print(len(strength_results))
@@ -919,7 +919,7 @@ strength_results_mrg = strength_results.merge(sig_motifs, on="index")
 strength_results_mrg.head()
 
 
-# In[89]:
+# In[82]:
 
 
 uniq_motifs_sig1 = uniq_motifs_sig[0:41]
@@ -932,14 +932,14 @@ print(len(uniq_motifs_sig3))
 print(len(uniq_motifs_sig4))
 
 
-# In[90]:
+# In[83]:
 
 
 pal = {False: "gray", True: sns.color_palette("Set2")[2]}
 hue_order = [False, True]
 
 
-# In[91]:
+# In[84]:
 
 
 fig = plt.figure(figsize=(15, 2))

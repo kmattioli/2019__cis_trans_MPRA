@@ -414,7 +414,7 @@ for df, title, label in zip(dfs, titles, labels):
 
 # ## 7. direc v. comp in native status
 
-# In[31]:
+# In[28]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -447,7 +447,8 @@ for df, title, label in zip(dfs, titles, labels):
     sns.barplot(data=res, x="index", y=0, order=order, palette=pal, ax=ax)
     ax.set_xticklabels(["no native effects", "native effects"], rotation=50, ha="right", va="top")
     ax.set_xlabel("")
-    ax.set_ylabel("% of pairs with cis & trans effects showingdirectional effects")
+    ax.set_ylabel("% of pairs with cis & trans effects\nshowing directional effects")
     plt.show()
+    fig.savefig("native_cis_trans_breakup.%s.pdf" % label, dpi="figure", bbox_inches="tight")
     plt.close()
 

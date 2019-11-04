@@ -183,7 +183,7 @@ for df, title, label in zip(dfs, titles, labels):
     for i, l in enumerate(int_order):
         n = len(df[df["cis_trans_int_status"] == l])
         tot += n
-        ax.annotate(str(n), xy=(i, 20), xycoords="data", xytext=(0, 0), 
+        ax.annotate(str(n), xy=(i, 40), xycoords="data", xytext=(0, 0), 
                     textcoords="offset pixels", ha='center', va='bottom', 
                     color=colors[i], size=fontsize)
     print("percent cis/trans sig: %s" % (n/tot))
@@ -200,6 +200,12 @@ for df, title, label in zip(dfs, titles, labels):
 
 min_switch_order = ["CAGE turnover - eRNA", "CAGE turnover - lncRNA", "CAGE turnover - mRNA", 
                     "eRNA", "lncRNA", "mRNA"]
+min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2], 
+                  "CAGE turnover - lncRNA": sns.color_palette("Set2")[2],
+                  "CAGE turnover - mRNA": sns.color_palette("Set2")[2],
+                  "eRNA": sns.color_palette("Set2")[7], 
+                  "lncRNA": sns.color_palette("Set2")[7], 
+                  "mRNA": sns.color_palette("Set2")[7]}
 
 
 # In[22]:
@@ -237,9 +243,160 @@ for df, title, label in zip(dfs, titles, labels):
     plt.close()
 
 
+# In[23]:
+
+
+for df, title, label in zip(dfs, titles, labels):
+    df["abs_logFC_int"] = np.abs(df["logFC_int"])
+
+    fig = plt.figure(figsize=(2.5, 1.5))
+    ax = sns.boxplot(data=df, x="biotype_switch_minimal", y="abs_logFC_int", 
+                     flierprops = dict(marker='o', markersize=5), 
+                     order=min_switch_order, palette=min_switch_pal)
+    mimic_r_boxplot(ax)
+
+    ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
+    ax.set_xlabel("")
+    ax.set_ylabel("cis/trans interaction\neffect size")
+    ax.set_title(title)
+
+    for i, l in enumerate(min_switch_order):
+        sub = df[df["biotype_switch_minimal"] == l]
+        n = len(sub)
+        print("%s median eff size: %s" % (l, sub["abs_logFC_int"].median()))
+        color = min_switch_pal[l]
+        ax.annotate(str(n), xy=(i, -0.3), xycoords="data", xytext=(0, 0), 
+                    textcoords="offset pixels", ha='center', va='bottom', 
+                    color=color, size=fontsize)
+        
+    ### pvals ###
+    vals1 = np.asarray(df[df["biotype_switch_minimal"] == "CAGE turnover - eRNA"]["abs_logFC_int"])
+    vals2 = np.asarray(df[df["biotype_switch_minimal"] == "CAGE turnover - lncRNA"]["abs_logFC_int"])
+    vals3 = np.asarray(df[df["biotype_switch_minimal"] == "CAGE turnover - mRNA"]["abs_logFC_int"])
+    vals4 = np.asarray(df[df["biotype_switch_minimal"] == "eRNA"]["abs_logFC_int"])
+    vals5 = np.asarray(df[df["biotype_switch_minimal"] == "lncRNA"]["abs_logFC_int"])
+    vals6 = np.asarray(df[df["biotype_switch_minimal"] == "mRNA"]["abs_logFC_int"])
+    
+    vals1 = vals1[~np.isnan(vals1)]
+    vals2 = vals2[~np.isnan(vals2)]
+    vals3 = vals3[~np.isnan(vals3)]
+    vals4 = vals4[~np.isnan(vals4)]
+    vals5 = vals5[~np.isnan(vals5)]
+    vals6 = vals6[~np.isnan(vals6)]
+    
+    _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
+    _, pval13 = stats.mannwhitneyu(vals1, vals3, alternative="two-sided", use_continuity=False)
+    _, pval23 = stats.mannwhitneyu(vals2, vals3, alternative="two-sided", use_continuity=False)
+    _, pval45 = stats.mannwhitneyu(vals4, vals5, alternative="two-sided", use_continuity=False)
+    _, pval46 = stats.mannwhitneyu(vals4, vals6, alternative="two-sided", use_continuity=False)
+    _, pval56 = stats.mannwhitneyu(vals5, vals6, alternative="two-sided", use_continuity=False)
+    
+    print(pval12)
+    print(pval13)
+    print(pval23)
+    print(pval45)
+    print(pval46)
+    print(pval56)
+    
+    annotate_pval(ax, 0.2, 0.8, 1.25, 0, 1.25, pval12, fontsize-1)
+    annotate_pval(ax, 1.2, 1.8, 1.25, 0, 1.25, pval13, fontsize-1)
+    annotate_pval(ax, 0, 2, 1.75, 0, 1.75, pval23, fontsize-1)
+    annotate_pval(ax, 3.2, 3.8, 1.25, 0, 1.25, pval45, fontsize-1)
+    annotate_pval(ax, 4.2, 4.8, 1.25, 0, 1.25, pval56, fontsize-1)
+    annotate_pval(ax, 3, 5, 1.75, 0, 1.75, pval46, fontsize-1)
+
+    ax.set_ylim((-0.4, 2))
+    ax.axvline(x=2.5, linestyle="dashed", color="black")
+
+    plt.show()
+    fig.savefig("cistrans_minimal_biotype_switch_effectsize_boxplot.%s.pdf" % label, dpi="figure", bbox_inches="tight")
+    plt.close()
+
+
+# In[24]:
+
+
+def cage_status(row):
+    if "CAGE turnover" in row.biotype_switch_minimal:
+        return "turnover"
+    else:
+        return "conserved"
+
+
+# In[25]:
+
+
+def one_biotype(row):
+    if row.minimal_biotype_hg19 == "no CAGE activity":
+        return row.minimal_biotype_mm9
+    else:
+        return row.minimal_biotype_hg19
+
+
+# In[26]:
+
+
+pal = {"conserved": sns.color_palette("Set2")[7], "turnover": sns.color_palette("Set2")[2]}
+
+
+# In[27]:
+
+
+for df, title, pltname in zip(dfs, titles, labels):
+    df["abs_logFC_int"] = np.abs(df["logFC_int"])
+    df["cage_status"] = df.apply(cage_status, axis=1)
+    df["one_biotype"] = df.apply(one_biotype, axis=1)
+    
+    fig = plt.figure(figsize=(2.75, 1.5))
+
+    ax = sns.boxplot(data=df, x="one_biotype", y="abs_logFC_int", hue="cage_status",
+                     flierprops = dict(marker='o', markersize=5),
+                     order=["eRNA", "lncRNA", "mRNA"], hue_order=["turnover", "conserved"], palette=pal)
+    mimic_r_boxplot(ax)
+
+    ax.set_xticklabels(["eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
+    ax.set_xlabel("")
+    ax.set_ylabel("trans effect size")
+    plt.legend(loc=2, bbox_to_anchor=(1.05, 1))
+
+    ys = [0.75, 0.75, 0.75]
+    for i, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
+        sub = df[df["one_biotype"] == label]
+        sub1 = sub[sub["cage_status"] == "turnover"]
+        sub2 = sub[sub["cage_status"] == "conserved"]
+
+        vals1 = np.asarray(sub1["abs_logFC_int"])
+        vals2 = np.asarray(sub2["abs_logFC_int"])
+
+        vals1 = vals1[~np.isnan(vals1)]
+        vals2 = vals2[~np.isnan(vals2)]
+
+        u, pval = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
+        print(pval)
+
+        if pval >= 0.05:
+            annotate_pval(ax, i-0.1, i+0.1, ys[i], 0, ys[i], pval, fontsize-1)
+        else:
+            annotate_pval(ax, i-0.1, i+0.1, ys[i], 0, ys[i], pval, fontsize-1)
+
+        n1 = len(vals1)
+        n2 = len(vals2)
+
+        ax.annotate(str(n1), xy=(i-0.2, -0.3), xycoords="data", xytext=(0, 0), 
+                    textcoords="offset pixels", ha='center', va='bottom', 
+                    color=pal["turnover"], size=fontsize)
+        ax.annotate(str(n2), xy=(i+0.2, -0.3), xycoords="data", xytext=(0, 0), 
+                    textcoords="offset pixels", ha='center', va='bottom', 
+                    color=pal["conserved"], size=fontsize)
+
+    ax.set_ylim((-0.4, 2))
+    ax.set_title(title)
+    fig.savefig("cistrans_effect_biotype_sep_cage.%s.pdf" % pltname, dpi="figure", bbox_inches="tight")
+
+
 # ## 6. percent sig across biotypes
 
-# In[23]:
+# In[28]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -253,7 +410,7 @@ for df, title, label in zip(dfs, titles, labels):
     ax = sns.barplot(data=clean_sig, x="biotype_switch_minimal", y="percent_sig", 
                      order=min_switch_order, color=sns.color_palette("Set2")[2])
 
-    ax.set_xticklabels(min_switch_order, rotation=50, ha='right', va='top')
+    ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
     ax.set_xlabel("")
     ax.set_ylabel("% of seq. pairs with\ncis/trans interactions")
     ax.set_title(title)
@@ -274,7 +431,7 @@ for df, title, label in zip(dfs, titles, labels):
 
 # ## 7. look generally at significant interactions
 
-# In[24]:
+# In[29]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -306,20 +463,20 @@ for df, title, label in zip(dfs, titles, labels):
     ax.text(0.05, 0.90, "n = %s" % (len(no_nan)), ha="left", va="top", fontsize=fontsize,
             transform=ax.transAxes)
     plt.show()
-    #fig.savefig("cis_effect_bw_cells_scatter.sig_status_color.%s.pdf" % label, dpi="figure", bbox_inches="tight")
+    fig.savefig("cis_effect_bw_cells_scatter.sig_status_color.%s.pdf" % label, dpi="figure", bbox_inches="tight")
     plt.close()
 
 
 # ## 8. look at highest cis/trans interactions
 
-# In[25]:
+# In[30]:
 
 
 sig_int = data_filt_tile1_sp[data_filt_tile1_sp["cis_trans_int_status"] != "no cis/trans int. effect"]
 len(sig_int)
 
 
-# In[26]:
+# In[31]:
 
 
 sig_int_filt = sig_int[((sig_int["logFC_cis_HUES64"] < 0) & (sig_int["logFC_cis_mESC"] > 0)) |
@@ -327,7 +484,7 @@ sig_int_filt = sig_int[((sig_int["logFC_cis_HUES64"] < 0) & (sig_int["logFC_cis_
 len(sig_int_filt)
 
 
-# In[27]:
+# In[32]:
 
 
 sub = sig_int_filt[["hg19_id", "mm9_id", "biotype_hg19", "biotype_mm9", "biotype_switch_minimal", "logFC_int", "logFC_cis_HUES64", "logFC_cis_mESC",
@@ -335,13 +492,13 @@ sub = sig_int_filt[["hg19_id", "mm9_id", "biotype_hg19", "biotype_mm9", "biotype
 sub
 
 
-# In[28]:
+# In[33]:
 
 
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[29]:
+# In[34]:
 
 
 for row in sub.iterrows():
@@ -351,7 +508,7 @@ for row in sub.iterrows():
     melt["cell"] = melt["variable"].str.split("_", expand=True)[0]
     melt["seq"] = melt["variable"].str.split("_", expand=True)[1]
     
-    fig = plt.figure(figsize=(2, 2))
+    fig = plt.figure(figsize=(1.5, 1.5))
     ax = sns.barplot(data=melt, x="cell", hue="seq", y="value", palette=pal)
     ax.set_ylabel("MPRA activity")
     ax.set_xlabel("")
@@ -368,7 +525,7 @@ for row in sub.iterrows():
 
 # ## 9. look at cis/trans when subsetting by native
 
-# In[30]:
+# In[35]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -437,18 +594,18 @@ for df, title, label in zip(dfs, titles, labels):
     ax.set_xlabel("")
     ax.set_ylabel("")
     
-    fig.savefig("cis_v_trans.%s.pdf" % label, dpi="figure", bbox_inches="tight")
+#     fig.savefig("cis_v_trans.%s.pdf" % label, dpi="figure", bbox_inches="tight")
 
 
 # ## 10. look at invidiual directionality of cis/trans
 
-# In[31]:
+# In[36]:
 
 
 df.columns
 
 
-# In[32]:
+# In[38]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -473,18 +630,26 @@ for df, title, label in zip(dfs, titles, labels):
     res["compensatory"] = [comp]
     res = pd.DataFrame.from_dict(res, orient="index").reset_index()
     res["perc"] = (res[0]/tots)*100
+    res["tmp"] = "tmp"
     
-    order = ["directional", "compensatory"]
-    fig, ax = plt.subplots(figsize=(1, 2), nrows=1, ncols=1)
+    fig, ax = plt.subplots(figsize=(0.5, 1.5), nrows=1, ncols=1)
+    sns.barplot(data=res[res["index"] == "total"], 
+                x="tmp", y="perc", color=sns.color_palette("Set2")[7], ax=ax)
+    sns.barplot(data=res[res["index"] == "directional"], 
+                x="tmp", y="perc", color=sns.color_palette("Set2")[2], ax=ax)
     
-    sns.barplot(data=res, x="index", y="perc", order=order, color=sns.color_palette("Set2")[2], ax=ax)
     ax.set_xlabel("")
-    ax.set_ylabel("percent")
-    ax.set_xticklabels(order, rotation=50, ha="right", va="top")
+    ax.set_ylabel("% of sequence pairs")
+    ax.set_xticklabels(["all pairs"], rotation=50, ha="right", va="top")
+    
+    ax.annotate(str(tots), xy=(0, 5), xycoords="data", xytext=(0, 0), 
+                textcoords="offset pixels", ha='center', va='bottom', 
+                color="white", size=fontsize)
+    
     fig.savefig("direc_v_comp.%s.pdf" % label, dpi="figure", bbox_inches="tight")
 
 
-# In[33]:
+# In[39]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -500,14 +665,17 @@ for df, title, label in zip(dfs, titles, labels):
     sig = direc.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
     clean_sig = tots.merge(sig, on="biotype_switch_minimal", how="left").fillna(0)
     clean_sig["percent_sig"] = (clean_sig["hg19_id_y"]/clean_sig["hg19_id_x"])*100
+    clean_sig["percent_tot"] = (clean_sig["hg19_id_x"]/clean_sig["hg19_id_x"])*100
     
     fig = plt.figure(figsize=(2.5, 1.5))
-    ax = sns.barplot(data=clean_sig, x="biotype_switch_minimal", y="percent_sig", 
-                     order=min_switch_order, color=sns.color_palette("Set2")[2])
+    ax = sns.barplot(data=clean_sig, x="biotype_switch_minimal", y="percent_tot", 
+                     order=min_switch_order, color=sns.color_palette("Set2")[7])
+    sns.barplot(data=clean_sig, x="biotype_switch_minimal", y="percent_sig", 
+                order=min_switch_order, color=sns.color_palette("Set2")[2])
 
-    ax.set_xticklabels(min_switch_order, rotation=50, ha='right', va='top')
+    ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
     ax.set_xlabel("")
-    ax.set_ylabel("% of seq. pairs with\ndirectional cis/trans effects")
+    ax.set_ylabel("% of sequence pairs")
     ax.set_title(title)
     ax.axvline(x=2.5, linestyle="dashed", color="black")
     
@@ -515,11 +683,17 @@ for df, title, label in zip(dfs, titles, labels):
         sub = clean_sig[clean_sig["biotype_switch_minimal"] == l]
         print("%s perc sig: %s" % (l, sub["percent_sig"].iloc[0]))
         n = sub["hg19_id_x"].iloc[0]
-        ax.annotate(str(n), xy=(i, 0.5), xycoords="data", xytext=(0, 0), 
+        ax.annotate(str(n), xy=(i, 5), xycoords="data", xytext=(0, 0), 
                     textcoords="offset pixels", ha='center', va='bottom', 
                     color="white", size=fontsize)
     
     plt.show()
     fig.savefig("perc_sig_compensatory_minimal_biotype_switch.%s.pdf" % label, dpi="figure", bbox_inches="tight")
     plt.close()
+
+
+# In[ ]:
+
+
+clean_sig
 

@@ -121,7 +121,7 @@ sig_motifs_f = "../../../data/04__mapped_motifs/sig_motifs.txt"
 # In[12]:
 
 
-tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.UPDATED_WITH_DIV.txt"
+tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED.txt"
 
 
 # In[13]:
@@ -245,10 +245,10 @@ motifs_merged.sample(5)
 human_df = motifs_merged[(motifs_merged["species"] == "HUMAN") | (motifs_merged["name"] == "random_sequence")]
 mouse_df = motifs_merged[(motifs_merged["species"] == "MOUSE") | (motifs_merged["name"] == "random_sequence")]
 
-human_df = human_df.merge(tss_map[["hg19_id", "biotype_hg19", "cleaner_biotype_hg19", 
+human_df = human_df.merge(tss_map[["hg19_id", "biotype_hg19", 
                                    "minimal_biotype_hg19", "stem_exp_hg19", "orig_species"]], 
                           left_on="tss_id", right_on="hg19_id", how="left")
-mouse_df = mouse_df.merge(tss_map[["mm9_id", "biotype_mm9", "cleaner_biotype_mm9", 
+mouse_df = mouse_df.merge(tss_map[["mm9_id", "biotype_mm9", 
                                    "minimal_biotype_mm9", "stem_exp_mm9", "orig_species"]], 
                           left_on="tss_id", right_on="mm9_id", how="left")
 
@@ -638,11 +638,11 @@ def uniq_motif(row):
 sns.palplot(sns.color_palette("Set2"))
 
 
-# In[64]:
+# In[65]:
 
 
 # plot some examples
-examps = ["ZNF524", "ASCL2", "ASCL1", "FOS", "NFYB", "ETV1", "GABPA"]
+examps = ["ASCL1", "ASCL5", "ZNF528", "FOS", "ETV1", "GABPA"]
 order1 = ["b - not present", "a - maintained", "c - disrupted"]
 order2 = ["maintained", "disrupted in human", "disrupted in mouse"]
 pal1 = {"b - not present": "lightgray", "a - maintained": "darkgray", "c - disrupted": sns.color_palette("Set2")[2]}
@@ -731,14 +731,14 @@ for symb in examps:
 # - full turnover = motifs that are only present in one species
 # - partial turnover = motifs that are in both species but don't map to the exact same sequence
 
-# In[65]:
+# In[66]:
 
 
 print(len(data))
 data.head()
 
 
-# In[66]:
+# In[67]:
 
 
 turnover_results = {}
@@ -800,7 +800,7 @@ for i, row in data.iterrows():
                                                                        "delta_motifs": delta_motifs}
 
 
-# In[67]:
+# In[68]:
 
 
 turnover_df = pd.DataFrame.from_dict(turnover_results, orient="index").reset_index()
@@ -822,7 +822,7 @@ turnover_df.head()
 
 # ## 9. merge motif turnover data w/ cis effects
 
-# In[68]:
+# In[69]:
 
 
 data_motifs = data.merge(turnover_df, on=["hg19_id", "mm9_id", "tss_tile_num"], how="left")
@@ -832,14 +832,14 @@ data_motifs.head()
 
 # ## 6. filter data
 
-# In[69]:
+# In[70]:
 
 
 data_filt = data_motifs[((data_motifs["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_motifs["mESC_padj_mm9"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[70]:
+# In[71]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -847,28 +847,28 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[71]:
+# In[72]:
 
 
 data_filt_tile1 = data_filt[data_filt["tss_tile_num"] == "tile1"]
 len(data_filt_tile1)
 
 
-# In[72]:
+# In[73]:
 
 
 data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
 len(data_filt_tile1_sp)
 
 
-# In[73]:
+# In[74]:
 
 
 data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
 len(data_filt_tile2)
 
 
-# In[74]:
+# In[75]:
 
 
 data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
@@ -877,7 +877,7 @@ len(data_filt_tile2_sp)
 
 # ## 7. plot cis effects v motif turnover
 
-# In[75]:
+# In[76]:
 
 
 dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
@@ -885,7 +885,7 @@ titles = ["both tiles", "tile1 only", "tile2 only"]
 labels = ["both_tiles", "tile1_only", "tile2_only"]
 
 
-# In[76]:
+# In[77]:
 
 
 order = ["no cis effect", "significant cis effect"]
@@ -894,7 +894,7 @@ palette = {"no cis effect": "gray", "significant cis effect": sns.color_palette(
 
 # ### % shared motifs
 
-# In[77]:
+# In[78]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -936,23 +936,29 @@ for df, title, label in zip(dfs, titles, labels):
 
 # ## 8. plot motif #s across biotypes
 
-# In[78]:
+# In[82]:
 
 
 def turnover_status(row):
-    if "CAGE turnover" in row["biotype_switch_minimal"]:
-        return "CAGE turnover"
+    if pd.isnull(row["biotype_switch_minimal"]):
+        return np.nan
     else:
-        return "none"
+        if "CAGE turnover" in row["biotype_switch_minimal"]:
+            return "CAGE turnover"
+        else:
+            return "none"
     
 def turnover_biotype(row):
-    if "CAGE turnover" in row["biotype_switch_minimal"]:
-        return row["biotype_switch_minimal"].split(" - ")[1]
+    if pd.isnull(row["biotype_switch_minimal"]):
+        return np.nan
     else:
-        return row["biotype_switch_minimal"]
+        if "CAGE turnover" in row["biotype_switch_minimal"]:
+            return row["biotype_switch_minimal"].split(" - ")[1]
+        else:
+            return row["biotype_switch_minimal"]
 
 
-# In[79]:
+# In[83]:
 
 
 turnover_order = ["eRNA", "lncRNA", "mRNA"]
@@ -960,7 +966,7 @@ turnover_pal = {"CAGE turnover": "gray", "none": sns.color_palette("Set2")[2]}
 hue_order = ["CAGE turnover", "none"]
 
 
-# In[80]:
+# In[84]:
 
 
 for df, title, label in zip(dfs, titles, labels):
@@ -1010,26 +1016,26 @@ for df, title, label in zip(dfs, titles, labels):
 
 # ## 11. write motif files
 
-# In[81]:
+# In[85]:
 
 
 len(human_df)
 
 
-# In[82]:
+# In[86]:
 
 
 len(mouse_df)
 
 
-# In[83]:
+# In[87]:
 
 
 human_f = "../../../data/04__mapped_motifs/human_motifs_filtered.txt.gz"
 human_df.to_csv(human_f, sep="\t", index=False, compression="gzip")
 
 
-# In[84]:
+# In[88]:
 
 
 mouse_f = "../../../data/04__mapped_motifs/mouse_motifs_filtered.txt.gz"
