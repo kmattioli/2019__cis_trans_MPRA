@@ -116,7 +116,7 @@ index_f = "../../../data/01__design/02__index/TWIST_pool4_v8_final.with_element_
 # In[11]:
 
 
-tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED.txt"
+tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED_WITH_MAX.txt"
 
 
 # In[12]:
@@ -334,8 +334,8 @@ len(best_motifs)
 
 
 # only analyze the TFs that are expressed in hESCs or mESCs
-hESC_expr = hESC_tf[hESC_tf["mean_tpm"] >= 1]
-mESC_expr = mESC_tf[mESC_tf["mean_tpm_mouse"] >= 1]
+hESC_expr = hESC_tf[hESC_tf["mean_tpm"] > 1]
+mESC_expr = mESC_tf[mESC_tf["mean_tpm_mouse"] > 1]
 print(len(hESC_expr))
 print(len(mESC_expr))
 
@@ -544,17 +544,103 @@ human_df = motifs_merged[(motifs_merged["species"] == "HUMAN") | (motifs_merged[
 mouse_df = motifs_merged[(motifs_merged["species"] == "MOUSE") | (motifs_merged["name"] == "random_sequence")]
 
 human_df = human_df.merge(tss_map[["hg19_id", "biotype_hg19", "minimal_biotype_hg19", 
-                                   "stem_exp_hg19", "orig_species"]], 
+                                   "stem_exp_hg19", "orig_species", "mm9_id", "tile_match"]], 
                           left_on="tss_id", right_on="hg19_id", how="left")
 mouse_df = mouse_df.merge(tss_map[["mm9_id", "biotype_mm9", "minimal_biotype_mm9", 
-                                   "stem_exp_mm9", "orig_species"]], 
+                                   "stem_exp_mm9", "orig_species", "hg19_id", "tile_match"]], 
                           left_on="tss_id", right_on="mm9_id", how="left")
 mouse_df.sample(5)
 
 
+# In[61]:
+
+
+mouse_df.columns
+
+
 # ## 8. find enrichment of motifs across biotypes
 
-# In[61]:
+# In[62]:
+
+
+both_tile_ids = tss_map[(~pd.isnull(tss_map["n_tiles_hg19"]) & ~(pd.isnull(tss_map["n_tiles_mm9"])))]
+len(both_tile_ids)
+
+
+# In[63]:
+
+
+tile1_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile1:tile1") | 
+                          (both_tile_ids["tile_match"] == "tile1:tile2")][["hg19_id", "mm9_id"]].drop_duplicates()
+len(tile1_ids)
+
+
+# In[64]:
+
+
+tile2_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile2:tile2")][["hg19_id", "mm9_id"]].drop_duplicates()
+len(tile2_ids)
+
+
+# In[81]:
+
+
+# limit dfs to tile1s where appropriate and tile2 where appropriate
+human_tile1 = human_df.merge(tile1_ids, on=["hg19_id", "mm9_id"])
+human_tile1 = human_tile1[human_tile1["tss_tile_num"] == "tile1"]
+human_tile1 = human_tile1.drop(["orig_species", "mm9_id", "tile_match"], axis=1).drop_duplicates()
+len(human_tile1)
+
+
+# In[82]:
+
+
+human_tile2 = human_df.merge(tile2_ids, on=["hg19_id", "mm9_id"])
+human_tile2 = human_tile2[human_tile2["tss_tile_num"] == "tile2"]
+human_tile2 = human_tile2.drop(["orig_species", "mm9_id", "tile_match"], axis=1).drop_duplicates()
+len(human_tile2)
+
+
+# In[83]:
+
+
+mouse_tile1 = mouse_df.merge(tile1_ids, on=["mm9_id", "hg19_id"])
+mouse_tile1 = mouse_tile1[mouse_tile1["tss_tile_num"] == "tile1"]
+mouse_tile1 = mouse_tile1.drop(["orig_species", "hg19_id", "tile_match"], axis=1).drop_duplicates()
+len(mouse_tile1)
+
+
+# In[84]:
+
+
+mouse_tile2 = mouse_df.merge(tile2_ids, on=["mm9_id", "hg19_id"])
+mouse_tile2 = mouse_tile2[mouse_tile2["tss_tile_num"] == "tile2"]
+mouse_tile2 = mouse_tile2.drop(["orig_species", "hg19_id", "tile_match"], axis=1).drop_duplicates()
+len(mouse_tile2)
+
+
+# In[85]:
+
+
+print(len(human_tile1.hg19_id.unique()))
+print(len(mouse_tile1.mm9_id.unique()))
+
+
+# In[86]:
+
+
+print(len(human_tile2.hg19_id.unique()))
+print(len(mouse_tile2.mm9_id.unique()))
+
+
+# In[87]:
+
+
+human_df = human_tile1.append(human_tile2)
+mouse_df = mouse_tile1.append(mouse_tile2)
+
+
+# In[88]:
 
 
 biotype_motif_res = {}
@@ -563,11 +649,8 @@ for i, row in sig_motif_results.iterrows():
     motif_id = row["index"]
     print("(#%s: %s)" % (i+1, motif_id))
     
-    # restrict to tile 1 -- look for enrichment in tile1 only
-    human_motifs_sub = human_df[(human_df["#pattern name"] == motif_id) &
-                                (human_df["tss_tile_num"] == "tile1")]["hg19_id"].unique()
-    mouse_motifs_sub = mouse_df[(mouse_df["#pattern name"] == motif_id) &
-                                (mouse_df["tss_tile_num"] == "tile1")]["mm9_id"].unique()
+    human_motifs_sub = human_df[(human_df["#pattern name"] == motif_id)]["hg19_id"].unique()
+    mouse_motifs_sub = mouse_df[(mouse_df["#pattern name"] == motif_id)]["mm9_id"].unique()
     
     tmp = {}
     for biotype in ["no CAGE activity", "eRNA", "lncRNA", "mRNA"]:
@@ -620,34 +703,34 @@ for i, row in sig_motif_results.iterrows():
     
 
 
-# In[62]:
+# In[89]:
 
 
 biotype_res = pd.DataFrame.from_dict(biotype_motif_res, orient="index").reset_index()
 biotype_res.head()
 
 
-# In[63]:
+# In[90]:
 
 
 biotype_melt = pd.melt(biotype_res, id_vars="index")
 biotype_melt.head()
 
 
-# In[64]:
+# In[91]:
 
 
 biotype_melt["padj"] = multicomp.multipletests(biotype_melt["value"], method="fdr_bh")[1]
 len(biotype_melt[biotype_melt["padj"] < 0.05])
 
 
-# In[65]:
+# In[92]:
 
 
 biotype_melt.sample(5)
 
 
-# In[66]:
+# In[93]:
 
 
 def is_sig(row):
@@ -657,21 +740,21 @@ def is_sig(row):
         return 0
 
 
-# In[67]:
+# In[94]:
 
 
 biotype_melt["sig"] = biotype_melt.apply(is_sig, axis=1)
 biotype_melt.head()
 
 
-# In[68]:
+# In[95]:
 
 
 biotype_res = biotype_melt.pivot(index="index", columns="variable")["padj"]
 biotype_res.head()
 
 
-# In[69]:
+# In[96]:
 
 
 def no_cage_vars(row):
@@ -705,26 +788,26 @@ biotype_res["mRNA_enr"] = biotype_res.apply(mrna_vars, axis=1)
 biotype_res = biotype_res.reset_index()
 
 
-# In[70]:
+# In[97]:
 
 
 biotype_res.head()
 
 
-# In[71]:
+# In[98]:
 
 
 biotype_melt = pd.melt(biotype_res, id_vars="index", value_vars=["no_CAGE_enr", "eRNA_enr", "lncRNA_enr", "mRNA_enr"])
 biotype_melt.head()
 
 
-# In[72]:
+# In[99]:
 
 
 sub.head()
 
 
-# In[73]:
+# In[100]:
 
 
 all_tfs = over_1p["HGNC symbol"].unique()
@@ -732,7 +815,7 @@ print(len(all_tfs))
 all_tfs[0:5]
 
 
-# In[74]:
+# In[101]:
 
 
 all_tfs1 = all_tfs[0:72]
@@ -743,7 +826,7 @@ print(len(all_tfs2))
 print(len(all_tfs3))
 
 
-# In[75]:
+# In[102]:
 
 
 for tfs, xlims, pt in zip([all_tfs1, all_tfs2, all_tfs3],
@@ -791,13 +874,13 @@ for tfs, xlims, pt in zip([all_tfs1, all_tfs2, all_tfs3],
 
 # ## 7. write file
 
-# In[76]:
+# In[103]:
 
 
 len(all_motif_results)
 
 
-# In[77]:
+# In[104]:
 
 
 all_motif_results = all_motif_results.merge(biotype_res[["index", "no_CAGE_enr", "eRNA_enr", "lncRNA_enr",
@@ -805,7 +888,7 @@ all_motif_results = all_motif_results.merge(biotype_res[["index", "no_CAGE_enr",
 all_motif_results.head()
 
 
-# In[78]:
+# In[105]:
 
 
 all_motif_results.to_csv("../../../data/04__mapped_motifs/sig_motifs.txt", sep="\t", index=False)

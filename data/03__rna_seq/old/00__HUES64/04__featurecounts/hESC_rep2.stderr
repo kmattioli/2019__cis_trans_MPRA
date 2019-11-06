@@ -1,0 +1,44 @@
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	v1.4.6-p3
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                           P ../00__HUES64/03__alignments/hESC_rep2/acc ... ||
+||                                                                            ||
+||             Output file : ../00__HUES64/04__featurecounts/hESC_rep2.co ... ||
+||             Annotations : /n/rinn_data2/users/kaia/annotation/human/ge ... ||
+||                                                                            ||
+||                 Threads : 8                                                ||
+||                   Level : meta-feature level                               ||
+||              Paired-end : no                                               ||
+||         Strand specific : no                                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||                                                                            ||
+\\===================== http://subread.sourceforge.net/ ======================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file /n/rinn_data2/users/kaia/annotation/human/gencode ... ||
+||    Features : 1185569                                                      ||
+||    Meta-features : 60252                                                   ||
+||    Chromosomes : 36                                                        ||
+||                                                                            ||
+|| Process BAM file ../00__HUES64/03__alignments/hESC_rep2/accepted_hits. ... ||
+||    Paired-end reads are included.                                          ||
+||    Assign reads to features...                                             ||
+||    Total reads : 217918969                                                 ||
+||    Successfully assigned reads : 46182229 (21.2%)                          ||
+||    Running time : 8.58 minutes                                             ||
+||                                                                            ||
+||                         Read assignment finished.                          ||
+||                                                                            ||
+\\===================== http://subread.sourceforge.net/ ======================//
+

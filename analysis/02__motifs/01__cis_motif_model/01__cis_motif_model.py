@@ -121,7 +121,7 @@ sig_motifs_f = "../../../data/04__mapped_motifs/sig_motifs.txt"
 # In[12]:
 
 
-tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED.txt"
+tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED_WITH_MAX.txt"
 
 
 # In[13]:
@@ -246,10 +246,10 @@ human_df = motifs_merged[(motifs_merged["species"] == "HUMAN") | (motifs_merged[
 mouse_df = motifs_merged[(motifs_merged["species"] == "MOUSE") | (motifs_merged["name"] == "random_sequence")]
 
 human_df = human_df.merge(tss_map[["hg19_id", "biotype_hg19", 
-                                   "minimal_biotype_hg19", "stem_exp_hg19", "orig_species"]], 
+                                   "minimal_biotype_hg19", "stem_exp_hg19", "orig_species", "mm9_id", "tile_match"]], 
                           left_on="tss_id", right_on="hg19_id", how="left")
 mouse_df = mouse_df.merge(tss_map[["mm9_id", "biotype_mm9", 
-                                   "minimal_biotype_mm9", "stem_exp_mm9", "orig_species"]], 
+                                   "minimal_biotype_mm9", "stem_exp_mm9", "orig_species", "hg19_id", "tile_match"]], 
                           left_on="tss_id", right_on="mm9_id", how="left")
 
 print(len(human_df))
@@ -258,6 +258,86 @@ mouse_df.sample(5)
 
 
 # In[29]:
+
+
+both_tile_ids = tss_map[(~pd.isnull(tss_map["n_tiles_hg19"]) & ~(pd.isnull(tss_map["n_tiles_mm9"])))]
+len(both_tile_ids)
+
+
+# In[30]:
+
+
+tile1_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile1:tile1") | 
+                          (both_tile_ids["tile_match"] == "tile1:tile2")][["hg19_id", "mm9_id"]].drop_duplicates()
+len(tile1_ids)
+
+
+# In[31]:
+
+
+tile2_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile2:tile2")][["hg19_id", "mm9_id"]].drop_duplicates()
+len(tile2_ids)
+
+
+# In[32]:
+
+
+# limit dfs to tile1s where appropriate and tile2 where appropriate
+human_tile1 = human_df.merge(tile1_ids, on=["hg19_id", "mm9_id"])
+human_tile1 = human_tile1[human_tile1["tss_tile_num"] == "tile1"]
+human_tile1 = human_tile1.drop(["orig_species", "mm9_id", "tile_match"], axis=1).drop_duplicates()
+len(human_tile1)
+
+
+# In[33]:
+
+
+human_tile2 = human_df.merge(tile2_ids, on=["hg19_id", "mm9_id"])
+human_tile2 = human_tile2[human_tile2["tss_tile_num"] == "tile2"]
+human_tile2 = human_tile2.drop(["orig_species", "mm9_id", "tile_match"], axis=1).drop_duplicates()
+len(human_tile2)
+
+
+# In[34]:
+
+
+mouse_tile1 = mouse_df.merge(tile1_ids, on=["mm9_id", "hg19_id"])
+mouse_tile1 = mouse_tile1[mouse_tile1["tss_tile_num"] == "tile1"]
+mouse_tile1 = mouse_tile1.drop(["orig_species", "hg19_id", "tile_match"], axis=1).drop_duplicates()
+len(mouse_tile1)
+
+
+# In[35]:
+
+
+mouse_tile2 = mouse_df.merge(tile2_ids, on=["mm9_id", "hg19_id"])
+mouse_tile2 = mouse_tile2[mouse_tile2["tss_tile_num"] == "tile2"]
+mouse_tile2 = mouse_tile2.drop(["orig_species", "hg19_id", "tile_match"], axis=1).drop_duplicates()
+len(mouse_tile2)
+
+
+# In[36]:
+
+
+print(len(human_tile1.hg19_id.unique()))
+print(len(mouse_tile1.mm9_id.unique()))
+
+
+# In[37]:
+
+
+print(len(human_tile2.hg19_id.unique()))
+print(len(mouse_tile2.mm9_id.unique()))
+
+
+# In[38]:
+
+
+human_df = human_tile1.append(human_tile2)
+mouse_df = mouse_tile1.append(mouse_tile2)
+
+
+# In[39]:
 
 
 human_df = human_df.drop_duplicates()
@@ -269,14 +349,14 @@ print(len(mouse_df))
 
 # ## 4. merge cis data w/ element data for model
 
-# In[30]:
+# In[40]:
 
 
 index_elem = index_elem[index_elem["name"].str.contains("EVO")]
 index_elem.head()
 
 
-# In[31]:
+# In[41]:
 
 
 index_elem["tss_id"] = index_elem["name"].str.split("__", expand=True)[1]
@@ -284,7 +364,7 @@ index_elem["tss_tile_num"] = index_elem["name"].str.split("__", expand=True)[2]
 index_elem.sample(5)
 
 
-# In[32]:
+# In[42]:
 
 
 index_human = index_elem[index_elem["name"].str.contains("HUMAN")]
@@ -292,7 +372,7 @@ index_mouse = index_elem[index_elem["name"].str.contains("MOUSE")]
 index_mouse.sample(5)
 
 
-# In[33]:
+# In[43]:
 
 
 print(len(data))
@@ -305,7 +385,7 @@ print(len(data))
 data_elem.head()
 
 
-# In[34]:
+# In[44]:
 
 
 data_elem["gc_human"] = data_elem.apply(calculate_gc, col="element_human", axis=1)
@@ -315,7 +395,7 @@ data_elem["cpg_mouse"] = data_elem.apply(calculate_cpg, col="element_mouse", axi
 data_elem.sample(5)
 
 
-# In[35]:
+# In[45]:
 
 
 data_elem["delta_gc"] = data_elem["gc_mouse"] - data_elem["gc_human"] 
@@ -327,14 +407,14 @@ data_elem["abs_delta_cpg"] = np.abs(data_elem["delta_cpg"])
 data_elem.sample(5)
 
 
-# In[36]:
+# In[46]:
 
 
 data_elem["abs_logFC_cis"] = np.abs(data_elem["logFC_cis_one"])
 data_elem["box_abs_logFC_cis"] = boxcox(data_elem["abs_logFC_cis"])[0]
 
 
-# In[37]:
+# In[47]:
 
 
 data_elem.columns
@@ -342,7 +422,7 @@ data_elem.columns
 
 # ## 5. build reduced model
 
-# In[38]:
+# In[48]:
 
 
 scaled_features = StandardScaler().fit_transform(data_elem[["box_abs_logFC_cis", "abs_delta_gc", "abs_delta_cpg",
@@ -360,7 +440,7 @@ data_norm["cis_status_one"] = data_elem["cis_status_one"]
 data_norm.head()
 
 
-# In[39]:
+# In[49]:
 
 
 data_filt = data_norm[((data_norm["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_norm["mESC_padj_mm9"] < QUANT_ALPHA))]
@@ -368,27 +448,27 @@ print(len(data_filt))
 data_filt.head()
 
 
-# In[40]:
+# In[50]:
 
 
 # data_filt = data_filt[data_filt["tss_tile_num"] == "tile1"].drop_duplicates()
 # len(data_filt)
 
 
-# In[41]:
+# In[51]:
 
 
 mod = smf.ols(formula='box_abs_logFC_cis ~ mean_gc + mean_cpg + abs_delta_gc + abs_delta_cpg', 
               data=data_filt).fit()
 
 
-# In[42]:
+# In[52]:
 
 
 mod.summary()
 
 
-# In[43]:
+# In[53]:
 
 
 res = mod.resid
@@ -399,14 +479,14 @@ ax.set_title("Normal QQ: cis effects model")
 fig.savefig("avg_activ_qq.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[44]:
+# In[54]:
 
 
 reduced_llf = mod.llf
 reduced_llf
 
 
-# In[45]:
+# In[55]:
 
 
 reduced_rsq = mod.rsquared
@@ -415,27 +495,27 @@ reduced_rsq
 
 # ## 6. add motifs to model
 
-# In[46]:
+# In[56]:
 
 
 len(data_filt)
 
 
-# In[47]:
+# In[57]:
 
 
 data_filt["hg19_index"] = data_filt["hg19_id"] + "__" + data_filt["tss_tile_num"]
 data_filt["mm9_index"] = data_filt["mm9_id"] + "__" + data_filt["tss_tile_num"]
 
 
-# In[48]:
+# In[58]:
 
 
 human_df["hg19_index"] = human_df["hg19_id"] + "__" + human_df["tss_tile_num"]
 mouse_df["mm9_index"] = mouse_df["mm9_id"] + "__" + mouse_df["tss_tile_num"]
 
 
-# In[49]:
+# In[59]:
 
 
 def motif_disrupted(row):
@@ -447,7 +527,13 @@ def motif_disrupted(row):
         return "a - maintained"
 
 
-# In[50]:
+# In[60]:
+
+
+len(human_df[human_df["tss_tile_num"] == "tile2"]["hg19_id"].unique())
+
+
+# In[61]:
 
 
 motif_results = {}
@@ -495,7 +581,7 @@ for i, motif_id in enumerate(uniq_motifs):
                                "n_maintained": n_maintained}
 
 
-# In[51]:
+# In[62]:
 
 
 motif_results = pd.DataFrame.from_dict(motif_results, orient="index").reset_index()
@@ -504,21 +590,21 @@ print(len(motif_results))
 motif_results.head()
 
 
-# In[52]:
+# In[63]:
 
 
 motif_results["padj"] = multicomp.multipletests(motif_results["pval"], method="fdr_bh")[1]
 len(motif_results[motif_results["padj"] < 0.05])
 
 
-# In[53]:
+# In[64]:
 
 
 motif_results["beta_padj"] = multicomp.multipletests(motif_results["beta_p"], method="fdr_bh")[1]
 len(motif_results[motif_results["beta_padj"] < 0.05])
 
 
-# In[54]:
+# In[65]:
 
 
 motif_results.sort_values(by="beta_padj").head(10)
@@ -526,14 +612,14 @@ motif_results.sort_values(by="beta_padj").head(10)
 
 # ## 7. join w/ TF info
 
-# In[55]:
+# In[66]:
 
 
 motif_results_mrg = motif_results.merge(sig_motifs, on="index", suffixes=("_cis", "_activ"))
 motif_results_mrg.sort_values(by="padj_cis").head()
 
 
-# In[56]:
+# In[67]:
 
 
 #sig_results = motif_results_mrg[(motif_results_mrg["padj_cis"] < 0.05) & (motif_results_mrg["beta_cis"] > 0)]
@@ -541,13 +627,13 @@ sig_results = motif_results_mrg[(motif_results_mrg["beta_padj"] < 0.05) & (motif
 sig_results = sig_results.sort_values(by="beta_cis", ascending=False)
 
 
-# In[57]:
+# In[68]:
 
 
 pal = {"repressing": sns.color_palette("pastel")[3], "activating": sns.color_palette("pastel")[0]}
 
 
-# In[58]:
+# In[69]:
 
 
 full_pal = {}
@@ -555,14 +641,58 @@ for i, row in sig_results.iterrows():
     full_pal[row["HGNC symbol"]] = pal[row["activ_or_repr"]]
 
 
-# In[59]:
+# In[76]:
 
 
-fig = plt.figure(figsize=(4.5, 5))
+# fig = plt.figure(figsize=(4, 2.5))
+
+# ax1 = plt.subplot2grid((1, 7), (0, 0), colspan=3)
+# ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=3)
+# ax3 = plt.subplot2grid((1, 7), (0, 6), colspan=1)
+
+# yvals = []
+# symbs = []
+# c = 0
+# for i, row in sig_results.iterrows():
+#     symb = row["HGNC symbol"]
+#     if symb not in symbs:
+#         yvals.append(c)
+#         symbs.append(symb)
+#         c += 1
+#     else:
+#         yvals.append(c)
+
+# sig_results["yval"] = yvals
+# sns.barplot(y="HGNC symbol", x="beta_cis", data=sig_results, palette=full_pal, ax=ax1)
+# ax1.set_ylabel("")
+# ax1.set_xlabel("effect size of motif disruption")
+
+# sns.barplot(y="HGNC symbol", x="rsq_activ", data=sig_results, palette=full_pal, ax=ax2)
+# ax2.set_ylabel("")
+# ax2.tick_params(left=False, labelleft=False)
+# ax2.set_xlabel("additional variance explained")
+
+# melt = pd.melt(sig_results, id_vars=["HGNC symbol", "yval"], value_vars=["no_CAGE_enr", "eRNA_enr",
+#                                                                                  "lncRNA_enr", "mRNA_enr"])
+# ax3.plot(melt["value"], melt["yval"], 'o', color="black")
+# ax3.set_xlim((-0.5, 3.5))
+# ax3.set_ylim((np.max(yvals)-0.5, -0.5))
+# ax3.tick_params(labelleft=False, labelbottom=False, bottom=False, left=False, top=True, labeltop=True)
+# ax3.xaxis.set_ticks([0, 1, 2, 3])
+# ax3.set_xticklabels(["no CAGE", "eRNA", "lncRNA", "mRNA"], rotation=60, ha="left", va="bottom")
+
+# plt.show()
+# fig.savefig("cis_motif_enrichment.pdf", dpi="figure", bbox_inches="tight")
+# plt.close()
+
+
+# In[85]:
+
+
+fig = plt.figure(figsize=(4, 2.5))
 
 ax1 = plt.subplot2grid((1, 7), (0, 0), colspan=3)
-ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=3)
-ax3 = plt.subplot2grid((1, 7), (0, 6), colspan=1)
+ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=1)
 
 yvals = []
 symbs = []
@@ -581,26 +711,21 @@ sns.barplot(y="HGNC symbol", x="beta_cis", data=sig_results, palette=full_pal, a
 ax1.set_ylabel("")
 ax1.set_xlabel("effect size of motif disruption")
 
-sns.barplot(y="HGNC symbol", x="rsq_activ", data=sig_results, palette=full_pal, ax=ax2)
-ax2.set_ylabel("")
-ax2.tick_params(left=False, labelleft=False)
-ax2.set_xlabel("additional variance explained")
-
 melt = pd.melt(sig_results, id_vars=["HGNC symbol", "yval"], value_vars=["no_CAGE_enr", "eRNA_enr",
                                                                                  "lncRNA_enr", "mRNA_enr"])
-ax3.plot(melt["value"], melt["yval"], 'o', color="black")
-ax3.set_xlim((-0.5, 3.5))
-ax3.set_ylim((np.max(yvals)-0.5, -0.5))
-ax3.tick_params(labelleft=False, labelbottom=False, bottom=False, left=False, top=True, labeltop=True)
-ax3.xaxis.set_ticks([0, 1, 2, 3])
-ax3.set_xticklabels(["no CAGE", "eRNA", "lncRNA", "mRNA"], rotation=60, ha="left", va="bottom")
+ax2.plot(melt["value"], melt["yval"], 'o', color="black")
+ax2.set_xlim((-0.5, 3.5))
+ax2.set_ylim((np.max(yvals)-0.5, -0.5))
+ax2.tick_params(labelleft=False, labelbottom=False, bottom=False, left=False, top=True, labeltop=True)
+ax2.xaxis.set_ticks([0, 1, 2, 3])
+ax2.set_xticklabels(["no CAGE", "eRNA", "lncRNA", "mRNA"], rotation=60, ha="left", va="bottom", fontsize=fontsize-1)
 
 plt.show()
 fig.savefig("cis_motif_enrichment.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[60]:
+# In[86]:
 
 
 data_filt = data_elem[((data_elem["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_elem["mESC_padj_mm9"] < QUANT_ALPHA))]
@@ -609,14 +734,22 @@ print(len(data_filt))
 # len(data_filt)
 
 
-# In[61]:
+# In[87]:
 
 
-data_filt["hg19_index"] = data_filt["hg19_id"] + "__" + data_filt["tss_tile_num"]
-data_filt["mm9_index"] = data_filt["mm9_id"] + "__" + data_filt["tss_tile_num"]
+data_filt_sp = data_filt.drop("orig_species", axis=1)
+data_filt_sp.drop_duplicates(inplace=True)
+len(data_filt_sp)
 
 
-# In[62]:
+# In[88]:
+
+
+data_filt_sp["hg19_index"] = data_filt_sp["hg19_id"] + "__" + data_filt_sp["tss_tile_num"]
+data_filt_sp["mm9_index"] = data_filt_sp["mm9_id"] + "__" + data_filt_sp["tss_tile_num"]
+
+
+# In[89]:
 
 
 def uniq_motif(row):
@@ -632,17 +765,17 @@ def uniq_motif(row):
             return "not present"
 
 
-# In[63]:
+# In[90]:
 
 
 sns.palplot(sns.color_palette("Set2"))
 
 
-# In[65]:
+# In[94]:
 
 
 # plot some examples
-examps = ["ASCL1", "ASCL5", "ZNF528", "FOS", "ETV1", "GABPA"]
+examps = ["ASCL2", "ASCL5", "ZNF528", "ELF5", "ETV1", "ERF"]
 order1 = ["b - not present", "a - maintained", "c - disrupted"]
 order2 = ["maintained", "disrupted in human", "disrupted in mouse"]
 pal1 = {"b - not present": "lightgray", "a - maintained": "darkgray", "c - disrupted": sns.color_palette("Set2")[2]}
@@ -652,7 +785,7 @@ pal2 = {"maintained": "darkgray", "disrupted in human": sns.color_palette("Set2"
 for symb in examps:
     motif_id = sig_results[sig_results["HGNC symbol"] == symb]["index"].iloc[0]
     
-    tmp = data_filt.copy()
+    tmp = data_filt_sp.copy()
     
     # determine whether motif is in human or mouse sequence
     human_motifs_sub = human_df[human_df["#pattern name"] == motif_id]["hg19_index"].unique()
@@ -665,7 +798,7 @@ for symb in examps:
     tmp["motif_disrupted"] = tmp.apply(motif_disrupted, axis=1)
     tmp["uniq_motif"] = tmp.apply(uniq_motif, axis=1)
     
-    fig, axarr = plt.subplots(figsize=(4, 1.5), nrows=1, ncols=2)
+    fig, axarr = plt.subplots(figsize=(3.5, 1.5), nrows=1, ncols=2)
     
     ax = axarr[0]
     sns.boxplot(data=tmp, x="motif_disrupted", y="abs_logFC_cis", order=order1, palette=pal1, 
@@ -721,6 +854,7 @@ for symb in examps:
     ax.set_ylim((-8, 6))
     
     plt.subplots_adjust(wspace=0.4)
+    fig.savefig("%s.cis_effect_boxplot.pdf" % symb, dpi="figure", bbox_inches="tight")
     plt.show()
 
 
@@ -731,14 +865,14 @@ for symb in examps:
 # - full turnover = motifs that are only present in one species
 # - partial turnover = motifs that are in both species but don't map to the exact same sequence
 
-# In[66]:
+# In[96]:
 
 
 print(len(data))
-data.head()
+data.tss_tile_num.value_counts()
 
 
-# In[67]:
+# In[97]:
 
 
 turnover_results = {}
@@ -800,7 +934,7 @@ for i, row in data.iterrows():
                                                                        "delta_motifs": delta_motifs}
 
 
-# In[68]:
+# In[98]:
 
 
 turnover_df = pd.DataFrame.from_dict(turnover_results, orient="index").reset_index()
@@ -822,7 +956,7 @@ turnover_df.head()
 
 # ## 9. merge motif turnover data w/ cis effects
 
-# In[69]:
+# In[99]:
 
 
 data_motifs = data.merge(turnover_df, on=["hg19_id", "mm9_id", "tss_tile_num"], how="left")
@@ -832,14 +966,14 @@ data_motifs.head()
 
 # ## 6. filter data
 
-# In[70]:
+# In[100]:
 
 
 data_filt = data_motifs[((data_motifs["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_motifs["mESC_padj_mm9"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[71]:
+# In[101]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -847,45 +981,45 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[72]:
+# In[102]:
 
 
-data_filt_tile1 = data_filt[data_filt["tss_tile_num"] == "tile1"]
-len(data_filt_tile1)
+# data_filt_tile1 = data_filt[data_filt["tss_tile_num"] == "tile1"]
+# len(data_filt_tile1)
 
 
-# In[73]:
+# In[103]:
 
 
-data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
-len(data_filt_tile1_sp)
+# # data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
+# len(data_filt_tile1_sp)
 
 
-# In[74]:
+# In[104]:
 
 
-data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
-len(data_filt_tile2)
+# data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
+# len(data_filt_tile2)
 
 
-# In[75]:
+# In[105]:
 
 
-data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
-len(data_filt_tile2_sp)
+# data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
+# len(data_filt_tile2_sp)
 
 
 # ## 7. plot cis effects v motif turnover
 
-# In[76]:
+# In[106]:
 
 
-dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
-titles = ["both tiles", "tile1 only", "tile2 only"]
-labels = ["both_tiles", "tile1_only", "tile2_only"]
+# dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
+# titles = ["both tiles", "tile1 only", "tile2 only"]
+# labels = ["both_tiles", "tile1_only", "tile2_only"]
 
 
-# In[77]:
+# In[107]:
 
 
 order = ["no cis effect", "significant cis effect"]
@@ -894,49 +1028,92 @@ palette = {"no cis effect": "gray", "significant cis effect": sns.color_palette(
 
 # ### % shared motifs
 
-# In[78]:
+# In[108]:
 
 
-for df, title, label in zip(dfs, titles, labels):
+# for df, title, label in zip(dfs, titles, labels):
     
-    fig = plt.figure(figsize=(1.25, 2))
-    ax = sns.boxplot(data=df, x="cis_status_one", y="perc_shared_motifs", palette=palette, order=order,
-                     flierprops = dict(marker='o', markersize=5))
-    mimic_r_boxplot(ax)
+#     fig = plt.figure(figsize=(1.25, 2))
+#     ax = sns.boxplot(data=df, x="cis_status_one", y="perc_shared_motifs", palette=palette, order=order,
+#                      flierprops = dict(marker='o', markersize=5))
+#     mimic_r_boxplot(ax)
     
-    ax.set_xticklabels(["no cis effect", 'cis effect'], rotation=50, ha='right', va='top')
-    ax.set_xlabel("")
-    ax.set_ylabel("% shared motifs")
-    ax.set_title(title)
+#     ax.set_xticklabels(["no cis effect", 'cis effect'], rotation=50, ha='right', va='top')
+#     ax.set_xlabel("")
+#     ax.set_ylabel("% shared motifs")
+#     ax.set_title(title)
     
-    for i, l in enumerate(order):
-        n = len(df[df["cis_status_one"] == l])
-        ax.annotate(str(n), xy=(i, -5), xycoords="data", xytext=(0, 0), 
-                    textcoords="offset pixels", ha='center', va='top', 
-                    color=palette[l], size=fontsize)
+#     for i, l in enumerate(order):
+#         n = len(df[df["cis_status_one"] == l])
+#         ax.annotate(str(n), xy=(i, -5), xycoords="data", xytext=(0, 0), 
+#                     textcoords="offset pixels", ha='center', va='top', 
+#                     color=palette[l], size=fontsize)
 
-    ax.set_ylim((-18, 100))
+#     ax.set_ylim((-18, 100))
     
-    # calc p-vals b/w dists
-    dist1 = np.asarray(df[df["cis_status_one"] == "no cis effect"]["perc_shared_motifs"])
-    dist2 = np.asarray(df[df["cis_status_one"] != "no cis effect"]["perc_shared_motifs"])
+#     # calc p-vals b/w dists
+#     dist1 = np.asarray(df[df["cis_status_one"] == "no cis effect"]["perc_shared_motifs"])
+#     dist2 = np.asarray(df[df["cis_status_one"] != "no cis effect"]["perc_shared_motifs"])
 
-    dist1 = dist1[~np.isnan(dist1)]
-    dist2 = dist2[~np.isnan(dist2)]
+#     dist1 = dist1[~np.isnan(dist1)]
+#     dist2 = dist2[~np.isnan(dist2)]
 
-    u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
-    print(pval)
+#     u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
+#     print(pval)
 
-    annotate_pval(ax, 0.2, 0.8, 55, 0, 52, pval, fontsize)
+#     annotate_pval(ax, 0.2, 0.8, 55, 0, 52, pval, fontsize)
     
-    plt.show()
-    fig.savefig("cis_effect_v_shared_motifs.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-    plt.close()
+#     plt.show()
+#     fig.savefig("cis_effect_v_shared_motifs.%s.pdf" % label, dpi="figure", bbox_inches="tight")
+#     plt.close()
+
+
+# In[110]:
+
+
+df = data_filt_sp
+
+
+# In[113]:
+
+
+fig = plt.figure(figsize=(1.25, 1.5))
+ax = sns.boxplot(data=df, x="cis_status_one", y="perc_shared_motifs", palette=palette, order=order,
+                 flierprops = dict(marker='o', markersize=5))
+mimic_r_boxplot(ax)
+
+ax.set_xticklabels(["no cis effect", 'cis effect'], rotation=50, ha='right', va='top')
+ax.set_xlabel("")
+ax.set_ylabel("% shared motifs")
+
+for i, l in enumerate(order):
+    n = len(df[df["cis_status_one"] == l])
+    ax.annotate(str(n), xy=(i, -5), xycoords="data", xytext=(0, 0), 
+                textcoords="offset pixels", ha='center', va='top', 
+                color=palette[l], size=fontsize)
+
+ax.set_ylim((-18, 100))
+
+# calc p-vals b/w dists
+dist1 = np.asarray(df[df["cis_status_one"] == "no cis effect"]["perc_shared_motifs"])
+dist2 = np.asarray(df[df["cis_status_one"] != "no cis effect"]["perc_shared_motifs"])
+
+dist1 = dist1[~np.isnan(dist1)]
+dist2 = dist2[~np.isnan(dist2)]
+
+u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
+print(pval)
+
+annotate_pval(ax, 0.2, 0.8, 55, 0, 55, pval, fontsize)
+
+plt.show()
+fig.savefig("cis_effect_v_shared_motifs.pdf", dpi="figure", bbox_inches="tight")
+plt.close()
 
 
 # ## 8. plot motif #s across biotypes
 
-# In[82]:
+# In[127]:
 
 
 def turnover_status(row):
@@ -944,9 +1121,9 @@ def turnover_status(row):
         return np.nan
     else:
         if "CAGE turnover" in row["biotype_switch_minimal"]:
-            return "CAGE turnover"
+            return "turnover"
         else:
-            return "none"
+            return "conserved"
     
 def turnover_biotype(row):
     if pd.isnull(row["biotype_switch_minimal"]):
@@ -958,84 +1135,122 @@ def turnover_biotype(row):
             return row["biotype_switch_minimal"]
 
 
-# In[83]:
+# In[128]:
 
 
 turnover_order = ["eRNA", "lncRNA", "mRNA"]
-turnover_pal = {"CAGE turnover": "gray", "none": sns.color_palette("Set2")[2]}
-hue_order = ["CAGE turnover", "none"]
+turnover_pal = {"turnover": sns.color_palette("Set2")[2], "conserved": sns.color_palette("Set2")[7]}
+hue_order = ["turnover", "conserved"]
 
 
-# In[84]:
+# In[129]:
 
 
-for df, title, label in zip(dfs, titles, labels):
-    df["turnover_status"] = df.apply(turnover_status, axis=1)
-    df["turnover_biotype"] = df.apply(turnover_biotype, axis=1)
+# for df, title, label in zip(dfs, titles, labels):
+#     df["turnover_status"] = df.apply(turnover_status, axis=1)
+#     df["turnover_biotype"] = df.apply(turnover_biotype, axis=1)
     
-    fig = plt.figure(figsize=(2.5, 2))
-    ax = sns.boxplot(data=df, x="turnover_biotype", y="perc_shared_motifs", hue="turnover_status",
-                     flierprops = dict(marker='o', markersize=5), 
-                     order=turnover_order, hue_order=hue_order, palette=turnover_pal)
-    mimic_r_boxplot(ax)
+#     fig = plt.figure(figsize=(2.5, 2))
+#     ax = sns.boxplot(data=df, x="turnover_biotype", y="perc_shared_motifs", hue="turnover_status",
+#                      flierprops = dict(marker='o', markersize=5), 
+#                      order=turnover_order, hue_order=hue_order, palette=turnover_pal)
+#     mimic_r_boxplot(ax)
 
-    ax.set_xticklabels(turnover_order, rotation=50, ha='right', va='top')
-    ax.set_xlabel("")
-    ax.set_ylabel("% shared motifs")
-    ax.set_title(title)
+#     ax.set_xticklabels(turnover_order, rotation=50, ha='right', va='top')
+#     ax.set_xlabel("")
+#     ax.set_ylabel("% shared motifs")
+#     ax.set_title(title)
 
-    for i, l in enumerate(turnover_order):
-        sub = df[df["turnover_biotype"] == l]
-        dist1 = np.asarray(sub[sub["turnover_status"] == "CAGE turnover"]["perc_shared_motifs"])
-        dist2 = np.asarray(sub[sub["turnover_status"] == "none"]["perc_shared_motifs"])
+#     for i, l in enumerate(turnover_order):
+#         sub = df[df["turnover_biotype"] == l]
+#         dist1 = np.asarray(sub[sub["turnover_status"] == "CAGE turnover"]["perc_shared_motifs"])
+#         dist2 = np.asarray(sub[sub["turnover_status"] == "none"]["perc_shared_motifs"])
         
-        dist1 = dist1[~np.isnan(dist1)]
-        dist2 = dist2[~np.isnan(dist2)]
+#         dist1 = dist1[~np.isnan(dist1)]
+#         dist2 = dist2[~np.isnan(dist2)]
         
-        u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
-        ymax = np.max(dist2)
+#         u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
+#         ymax = np.max(dist2)
         
-        if pval >= 0.05:
-            annotate_pval(ax, i-0.1, i+0.1, ymax, 0, ymax, pval, fontsize)
-        else:
-            annotate_pval(ax, i-0.1, i+0.1, ymax, 0, ymax-4, pval, fontsize)
+#         if pval >= 0.05:
+#             annotate_pval(ax, i-0.1, i+0.1, ymax, 0, ymax, pval, fontsize)
+#         else:
+#             annotate_pval(ax, i-0.1, i+0.1, ymax, 0, ymax-4, pval, fontsize)
             
-        ax.annotate(str(len(dist1)), xy=(i-0.25, -9), xycoords="data", xytext=(0, 0), 
-                    textcoords="offset pixels", ha='center', va='bottom', 
-                    color="gray", size=fontsize)
-        ax.annotate(str(len(dist2)), xy=(i+0.25, -9), xycoords="data", xytext=(0, 0), 
-                    textcoords="offset pixels", ha='center', va='bottom', 
-                    color=sns.color_palette("Set2")[2], size=fontsize)
+#         ax.annotate(str(len(dist1)), xy=(i-0.25, -9), xycoords="data", xytext=(0, 0), 
+#                     textcoords="offset pixels", ha='center', va='bottom', 
+#                     color="gray", size=fontsize)
+#         ax.annotate(str(len(dist2)), xy=(i+0.25, -9), xycoords="data", xytext=(0, 0), 
+#                     textcoords="offset pixels", ha='center', va='bottom', 
+#                     color=sns.color_palette("Set2")[2], size=fontsize)
 
-    ax.set_ylim((-11, 100))
-    plt.legend(loc=2, bbox_to_anchor=(1.1, 1))
-    plt.show()
-    fig.savefig("shared_motifs_biotypes.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-    plt.close()
+#     ax.set_ylim((-11, 100))
+#     plt.legend(loc=2, bbox_to_anchor=(1.1, 1))
+#     plt.show()
+#     fig.savefig("shared_motifs_biotypes.%s.pdf" % label, dpi="figure", bbox_inches="tight")
+#     plt.close()
+
+
+# In[136]:
+
+
+df["turnover_status"] = df.apply(turnover_status, axis=1)
+df["turnover_biotype"] = df.apply(turnover_biotype, axis=1)
+
+fig = plt.figure(figsize=(1.25, 1.5))
+ax = sns.boxplot(data=df, x="turnover_status", y="perc_shared_motifs", 
+                 flierprops = dict(marker='o', markersize=5), 
+                 order=hue_order, palette=turnover_pal)
+mimic_r_boxplot(ax)
+
+ax.set_xticklabels(hue_order, rotation=50, ha='right', va='top')
+ax.set_xlabel("")
+ax.set_ylabel("% shared motifs")
+
+for i, l in enumerate(hue_order):
+    n = len(df[df["turnover_status"] == l])
+    ax.annotate(str(n), xy=(i, -5), xycoords="data", xytext=(0, 0), 
+                textcoords="offset pixels", ha='center', va='top', 
+                color=turnover_pal[l], size=fontsize)
+
+dist1 = np.asarray(df[df["turnover_status"] == "turnover"]["perc_shared_motifs"])
+dist2 = np.asarray(df[df["turnover_status"] == "conserved"]["perc_shared_motifs"])
+
+dist1 = dist1[~np.isnan(dist1)]
+dist2 = dist2[~np.isnan(dist2)]
+
+u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
+annotate_pval(ax, 0.2, 0.8, ys[i], 0, ys[i], pval, fontsize-1)
+
+ax.set_ylim((-15, 100))
+plt.legend(loc=2, bbox_to_anchor=(1.1, 1))
+plt.show()
+fig.savefig("shared_motifs.pdf", dpi="figure", bbox_inches="tight")
+plt.close()
 
 
 # ## 11. write motif files
 
-# In[85]:
+# In[137]:
 
 
 len(human_df)
 
 
-# In[86]:
+# In[138]:
 
 
 len(mouse_df)
 
 
-# In[87]:
+# In[139]:
 
 
 human_f = "../../../data/04__mapped_motifs/human_motifs_filtered.txt.gz"
 human_df.to_csv(human_f, sep="\t", index=False, compression="gzip")
 
 
-# In[88]:
+# In[140]:
 
 
 mouse_f = "../../../data/04__mapped_motifs/mouse_motifs_filtered.txt.gz"

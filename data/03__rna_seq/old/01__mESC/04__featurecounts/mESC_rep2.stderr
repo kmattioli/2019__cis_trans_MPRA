@@ -1,0 +1,44 @@
+
+        ==========     _____ _    _ ____  _____  ______          _____  
+        =====         / ____| |  | |  _ \|  __ \|  ____|   /\   |  __ \ 
+          =====      | (___ | |  | | |_) | |__) | |__     /  \  | |  | |
+            ====      \___ \| |  | |  _ <|  _  /|  __|   / /\ \ | |  | |
+              ====    ____) | |__| | |_) | | \ \| |____ / ____ \| |__| |
+        ==========   |_____/ \____/|____/|_|  \_\______/_/    \_\_____/
+	v1.4.6-p3
+
+//========================== featureCounts setting ===========================\\
+||                                                                            ||
+||             Input files : 1 BAM file                                       ||
+||                           P ../01__mESC/03__alignments/mESC_rep2/accep ... ||
+||                                                                            ||
+||             Output file : ../01__mESC/04__featurecounts/mESC_rep2.coun ... ||
+||             Annotations : /n/rinn_data2/users/kaia/annotation/mouse/ge ... ||
+||                                                                            ||
+||                 Threads : 8                                                ||
+||                   Level : meta-feature level                               ||
+||              Paired-end : no                                               ||
+||         Strand specific : no                                               ||
+||      Multimapping reads : not counted                                      ||
+|| Multi-overlapping reads : not counted                                      ||
+||                                                                            ||
+\\===================== http://subread.sourceforge.net/ ======================//
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file /n/rinn_data2/users/kaia/annotation/mouse/gencode ... ||
+||    Features : 756436                                                       ||
+||    Meta-features : 50600                                                   ||
+||    Chromosomes : 22                                                        ||
+||                                                                            ||
+|| Process BAM file ../01__mESC/03__alignments/mESC_rep2/accepted_hits.ba ... ||
+||    Paired-end reads are included.                                          ||
+||    Assign reads to features...                                             ||
+||    Total reads : 110152103                                                 ||
+||    Successfully assigned reads : 55345535 (50.2%)                          ||
+||    Running time : 3.38 minutes                                             ||
+||                                                                            ||
+||                         Read assignment finished.                          ||
+||                                                                            ||
+\\===================== http://subread.sourceforge.net/ ======================//
+

@@ -1,0 +1,7 @@
+column	condition	sample
+hESC_rep1	hESC	sample1
+hESC_rep2	hESC	sample2
+hESC_rep3	hESC	sample3
+mESC_rep1	mESC	sample1
+mESC_rep2	mESC	sample2
+mESC_rep3	mESC	sample3

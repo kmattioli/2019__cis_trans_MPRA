@@ -1,0 +1,371 @@
+No quality encoding type selected. Assuming that the data provided uses Sanger encoded Phred scores (default)
+
+Path to Cutadapt set as: 'cutadapt' (default)
+Cutadapt seems to be working fine (tested command 'cutadapt --version')
+
+
+AUTO-DETECTING ADAPTER TYPE
+===========================
+Attempting to auto-detect adapter type from the first 1 million sequences of the first file (>> ../00__HUES64/01__fastq/hESC_rep1_R1.fastq.gz <<)
+
+Found perfect matches for the following adapter sequences:
+Adapter type	Count	Sequence	Sequences analysed	Percentage
+Illumina	132102	AGATCGGAAGAGC	1000000	13.21
+smallRNA	0	ATGGAATTCTCG	1000000	0.00
+Nextera	0	CTGTCTCTTATA	1000000	0.00
+Using Illumina adapter for trimming (count: 132102). Second best hit was smallRNA (count: 0)
+
+Writing report to '../00__HUES64/02__trimmed/hESC_rep1_R1.fastq.gz_trimming_report.txt'
+
+SUMMARISING RUN PARAMETERS
+==========================
+Input filename: ../00__HUES64/01__fastq/hESC_rep1_R1.fastq.gz
+Trimming mode: paired-end
+Trim Galore version: 0.4.0
+Cutadapt version: 1.8.1
+Quality Phred score cutoff: 20
+Quality encoding type selected: ASCII+33
+Adapter sequence: 'AGATCGGAAGAGC' (Illumina TruSeq, Sanger iPCR; auto-detected)
+Maximum trimming error rate: 0.1 (default)
+Minimum required adapter overlap (stringency): 1 bp
+Minimum required sequence length for both reads before a sequence pair gets removed: 20 bp
+Output file(s) will be GZIP compressed
+
+Writing final adapter and quality trimmed output to hESC_rep1_R1_trimmed.fq.gz
+
+
+  >>> Now performing quality (cutoff 20) and adapter trimming in a single pass for the adapter sequence: 'AGATCGGAAGAGC' from file ../00__HUES64/01__fastq/hESC_rep1_R1.fastq.gz <<< 
+10000000 sequences processed
+20000000 sequences processed
+30000000 sequences processed
+40000000 sequences processed
+50000000 sequences processed
+60000000 sequences processed
+70000000 sequences processed
+80000000 sequences processed
+90000000 sequences processed
+100000000 sequences processed
+This is cutadapt 1.8.1 with Python 2.7.5
+Command line parameters: -f fastq -e 0.1 -q 20 -O 1 -a AGATCGGAAGAGC ../00__HUES64/01__fastq/hESC_rep1_R1.fastq.gz
+Trimming 1 adapter with at most 10.0% errors in single-end mode ...
+Finished in 1567.24 s (16 us/read; 3.86 M reads/minute).
+
+=== Summary ===
+
+Total reads processed:             100,723,713
+Reads with adapters:                35,659,186 (35.4%)
+Reads written (passing filters):   100,723,713 (100.0%)
+
+Total basepairs processed: 10,173,095,013 bp
+Quality-trimmed:             589,028,832 bp (5.8%)
+Total written (filtered):  9,251,075,918 bp (90.9%)
+
+=== Adapter 1 ===
+
+Sequence: AGATCGGAAGAGC; Type: regular 3'; Length: 13; Trimmed: 35659186 times.
+
+No. of allowed errors:
+0-9 bp: 0; 10-13 bp: 1
+
+Bases preceding removed adapters:
+  A: 28.6%
+  C: 32.6%
+  G: 19.6%
+  T: 19.2%
+  none/other: 0.0%
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+1	13148309	25180928.2	0	13148309
+2	5197656	6295232.1	0	5197656
+3	1465016	1573808.0	0	1465016
+4	758732	393452.0	0	758732
+5	563417	98363.0	0	563417
+6	962022	24590.8	0	962022
+7	430949	6147.7	0	430949
+8	754937	1536.9	0	754937
+9	621207	384.2	0	613794 7413
+10	590010	96.1	1	571267 18743
+11	525266	24.0	1	506842 18424
+12	514554	6.0	1	495131 19423
+13	469952	1.5	1	450191 19761
+14	487435	1.5	1	466990 20445
+15	534562	1.5	1	512620 21942
+16	531119	1.5	1	505701 25418
+17	785413	1.5	1	750426 34987
+18	702637	1.5	1	678885 23752
+19	189281	1.5	1	176384 12897
+20	442324	1.5	1	423758 18566
+21	398223	1.5	1	384024 14199
+22	222204	1.5	1	208742 13462
+23	480916	1.5	1	463487 17429
+24	257945	1.5	1	245875 12070
+25	310502	1.5	1	299253 11249
+26	210523	1.5	1	200190 10333
+27	365251	1.5	1	350276 14975
+28	297423	1.5	1	284174 13249
+29	326455	1.5	1	312259 14196
+30	341424	1.5	1	329372 12052
+31	112232	1.5	1	105438 6794
+32	219836	1.5	1	210202 9634
+33	220009	1.5	1	209040 10969
+34	287599	1.5	1	275826 11773
+35	155096	1.5	1	146730 8366
+36	239129	1.5	1	230178 8951
+37	129825	1.5	1	124954 4871
+38	111621	1.5	1	106291 5330
+39	144402	1.5	1	138879 5523
+40	128547	1.5	1	121083 7464
+41	268920	1.5	1	261991 6929
+42	13966	1.5	1	12061 1905
+43	87197	1.5	1	84755 2442
+44	39777	1.5	1	38166 1611
+45	47237	1.5	1	45806 1431
+46	38468	1.5	1	36746 1722
+47	61661	1.5	1	59338 2323
+48	64740	1.5	1	62836 1904
+49	26149	1.5	1	25001 1148
+50	35735	1.5	1	34367 1368
+51	38665	1.5	1	37488 1177
+52	17735	1.5	1	16709 1026
+53	39868	1.5	1	38437 1431
+54	33231	1.5	1	31887 1344
+55	31741	1.5	1	30805 936
+56	10311	1.5	1	9874 437
+57	11121	1.5	1	10504 617
+58	19914	1.5	1	19246 668
+59	13560	1.5	1	13047 513
+60	13495	1.5	1	12976 519
+61	16005	1.5	1	15514 491
+62	7860	1.5	1	7541 319
+63	7524	1.5	1	7117 407
+64	12546	1.5	1	12010 536
+65	14208	1.5	1	13714 494
+66	9071	1.5	1	8727 344
+67	7240	1.5	1	6970 270
+68	5821	1.5	1	5594 227
+69	5813	1.5	1	5574 239
+70	6561	1.5	1	6281 280
+71	6983	1.5	1	6679 304
+72	6385	1.5	1	6143 242
+73	2815	1.5	1	2711 104
+74	1532	1.5	1	1464 68
+75	690	1.5	1	654 36
+76	309	1.5	1	291 18
+77	76	1.5	1	74 2
+78	38	1.5	1	28 10
+79	30	1.5	1	23 7
+80	22	1.5	1	15 7
+81	17	1.5	1	14 3
+82	33	1.5	1	23 10
+83	30	1.5	1	25 5
+84	15	1.5	1	12 3
+85	12	1.5	1	7 5
+86	8	1.5	1	6 2
+87	17	1.5	1	12 5
+88	7	1.5	1	1 6
+89	5	1.5	1	1 4
+90	12	1.5	1	6 6
+91	7	1.5	1	2 5
+92	7	1.5	1	1 6
+93	4	1.5	1	2 2
+94	7	1.5	1	0 7
+95	1	1.5	1	0 1
+96	2	1.5	1	0 2
+97	3	1.5	1	0 3
+98	4	1.5	1	0 4
+99	6	1.5	1	0 6
+100	6	1.5	1	0 6
+101	3	1.5	1	0 3
+
+
+RUN STATISTICS FOR INPUT FILE: ../00__HUES64/01__fastq/hESC_rep1_R1.fastq.gz
+=============================================
+100723713 sequences processed in total
+The length threshold of paired-end sequences gets evaluated later on (in the validation step)
+
+Writing report to '../00__HUES64/02__trimmed/hESC_rep1_R2.fastq.gz_trimming_report.txt'
+
+SUMMARISING RUN PARAMETERS
+==========================
+Input filename: ../00__HUES64/01__fastq/hESC_rep1_R2.fastq.gz
+Trimming mode: paired-end
+Trim Galore version: 0.4.0
+Cutadapt version: 1.8.1
+Quality Phred score cutoff: 20
+Quality encoding type selected: ASCII+33
+Adapter sequence: 'AGATCGGAAGAGC' (Illumina TruSeq, Sanger iPCR; auto-detected)
+Maximum trimming error rate: 0.1 (default)
+Minimum required adapter overlap (stringency): 1 bp
+Minimum required sequence length for both reads before a sequence pair gets removed: 20 bp
+Output file(s) will be GZIP compressed
+
+Writing final adapter and quality trimmed output to hESC_rep1_R2_trimmed.fq.gz
+
+
+  >>> Now performing quality (cutoff 20) and adapter trimming in a single pass for the adapter sequence: 'AGATCGGAAGAGC' from file ../00__HUES64/01__fastq/hESC_rep1_R2.fastq.gz <<< 
+10000000 sequences processed
+20000000 sequences processed
+30000000 sequences processed
+40000000 sequences processed
+50000000 sequences processed
+60000000 sequences processed
+70000000 sequences processed
+80000000 sequences processed
+90000000 sequences processed
+100000000 sequences processed
+This is cutadapt 1.8.1 with Python 2.7.5
+Command line parameters: -f fastq -e 0.1 -q 20 -O 1 -a AGATCGGAAGAGC ../00__HUES64/01__fastq/hESC_rep1_R2.fastq.gz
+Trimming 1 adapter with at most 10.0% errors in single-end mode ...
+Finished in 1639.00 s (16 us/read; 3.69 M reads/minute).
+
+=== Summary ===
+
+Total reads processed:             100,723,713
+Reads with adapters:                38,018,965 (37.7%)
+Reads written (passing filters):   100,723,713 (100.0%)
+
+Total basepairs processed: 10,173,095,013 bp
+Quality-trimmed:           1,316,093,211 bp (12.9%)
+Total written (filtered):  8,552,611,490 bp (84.1%)
+
+=== Adapter 1 ===
+
+Sequence: AGATCGGAAGAGC; Type: regular 3'; Length: 13; Trimmed: 38018965 times.
+
+No. of allowed errors:
+0-9 bp: 0; 10-13 bp: 1
+
+Bases preceding removed adapters:
+  A: 31.3%
+  C: 26.7%
+  G: 20.3%
+  T: 21.7%
+  none/other: 0.0%
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+1	16438511	25180928.2	0	16438511
+2	5313121	6295232.1	0	5313121
+3	1680014	1573808.0	0	1680014
+4	728153	393452.0	0	728153
+5	524900	98363.0	0	524900
+6	928443	24590.8	0	928443
+7	359140	6147.7	0	359140
+8	712740	1536.9	0	712740
+9	815205	384.2	0	812377 2828
+10	541980	96.1	1	532526 9454
+11	462486	24.0	1	451508 10978
+12	595472	6.0	1	581188 14284
+13	563419	1.5	1	549391 14028
+14	738128	1.5	1	723930 14198
+15	133275	1.5	1	127139 6136
+16	595649	1.5	1	580333 15316
+17	889788	1.5	1	873168 16620
+18	112588	1.5	1	106630 5958
+19	469455	1.5	1	460701 8754
+20	181735	1.5	1	175274 6461
+21	74420	1.5	1	70953 3467
+22	352989	1.5	1	345876 7113
+23	422435	1.5	1	413090 9345
+24	418802	1.5	1	408422 10380
+25	266018	1.5	1	260099 5919
+26	321995	1.5	1	316220 5775
+27	232486	1.5	1	227265 5221
+28	345554	1.5	1	338992 6562
+29	177954	1.5	1	172576 5378
+30	586906	1.5	1	578047 8859
+31	24861	1.5	1	23181 1680
+32	141462	1.5	1	139610 1852
+33	32585	1.5	1	31405 1180
+34	133902	1.5	1	131698 2204
+35	126620	1.5	1	124336 2284
+36	125793	1.5	1	123505 2288
+37	121496	1.5	1	119608 1888
+38	101565	1.5	1	99957 1608
+39	101335	1.5	1	99886 1449
+40	82512	1.5	1	81028 1484
+41	138177	1.5	1	136128 2049
+42	156424	1.5	1	154583 1841
+43	15396	1.5	1	14622 774
+44	111181	1.5	1	109747 1434
+45	103649	1.5	1	102412 1237
+46	15005	1.5	1	14507 498
+47	60084	1.5	1	59503 581
+48	17757	1.5	1	17352 405
+49	47612	1.5	1	46874 738
+50	64675	1.5	1	63801 874
+51	61292	1.5	1	60565 727
+52	10241	1.5	1	9977 264
+53	8328	1.5	1	8159 169
+54	17906	1.5	1	17649 257
+55	24294	1.5	1	23984 310
+56	7111	1.5	1	6891 220
+57	24548	1.5	1	24236 312
+58	16342	1.5	1	16040 302
+59	16581	1.5	1	16338 243
+60	14306	1.5	1	14080 226
+61	12466	1.5	1	12220 246
+62	14417	1.5	1	14173 244
+63	19214	1.5	1	18926 288
+64	17375	1.5	1	17049 326
+65	19278	1.5	1	18981 297
+66	12723	1.5	1	12520 203
+67	3586	1.5	1	3463 123
+68	1474	1.5	1	1419 55
+69	623	1.5	1	588 35
+70	362	1.5	1	313 49
+71	291	1.5	1	249 42
+72	336	1.5	1	271 65
+73	346	1.5	1	308 38
+74	292	1.5	1	248 44
+75	415	1.5	1	370 45
+76	449	1.5	1	412 37
+77	480	1.5	1	441 39
+78	448	1.5	1	415 33
+79	465	1.5	1	441 24
+80	515	1.5	1	470 45
+81	589	1.5	1	556 33
+82	521	1.5	1	479 42
+83	766	1.5	1	708 58
+84	471	1.5	1	427 44
+85	263	1.5	1	235 28
+86	320	1.5	1	267 53
+87	306	1.5	1	243 63
+88	225	1.5	1	182 43
+89	219	1.5	1	176 43
+90	210	1.5	1	169 41
+91	251	1.5	1	208 43
+92	234	1.5	1	184 50
+93	253	1.5	1	213 40
+94	255	1.5	1	211 44
+95	315	1.5	1	278 37
+96	335	1.5	1	277 58
+97	301	1.5	1	243 58
+98	128	1.5	1	90 38
+99	89	1.5	1	65 24
+100	220	1.5	1	169 51
+101	338	1.5	1	262 76
+
+
+RUN STATISTICS FOR INPUT FILE: ../00__HUES64/01__fastq/hESC_rep1_R2.fastq.gz
+=============================================
+100723713 sequences processed in total
+The length threshold of paired-end sequences gets evaluated later on (in the validation step)
+
+Validate paired-end files hESC_rep1_R1_trimmed.fq.gz and hESC_rep1_R2_trimmed.fq.gz
+file_1: hESC_rep1_R1_trimmed.fq.gz, file_2: hESC_rep1_R2_trimmed.fq.gz
+
+
+>>>>> Now validing the length of the 2 paired-end infiles: hESC_rep1_R1_trimmed.fq.gz and hESC_rep1_R2_trimmed.fq.gz <<<<<
+Writing validated paired-end read 1 reads to hESC_rep1_R1_val_1.fq.gz
+Writing validated paired-end read 2 reads to hESC_rep1_R2_val_2.fq.gz
+
+Total number of sequences analysed: 100723713
+
+Number of sequence pairs removed because at least one read was shorter than the length cutoff (20 bp): 5066425 (5.03%)
+
+Deleting both intermediate output files hESC_rep1_R1_trimmed.fq.gz and hESC_rep1_R2_trimmed.fq.gz
+
+====================================================================================================
+

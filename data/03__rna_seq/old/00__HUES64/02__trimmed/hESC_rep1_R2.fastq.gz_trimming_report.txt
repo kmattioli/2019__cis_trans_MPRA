@@ -1,0 +1,157 @@
+
+SUMMARISING RUN PARAMETERS
+==========================
+Input filename: ../00__HUES64/01__fastq/hESC_rep1_R2.fastq.gz
+Trimming mode: paired-end
+Trim Galore version: 0.4.0
+Cutadapt version: 1.8.1
+Quality Phred score cutoff: 20
+Quality encoding type selected: ASCII+33
+Adapter sequence: 'AGATCGGAAGAGC' (Illumina TruSeq, Sanger iPCR; auto-detected)
+Maximum trimming error rate: 0.1 (default)
+Minimum required adapter overlap (stringency): 1 bp
+Minimum required sequence length for both reads before a sequence pair gets removed: 20 bp
+Output file will be GZIP compressed
+
+
+This is cutadapt 1.8.1 with Python 2.7.5
+Command line parameters: -f fastq -e 0.1 -q 20 -O 1 -a AGATCGGAAGAGC ../00__HUES64/01__fastq/hESC_rep1_R2.fastq.gz
+Trimming 1 adapter with at most 10.0% errors in single-end mode ...
+Finished in 1639.00 s (16 us/read; 3.69 M reads/minute).
+
+=== Summary ===
+
+Total reads processed:             100,723,713
+Reads with adapters:                38,018,965 (37.7%)
+Reads written (passing filters):   100,723,713 (100.0%)
+
+Total basepairs processed: 10,173,095,013 bp
+Quality-trimmed:           1,316,093,211 bp (12.9%)
+Total written (filtered):  8,552,611,490 bp (84.1%)
+
+=== Adapter 1 ===
+
+Sequence: AGATCGGAAGAGC; Type: regular 3'; Length: 13; Trimmed: 38018965 times.
+
+No. of allowed errors:
+0-9 bp: 0; 10-13 bp: 1
+
+Bases preceding removed adapters:
+  A: 31.3%
+  C: 26.7%
+  G: 20.3%
+  T: 21.7%
+  none/other: 0.0%
+
+Overview of removed sequences
+length	count	expect	max.err	error counts
+1	16438511	25180928.2	0	16438511
+2	5313121	6295232.1	0	5313121
+3	1680014	1573808.0	0	1680014
+4	728153	393452.0	0	728153
+5	524900	98363.0	0	524900
+6	928443	24590.8	0	928443
+7	359140	6147.7	0	359140
+8	712740	1536.9	0	712740
+9	815205	384.2	0	812377 2828
+10	541980	96.1	1	532526 9454
+11	462486	24.0	1	451508 10978
+12	595472	6.0	1	581188 14284
+13	563419	1.5	1	549391 14028
+14	738128	1.5	1	723930 14198
+15	133275	1.5	1	127139 6136
+16	595649	1.5	1	580333 15316
+17	889788	1.5	1	873168 16620
+18	112588	1.5	1	106630 5958
+19	469455	1.5	1	460701 8754
+20	181735	1.5	1	175274 6461
+21	74420	1.5	1	70953 3467
+22	352989	1.5	1	345876 7113
+23	422435	1.5	1	413090 9345
+24	418802	1.5	1	408422 10380
+25	266018	1.5	1	260099 5919
+26	321995	1.5	1	316220 5775
+27	232486	1.5	1	227265 5221
+28	345554	1.5	1	338992 6562
+29	177954	1.5	1	172576 5378
+30	586906	1.5	1	578047 8859
+31	24861	1.5	1	23181 1680
+32	141462	1.5	1	139610 1852
+33	32585	1.5	1	31405 1180
+34	133902	1.5	1	131698 2204
+35	126620	1.5	1	124336 2284
+36	125793	1.5	1	123505 2288
+37	121496	1.5	1	119608 1888
+38	101565	1.5	1	99957 1608
+39	101335	1.5	1	99886 1449
+40	82512	1.5	1	81028 1484
+41	138177	1.5	1	136128 2049
+42	156424	1.5	1	154583 1841
+43	15396	1.5	1	14622 774
+44	111181	1.5	1	109747 1434
+45	103649	1.5	1	102412 1237
+46	15005	1.5	1	14507 498
+47	60084	1.5	1	59503 581
+48	17757	1.5	1	17352 405
+49	47612	1.5	1	46874 738
+50	64675	1.5	1	63801 874
+51	61292	1.5	1	60565 727
+52	10241	1.5	1	9977 264
+53	8328	1.5	1	8159 169
+54	17906	1.5	1	17649 257
+55	24294	1.5	1	23984 310
+56	7111	1.5	1	6891 220
+57	24548	1.5	1	24236 312
+58	16342	1.5	1	16040 302
+59	16581	1.5	1	16338 243
+60	14306	1.5	1	14080 226
+61	12466	1.5	1	12220 246
+62	14417	1.5	1	14173 244
+63	19214	1.5	1	18926 288
+64	17375	1.5	1	17049 326
+65	19278	1.5	1	18981 297
+66	12723	1.5	1	12520 203
+67	3586	1.5	1	3463 123
+68	1474	1.5	1	1419 55
+69	623	1.5	1	588 35
+70	362	1.5	1	313 49
+71	291	1.5	1	249 42
+72	336	1.5	1	271 65
+73	346	1.5	1	308 38
+74	292	1.5	1	248 44
+75	415	1.5	1	370 45
+76	449	1.5	1	412 37
+77	480	1.5	1	441 39
+78	448	1.5	1	415 33
+79	465	1.5	1	441 24
+80	515	1.5	1	470 45
+81	589	1.5	1	556 33
+82	521	1.5	1	479 42
+83	766	1.5	1	708 58
+84	471	1.5	1	427 44
+85	263	1.5	1	235 28
+86	320	1.5	1	267 53
+87	306	1.5	1	243 63
+88	225	1.5	1	182 43
+89	219	1.5	1	176 43
+90	210	1.5	1	169 41
+91	251	1.5	1	208 43
+92	234	1.5	1	184 50
+93	253	1.5	1	213 40
+94	255	1.5	1	211 44
+95	315	1.5	1	278 37
+96	335	1.5	1	277 58
+97	301	1.5	1	243 58
+98	128	1.5	1	90 38
+99	89	1.5	1	65 24
+100	220	1.5	1	169 51
+101	338	1.5	1	262 76
+
+
+RUN STATISTICS FOR INPUT FILE: ../00__HUES64/01__fastq/hESC_rep1_R2.fastq.gz
+=============================================
+100723713 sequences processed in total
+
+Total number of sequences analysed for the sequence pair length validation: 100723713
+
+Number of sequence pairs removed because at least one read was shorter than the length cutoff (20 bp): 5066425 (5.03%)

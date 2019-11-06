@@ -87,7 +87,7 @@ data_dir = "../../../data/02__mpra/02__activs"
 # In[9]:
 
 
-tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.UPDATED_WITH_DIV.txt"
+tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED_WITH_MAX.txt"
 
 
 # In[10]:
@@ -131,7 +131,7 @@ human_vals.head()
 # In[15]:
 
 
-tss_map = pd.read_table(tss_map_f, index_col=0)
+tss_map = pd.read_table(tss_map_f, sep="\t")
 tss_map.head()
 
 
@@ -173,15 +173,23 @@ print(len(rna_counts_ctrl))
 # # first make files needed for seq. comparison (native and cis effects)
 
 # ## 1. merge ortholog pairs w/ counts
-# this time, always pair tile1 with tile1 and tile2 with tile2
+# old:::: this time, always pair tile1 with tile1 and tile2 with tile2
+# new:::: pair tile1 with tile1 unless maximum is tile2 in both species
 
 # In[20]:
+
+
+tss_max = tss_map[["hg19_id", "mm9_id", "tile_match"]]
+tss_max.head()
+
+
+# In[21]:
 
 
 human_vals.head()
 
 
-# In[21]:
+# In[22]:
 
 
 dna_counts_human_all = human_vals[["element", "tss_id", "tss_tile_num"]].merge(dna_counts, on="element").drop_duplicates()
@@ -189,14 +197,14 @@ dna_counts_mouse_all = mouse_vals[["element", "tss_id", "tss_tile_num"]].merge(d
 dna_counts_human_all.head()
 
 
-# In[22]:
+# In[23]:
 
 
 print(len(dna_counts_human_all))
 print(len(dna_counts_mouse_all))
 
 
-# In[23]:
+# In[24]:
 
 
 rna_counts_human_all = human_vals[["element", "tss_id", "tss_tile_num"]].merge(rna_counts, on="element").drop_duplicates()
@@ -204,7 +212,7 @@ rna_counts_mouse_all = mouse_vals[["element", "tss_id", "tss_tile_num"]].merge(r
 rna_counts_human_all.head()
 
 
-# In[24]:
+# In[25]:
 
 
 print(len(rna_counts_human_all))
@@ -213,9 +221,9 @@ print(len(rna_counts_mouse_all))
 
 # ## 2. merge human/mouse counts into 1 dataframe
 # 
-# merge tile1 with tile1 and tile2 with tile2
+# new: merge tile1 with tile1 unless maximum is tile2 in both species (in which case use tile2); only consider tiles where both are avail in both species
 
-# In[25]:
+# In[26]:
 
 
 dna_counts_human_tile1 = dna_counts_human_all[dna_counts_human_all["tss_tile_num"] == "tile1"]
@@ -224,7 +232,7 @@ print(len(dna_counts_human_tile1))
 print(len(dna_counts_human_tile2))
 
 
-# In[26]:
+# In[27]:
 
 
 rna_counts_human_tile1 = rna_counts_human_all[rna_counts_human_all["tss_tile_num"] == "tile1"]
@@ -233,7 +241,7 @@ print(len(rna_counts_human_tile1))
 print(len(rna_counts_human_tile2))
 
 
-# In[27]:
+# In[28]:
 
 
 dna_counts_mouse_tile1 = dna_counts_mouse_all[dna_counts_mouse_all["tss_tile_num"] == "tile1"]
@@ -242,7 +250,7 @@ print(len(dna_counts_mouse_tile1))
 print(len(dna_counts_mouse_tile2))
 
 
-# In[28]:
+# In[29]:
 
 
 rna_counts_mouse_tile1 = rna_counts_mouse_all[rna_counts_mouse_all["tss_tile_num"] == "tile1"]
@@ -251,59 +259,130 @@ print(len(rna_counts_mouse_tile1))
 print(len(rna_counts_mouse_tile2))
 
 
-# In[29]:
-
-
-tss_map.columns
-
-
 # In[30]:
 
 
-tss_map_mpra_tile1 = tss_map.merge(rna_counts_human_tile1, left_on="hg19_id", 
-                                   right_on="tss_id").merge(rna_counts_mouse_tile1, left_on="mm9_id", right_on="tss_id",
-                                                            suffixes=("___seq:human", "___seq:mouse"))
-tss_map_mpra_tile1.drop_duplicates(inplace=True)
-print(len(tss_map_mpra_tile1))
-tss_map_mpra_tile1.head(5)
+#both_tile_ids = tss_map[(tss_map["n_tiles_hg19"] >= 2) & (tss_map["n_tiles_mm9"] >= 2)]
+both_tile_ids = tss_map[(~pd.isnull(tss_map["n_tiles_hg19"]) & ~(pd.isnull(tss_map["n_tiles_mm9"])))]
+len(both_tile_ids)
 
 
 # In[31]:
 
 
-tss_map_mpra_tile2 = tss_map.merge(rna_counts_human_tile2, left_on="hg19_id", 
-                                   right_on="tss_id").merge(rna_counts_mouse_tile2, left_on="mm9_id", right_on="tss_id",
-                                                            suffixes=("___seq:human", "___seq:mouse"))
-tss_map_mpra_tile2.drop_duplicates(inplace=True)
-print(len(tss_map_mpra_tile2))
-tss_map_mpra_tile2.head(5)
+tile1_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile1:tile1") | 
+                          (both_tile_ids["tile_match"] == "tile1:tile2")][["hg19_id", "mm9_id"]].drop_duplicates()
+len(tile1_ids)
 
 
 # In[32]:
 
 
-tss_map_dna_tile1 = tss_map.merge(dna_counts_human_tile1, left_on="hg19_id", 
-                                  right_on="tss_id").merge(dna_counts_mouse_tile1, left_on="mm9_id", right_on="tss_id",
-                                                           suffixes=("___seq:human", "___seq:mouse"))
-tss_map_dna_tile1.drop_duplicates(inplace=True)
-print(len(tss_map_dna_tile1))
-tss_map_dna_tile1.head(5)
+tile2_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile2:tile2")][["hg19_id", "mm9_id"]].drop_duplicates()
+len(tile2_ids)
 
 
 # In[33]:
 
 
-tss_map_dna_tile2 = tss_map.merge(dna_counts_human_tile2, left_on="hg19_id", 
-                                  right_on="tss_id").merge(dna_counts_mouse_tile2, left_on="mm9_id", right_on="tss_id",
-                                                           suffixes=("___seq:human", "___seq:mouse"))
+tss_map_mpra_tile1 = tile1_ids.merge(tss_map, on=["hg19_id", "mm9_id"])
+tss_map_mpra_tile1 = tss_map_mpra_tile1.merge(rna_counts_human_tile1, left_on="hg19_id", 
+                                              right_on="tss_id").merge(rna_counts_mouse_tile1, left_on="mm9_id", 
+                                                                       right_on="tss_id",
+                                                                       suffixes=("___seq:human", "___seq:mouse"))
+tss_map_mpra_tile1.drop_duplicates(inplace=True)
+print(len(tss_map_mpra_tile1))
+tss_map_mpra_tile1.head(5)
+
+
+# In[34]:
+
+
+tss_map_mpra_tile2 = tile2_ids.merge(tss_map, on=["hg19_id", "mm9_id"])
+tss_map_mpra_tile2 = tss_map_mpra_tile2.merge(rna_counts_human_tile2, left_on="hg19_id", 
+                                              right_on="tss_id").merge(rna_counts_mouse_tile2, left_on="mm9_id", 
+                                                                       right_on="tss_id",
+                                                                       suffixes=("___seq:human", "___seq:mouse"))
+tss_map_mpra_tile2.drop_duplicates(inplace=True)
+print(len(tss_map_mpra_tile2))
+tss_map_mpra_tile2.head(5)
+
+
+# In[35]:
+
+
+tss_map_dna_tile1 = tile1_ids.merge(tss_map, on=["hg19_id", "mm9_id"])
+tss_map_dna_tile1 = tss_map_dna_tile1.merge(dna_counts_human_tile1, left_on="hg19_id", 
+                                              right_on="tss_id").merge(dna_counts_mouse_tile1, left_on="mm9_id", 
+                                                                       right_on="tss_id",
+                                                                       suffixes=("___seq:human", "___seq:mouse"))
+tss_map_dna_tile1.drop_duplicates(inplace=True)
+print(len(tss_map_dna_tile1))
+tss_map_dna_tile1.head(5)
+
+
+# In[36]:
+
+
+tss_map_dna_tile2 = tile2_ids.merge(tss_map, on=["hg19_id", "mm9_id"])
+tss_map_dna_tile2 = tss_map_dna_tile2.merge(dna_counts_human_tile2, left_on="hg19_id", 
+                                              right_on="tss_id").merge(dna_counts_mouse_tile2, left_on="mm9_id", 
+                                                                       right_on="tss_id",
+                                                                       suffixes=("___seq:human", "___seq:mouse"))
 tss_map_dna_tile2.drop_duplicates(inplace=True)
 print(len(tss_map_dna_tile2))
 tss_map_dna_tile2.head(5)
 
 
+# old: merge tile1 with tile1 and tile2 with tile2 always
+
+# In[37]:
+
+
+# tss_map_mpra_tile1 = tss_map.merge(rna_counts_human_tile1, left_on="hg19_id", 
+#                                    right_on="tss_id").merge(rna_counts_mouse_tile1, left_on="mm9_id", right_on="tss_id",
+#                                                             suffixes=("___seq:human", "___seq:mouse"))
+# tss_map_mpra_tile1.drop_duplicates(inplace=True)
+# print(len(tss_map_mpra_tile1))
+# tss_map_mpra_tile1.head(5)
+
+
+# In[38]:
+
+
+# tss_map_mpra_tile2 = tss_map.merge(rna_counts_human_tile2, left_on="hg19_id", 
+#                                    right_on="tss_id").merge(rna_counts_mouse_tile2, left_on="mm9_id", right_on="tss_id",
+#                                                             suffixes=("___seq:human", "___seq:mouse"))
+# tss_map_mpra_tile2.drop_duplicates(inplace=True)
+# print(len(tss_map_mpra_tile2))
+# tss_map_mpra_tile2.head(5)
+
+
+# In[39]:
+
+
+# tss_map_dna_tile1 = tss_map.merge(dna_counts_human_tile1, left_on="hg19_id", 
+#                                   right_on="tss_id").merge(dna_counts_mouse_tile1, left_on="mm9_id", right_on="tss_id",
+#                                                            suffixes=("___seq:human", "___seq:mouse"))
+# tss_map_dna_tile1.drop_duplicates(inplace=True)
+# print(len(tss_map_dna_tile1))
+# tss_map_dna_tile1.head(5)
+
+
+# In[40]:
+
+
+# tss_map_dna_tile2 = tss_map.merge(dna_counts_human_tile2, left_on="hg19_id", 
+#                                   right_on="tss_id").merge(dna_counts_mouse_tile2, left_on="mm9_id", right_on="tss_id",
+#                                                            suffixes=("___seq:human", "___seq:mouse"))
+# tss_map_dna_tile2.drop_duplicates(inplace=True)
+# print(len(tss_map_dna_tile2))
+# tss_map_dna_tile2.head(5)
+
+
 # ## 3. assign each pair an ID
 
-# In[34]:
+# In[41]:
 
 
 HUES64_rna_cols = [x for x in tss_map_mpra_tile1.columns if "samp:HUES64" in x]
@@ -331,7 +410,7 @@ tss_map_dna_tile2 = tss_map_dna_tile2[dna_cols]
 tss_map_mpra_human_tile1.head()
 
 
-# In[35]:
+# In[42]:
 
 
 tss_map_mpra_human_tile1["tile_num"] = "tile1"
@@ -342,7 +421,7 @@ tss_map_dna_tile1["tile_num"] = "tile1"
 tss_map_dna_tile2["tile_num"] = "tile2"
 
 
-# In[36]:
+# In[43]:
 
 
 # all tile 1s
@@ -382,7 +461,7 @@ tss_map_dna_tile2 = tss_map_dna_tile2[dna_cols]
 tss_map_mpra_human_tile1.head()
 
 
-# In[37]:
+# In[44]:
 
 
 # append tile 1 and tile2
@@ -395,7 +474,7 @@ print(len(tss_map_dna))
 tss_map_mpra_human.sample(5)
 
 
-# In[38]:
+# In[45]:
 
 
 # merge human and mouse so both cols in 1 df
@@ -403,7 +482,7 @@ tss_map_mpra = tss_map_mpra_human.merge(tss_map_mpra_mouse, on="comp_id")
 len(tss_map_mpra)
 
 
-# In[39]:
+# In[46]:
 
 
 # also add dataframe for native comparisons
@@ -416,7 +495,7 @@ tss_map_mpra_native = tss_map_mpra[native_cols]
 tss_map_mpra_native.head()
 
 
-# In[40]:
+# In[47]:
 
 
 # remove duplicates
@@ -440,21 +519,21 @@ print(len(tss_map_mpra_native["comp_id"].unique()))
 # ## 4. pair positive controls together to serve as negative controls
 # for each down-sampled control element (there are 4), randomly choose 100 pairs to serve as human/mouse
 
-# In[41]:
+# In[48]:
 
 
 ctrl_ids = rna_counts_ctrl.element.unique()
 ctrl_ids[0:5]
 
 
-# In[42]:
+# In[49]:
 
 
 ctrl_seqs = set([x.split("__")[0] for x in ctrl_ids])
 samp_ids = set([x.split("__")[1] for x in ctrl_ids])
 
 
-# In[43]:
+# In[50]:
 
 
 all_samp_id_pairs = list(itertools.combinations(samp_ids, 2))
@@ -462,14 +541,14 @@ all_samp_id_pairs_str = ["%s__%s" % (x[0], x[1]) for x in all_samp_id_pairs]
 all_samp_id_pairs_str[0:5]
 
 
-# In[44]:
+# In[51]:
 
 
 sampled_samp_id_pairs = np.random.choice(all_samp_id_pairs_str, size=100)
 sampled_samp_id_pairs[0:5]
 
 
-# In[45]:
+# In[52]:
 
 
 neg_ctrls_dna = pd.DataFrame()
@@ -545,7 +624,7 @@ for i, seq in enumerate(ctrl_seqs):
         neg_ctrls_native = neg_ctrls_native.append(sub_rna_native)
 
 
-# In[46]:
+# In[53]:
 
 
 all_dna = tss_map_dna.append(neg_ctrls_dna)
@@ -553,7 +632,7 @@ all_dna.set_index("comp_id", inplace=True)
 len(all_dna)
 
 
-# In[47]:
+# In[54]:
 
 
 all_rna_human = tss_map_mpra_human.append(neg_ctrls_human)
@@ -561,7 +640,7 @@ all_rna_human.set_index("comp_id", inplace=True)
 len(all_rna_human)
 
 
-# In[48]:
+# In[55]:
 
 
 all_rna_mouse = tss_map_mpra_mouse.append(neg_ctrls_mouse)
@@ -569,7 +648,7 @@ all_rna_mouse.set_index("comp_id", inplace=True)
 len(all_rna_mouse)
 
 
-# In[49]:
+# In[56]:
 
 
 all_rna_native = tss_map_mpra_native.append(neg_ctrls_native)
@@ -577,7 +656,7 @@ all_rna_native.set_index("comp_id", inplace=True)
 len(all_rna_native)
 
 
-# In[50]:
+# In[57]:
 
 
 # also make file w/ everything together to test interactions!
@@ -591,7 +670,7 @@ len(all_rna)
 
 # ## 5. make annotation files
 
-# In[51]:
+# In[58]:
 
 
 dna_col_ann = {}
@@ -618,7 +697,7 @@ all_col_ann = pd.DataFrame.from_dict(all_col_ann, orient="index")
 native_col_ann.sample(5)
 
 
-# In[52]:
+# In[59]:
 
 
 # merge w/ older annotations: first reset index
@@ -633,7 +712,7 @@ native_col_ann["colname"] = native_col_ann["index"]
 all_col_ann["colname"] = all_col_ann["index"]
 
 
-# In[53]:
+# In[60]:
 
 
 # reset index on old annots and turn barcode into str
@@ -641,20 +720,20 @@ old_rna_col_ann.reset_index(inplace=True)
 old_rna_col_ann["barcode"] = old_rna_col_ann["barcode"].astype(str)
 
 
-# In[54]:
+# In[61]:
 
 
 # merge
 human_col_ann.sample(5)
 
 
-# In[55]:
+# In[62]:
 
 
 all_col_ann.sample(5)
 
 
-# In[56]:
+# In[63]:
 
 
 # reset index
@@ -664,7 +743,7 @@ native_col_ann.set_index("colname", inplace=True)
 all_col_ann.set_index("colname", inplace=True)
 
 
-# In[57]:
+# In[64]:
 
 
 del human_col_ann.index.name
@@ -673,7 +752,7 @@ del native_col_ann.index.name
 del all_col_ann.index.name
 
 
-# In[58]:
+# In[65]:
 
 
 # human_col_ann.drop("index", axis=1, inplace=True)
@@ -682,13 +761,13 @@ del all_col_ann.index.name
 # all_col_ann.drop("index", axis=1, inplace=True)
 
 
-# In[59]:
+# In[66]:
 
 
 all_col_ann.head()
 
 
-# In[60]:
+# In[67]:
 
 
 all_col_ann.tail()
@@ -696,7 +775,7 @@ all_col_ann.tail()
 
 # ## 6. make control ID files
 
-# In[61]:
+# In[68]:
 
 
 ctrls = all_rna.reset_index()[["comp_id", "samp:HUES64_rep1__barc:10___seq:human"]]
@@ -705,7 +784,7 @@ ctrls.drop("samp:HUES64_rep1__barc:10___seq:human", axis=1, inplace=True)
 ctrls.ctrl_status.value_counts()
 
 
-# In[62]:
+# In[69]:
 
 
 ctrls.head()
@@ -713,7 +792,7 @@ ctrls.head()
 
 # ## 7. write seq comparison files
 
-# In[63]:
+# In[70]:
 
 
 dna_col_ann.to_csv("%s/dna_col_ann.all_comp.mpranalyze.txt" % mpranalyze_dir, sep="\t")
@@ -735,27 +814,27 @@ all_rna.to_csv("%s/all_rna_counts.seq_comp.mpranalyze.txt" % mpranalyze_dir, sep
 
 # ## 1. run trans effects separately for human seqs & mouse seqs, so subset counts dataframe
 
-# In[64]:
+# In[71]:
 
 
 human_columns = [x for x in all_rna.columns if "seq:human" in x]
 mouse_columns = [x for x in all_rna.columns if "seq:mouse" in x]
 
 
-# In[65]:
+# In[72]:
 
 
 human_trans = all_rna[human_columns]
 mouse_trans = all_rna[mouse_columns]
 
 
-# In[66]:
+# In[73]:
 
 
 print(len(human_trans))
 
 
-# In[67]:
+# In[74]:
 
 
 print(len(mouse_trans))
@@ -763,14 +842,14 @@ print(len(mouse_trans))
 
 # ## 2. subset annotation dataframe
 
-# In[68]:
+# In[75]:
 
 
 tmp = all_col_ann
 tmp.head()
 
 
-# In[69]:
+# In[76]:
 
 
 human_trans_col_ann = tmp[tmp["index"].isin(human_columns)].set_index("index")
@@ -778,7 +857,7 @@ del human_trans_col_ann.index.name
 human_trans_col_ann.sample(5)
 
 
-# In[70]:
+# In[77]:
 
 
 mouse_trans_col_ann = tmp[tmp["index"].isin(mouse_columns)].set_index("index")
@@ -786,7 +865,7 @@ del mouse_trans_col_ann.index.name
 mouse_trans_col_ann.sample(5)
 
 
-# In[71]:
+# In[78]:
 
 
 print(len(human_columns))
@@ -797,7 +876,7 @@ print(len(mouse_trans_col_ann))
 
 # ## 3. write cell comparison files
 
-# In[72]:
+# In[79]:
 
 
 human_trans_col_ann.to_csv("%s/human_col_ann.cell_comp.mpranalyze.txt" % mpranalyze_dir, sep="\t")

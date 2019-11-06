@@ -103,16 +103,16 @@ def neg_odds(row):
 
 def direction_match(row):
     if row.activ_or_repr == "activating":
-        if row.beta_trans < 0 and row.corrected_l2fc < 0:
+        if row.beta_trans < 0 and row.logFC < 0:
             return "match"
-        elif row.beta_trans > 0 and row.corrected_l2fc > 0:
+        elif row.beta_trans > 0 and row.logFC > 0:
             return "match"
         else:
             return "no match"
     elif row.activ_or_repr == "repressing":
-        if row.beta_trans < 0 and row.corrected_l2fc > 0:
+        if row.beta_trans < 0 and row.logFC > 0:
             return "match"
-        elif row.beta_trans > 0 and row.corrected_l2fc < 0:
+        elif row.beta_trans > 0 and row.logFC < 0:
             return "match"
         else:
             return "no match"
@@ -146,7 +146,7 @@ sig_motifs_f = "../../../data/04__mapped_motifs/sig_motifs.txt"
 # In[13]:
 
 
-tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED.txt"
+tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED_WITH_MAX.txt"
 
 
 # In[14]:
@@ -197,6 +197,7 @@ tss_map.head()
 # In[20]:
 
 
+# this file is already filtered to correct tile nums
 human_motifs = pd.read_table(human_motifs_f, sep="\t")
 human_motifs.head()
 
@@ -204,6 +205,7 @@ human_motifs.head()
 # In[21]:
 
 
+# this file is already filtered to correct tile nums
 mouse_motifs = pd.read_table(mouse_motifs_f, sep="\t")
 mouse_motifs.head()
 
@@ -494,15 +496,107 @@ motif_results_mrg.sort_values(by="padj_trans").head()
 sig_results = motif_results_mrg[(motif_results_mrg["padj_trans"] < 0.05)]
 sig_results["abs_beta"] = np.abs(sig_results["beta_trans"])
 sig_results = sig_results.sort_values(by="abs_beta", ascending=False)
+sig_results.head()
 
 
 # In[53]:
 
 
-pal = {"repressing": sns.color_palette("pastel")[3], "activating": sns.color_palette("pastel")[0]}
+data_filt = data_elem[((data_elem["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_elem["mESC_padj_mm9"] < QUANT_ALPHA))]
+print(len(data_filt))
 
 
 # In[54]:
+
+
+data_filt_sp = data_filt.drop("orig_species", axis=1)
+data_filt_sp.drop_duplicates(inplace=True)
+len(data_filt_sp)
+
+
+# In[55]:
+
+
+data_filt_hu = data_filt_sp[["hg19_id", "logFC_trans_one", "trans_status_one"]]
+data_filt_hu.columns = ["tss_id", "logFC_trans_one", "trans_status_one"]
+data_filt_mo = data_filt_sp[["mm9_id", "logFC_trans_one", "trans_status_one"]]
+data_filt_mo.columns = ["tss_id", "logFC_trans_one", "trans_status_one"]
+data_filt_plot = data_filt_hu.append(data_filt_mo)
+data_filt_plot["abs_logFC_trans"] = np.abs(data_filt_plot["logFC_trans_one"])
+data_filt_plot.head()
+
+
+# In[56]:
+
+
+# example plots
+# plot some examples
+examps = ["NFE2", "BACH2", "ARNTL", "BHLHE41"]
+order = [False, True]
+pal = {False: sns.color_palette("Set2")[7], True: sns.color_palette("Set2")[2]}
+
+for symb in examps:
+    motif_id = sig_results[sig_results["HGNC symbol"] == symb]["index"].iloc[0]
+    
+    tmp = data_filt_plot.copy()
+    
+    # determine whether motif is in human or mouse sequence
+    human_motifs_sub = human_motifs[human_motifs["#pattern name"] == motif_id]["hg19_id"].unique()
+    mouse_motifs_sub = mouse_motifs[mouse_motifs["#pattern name"] == motif_id]["mm9_id"].unique()
+    tmp["hg19_motif"] = tmp["tss_id"].isin(human_motifs_sub)
+    tmp["mm9_motif"] = tmp["tss_id"].isin(mouse_motifs_sub)
+    tmp["has_motif"] = tmp[["hg19_motif", "mm9_motif"]].sum(axis=1).astype(bool)
+    
+    fig, axarr = plt.subplots(figsize=(3, 1.5), nrows=1, ncols=2)
+    
+    ax = axarr[0]
+    sns.boxplot(data=tmp, x="has_motif", y="abs_logFC_trans", order=order, palette=pal, 
+                flierprops = dict(marker='o', markersize=5), ax=ax)
+    mimic_r_boxplot(ax)
+    ax.set_xticklabels(["motif not present", "motif present"], rotation=50, 
+                       ha="right", va="top")
+    ax.set_ylabel("| assigned trans effect size |")
+    ax.set_title(symb)
+    ax.set_xlabel("")
+    
+    for i, label in enumerate(order):
+        n = len(tmp[tmp["has_motif"] == bool(label)])
+        ax.annotate(str(n), xy=(i, -0.4), xycoords="data", xytext=(0, 0), 
+                    textcoords="offset pixels", ha='center', va='bottom', 
+                    color=pal[label], size=fontsize)
+
+    ax.set_ylim((-0.5, 2.5))
+
+    ax = axarr[1]
+    sns.boxplot(data=tmp, x="has_motif", y="logFC_trans_one", order=order, palette=pal,
+                flierprops = dict(marker='o', markersize=5), ax=ax)
+    ax.set_xticklabels(["motif not present", "motif present"], rotation=50, ha="right", va="top")
+    mimic_r_boxplot(ax)
+    ax.set_ylabel("assigned trans effect size")
+    ax.set_title(symb)
+    ax.set_xlabel("")
+    ax.axhline(y=0, linestyle="dashed", color="black", zorder=100)
+    
+    for i, label in enumerate(order):
+        n = len(tmp[tmp["has_motif"] == bool(label)])
+        ax.annotate(str(n), xy=(i, -2.4), xycoords="data", xytext=(0, 0), 
+                    textcoords="offset pixels", ha='center', va='bottom', 
+                    color=pal[label], size=fontsize)
+        
+    ax.set_ylim((-2.5, 2))
+        
+    plt.subplots_adjust(wspace=0.4)
+    fig.savefig("%s.trans_effect_boxplot.pdf" % symb, dpi="figure", bbox_inches="tight")
+    plt.show()
+
+
+# In[57]:
+
+
+pal = {"repressing": sns.color_palette("pastel")[3], "activating": sns.color_palette("pastel")[0]}
+
+
+# In[58]:
 
 
 full_pal = {}
@@ -510,13 +604,13 @@ for i, row in sig_results.iterrows():
     full_pal[row["HGNC symbol"]] = pal[row["activ_or_repr"]]
 
 
-# In[55]:
+# In[59]:
 
 
 sig_results_sub = sig_results.head(50)
 
 
-# In[56]:
+# In[60]:
 
 
 fig = plt.figure(figsize=(4.5, 8))
@@ -563,26 +657,20 @@ plt.close()
 
 # ## 6. join with expression information
 
-# In[57]:
-
-
-orth_expr[orth_expr["gene_name_human"] == "POU5F1B"]
-
-
-# In[58]:
+# In[61]:
 
 
 orth_expr.head()
 
 
-# In[59]:
+# In[62]:
 
 
 trans_orth = motif_results_mrg.merge(orth_expr, left_on="HGNC symbol", right_on="gene_name_human")
 len(trans_orth)
 
 
-# In[60]:
+# In[63]:
 
 
 # fisher's exact to see if trans are enriched in DE TFs
@@ -607,24 +695,23 @@ print(odds)
 print(p)
 
 
-# In[61]:
+# In[64]:
 
 
 trans_orth_sig = trans_orth[trans_orth["padj_trans"] < 0.05]
 trans_orth_sig["abs_beta"] = np.abs(trans_orth_sig["beta_trans"])
 trans_orth_sig = trans_orth_sig.sort_values(by="abs_beta", ascending=False)
-trans_orth_sig["corrected_l2fc"] = -trans_orth_sig["log2FoldChange"]
 len(trans_orth_sig)
 
 
-# In[62]:
+# In[65]:
 
 
 trans_orth_sub = trans_orth_sig[trans_orth_sig["sig"] == "sig"]
 len(trans_orth_sub)
 
 
-# In[63]:
+# In[66]:
 
 
 fig = plt.figure(figsize=(4.5, 9))
@@ -650,7 +737,7 @@ sns.barplot(y="HGNC symbol", x="beta_trans", data=trans_orth_sub, palette=full_p
 ax1.set_ylabel("")
 ax1.set_xlabel("odds ratio")
 
-sns.barplot(y="HGNC symbol", x="corrected_l2fc", data=trans_orth_sub, palette=full_pal, ax=ax2)
+sns.barplot(y="HGNC symbol", x="logFC", data=trans_orth_sub, palette=full_pal, ax=ax2)
 ax2.set_ylabel("")
 ax2.tick_params(left=False, labelleft=False)
 ax2.set_xlabel("log2(mESC/hESC)")
@@ -669,7 +756,42 @@ fig.savefig("trans_motif_enrichment.with_expr.pdf", dpi="figure", bbox_inches="t
 plt.close()
 
 
-# In[64]:
+# In[67]:
+
+
+trans_orth.head()
+
+
+# In[68]:
+
+
+fig, ax = plt.subplots(figsize=(2.2, 2.2), nrows=1, ncols=1)
+
+ax.scatter(trans_orth["beta_trans"], 
+           trans_orth["logFC"],
+           color=sns.color_palette("Set2")[2], alpha=0.75, s=15, 
+           linewidths=0.5, edgecolors="white")
+
+#ax.plot([-0.75, 400000], [-0.75, 400000], "k", linestyle="dashed")
+#ax.set_xlim((-0.75, 400000))
+#ax.set_ylim((-0.75, 400000))
+
+ax.set_xlabel("trans odds ratio")
+ax.set_ylabel("RNA-seq logFC([mESC/hESC])")
+
+# annotate corr
+no_nan = trans_orth[(~pd.isnull(trans_orth["beta_trans"])) & 
+                    (~pd.isnull(trans_orth["logFC"]))]
+r, p = spearmanr(no_nan["beta_trans"], no_nan["logFC"])
+ax.text(0.05, 0.97, "r = {:.2f}".format(r), ha="left", va="top", fontsize=fontsize,
+        transform=ax.transAxes)
+ax.text(0.05, 0.90, "n = %s" % (len(no_nan)), ha="left", va="top", fontsize=fontsize,
+        transform=ax.transAxes)
+
+#fig.savefig("TF_human_v_mouse_scatter.w_sig_outline.pdf", dpi="figure", bbox_inches="tight")
+
+
+# In[69]:
 
 
 # filter to those where direction matches
@@ -677,16 +799,16 @@ trans_orth_sub["direction_match"] = trans_orth_sub.apply(direction_match, axis=1
 trans_orth_sub.direction_match.value_counts()
 
 
-# In[65]:
+# In[70]:
 
 
 trans_orth_match = trans_orth_sub[trans_orth_sub["direction_match"] == "match"]
 
 
-# In[66]:
+# In[71]:
 
 
-fig = plt.figure(figsize=(4, 4))
+fig = plt.figure(figsize=(4, 5))
 
 ax1 = plt.subplot2grid((1, 7), (0, 0), colspan=3)
 ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=3)
@@ -709,7 +831,7 @@ sns.barplot(y="HGNC symbol", x="beta_trans", data=trans_orth_match, palette=full
 ax1.set_ylabel("")
 ax1.set_xlabel("odds ratio")
 
-sns.barplot(y="HGNC symbol", x="corrected_l2fc", data=trans_orth_match, palette=full_pal, ax=ax2)
+sns.barplot(y="HGNC symbol", x="logFC", data=trans_orth_match, palette=full_pal, ax=ax2)
 ax2.set_ylabel("")
 ax2.tick_params(left=False, labelleft=False)
 ax2.set_xlabel("log2(mESC/hESC)")
@@ -730,14 +852,14 @@ plt.close()
 
 # ## 7. join w/ % similarity information
 
-# In[67]:
+# In[72]:
 
 
 orth_sub = orth[["Gene name", "Mouse gene name", "%id. target Mouse gene identical to query gene"]]
 orth_sub.columns = ["human_gene_name", "mouse_gene_name", "perc_similarity"]
 
 
-# In[68]:
+# In[73]:
 
 
 trans_orth = trans_orth.merge(orth_sub, left_on="HGNC symbol", right_on="human_gene_name").drop_duplicates()
@@ -745,29 +867,28 @@ print(len(trans_orth))
 trans_orth.sample(5)
 
 
-# In[69]:
+# In[74]:
 
 
-trans_orth["corrected_l2fc"] = -trans_orth_sub["log2FoldChange"]
-trans_orth["abs_l2fc"] = np.abs(trans_orth["log2FoldChange"])
+trans_orth["abs_l2fc"] = np.abs(trans_orth["logFC"])
 trans_orth["sig_status"] = trans_orth.apply(sig_status, axis=1)
 trans_orth.head()
 
 
-# In[70]:
+# In[75]:
 
 
 trans_orth.sig_status.value_counts()
 
 
-# In[71]:
+# In[76]:
 
 
 order = ["not sig", "sig"]
 palette = {"not sig": "gray", "sig": sns.color_palette("Set2")[2]}
 
 
-# In[72]:
+# In[77]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -797,14 +918,14 @@ dist2 = dist2[~np.isnan(dist2)]
 u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
 print(pval)
 
-annotate_pval(ax, 0.2, 0.8, 5, 0, 4.5, pval, fontsize)
+annotate_pval(ax, 0.2, 0.8, 5, 0, 5, pval, fontsize)
 
 plt.show()
 fig.savefig("trans_v_l2fc_boxplot.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[73]:
+# In[78]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -841,64 +962,110 @@ fig.savefig("trans_v_similarity_boxplot.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
+# In[80]:
+
+
+trans_orth_sig = trans_orth[trans_orth["sig_status"] == "sig"]
+print(len(trans_orth_sig))
+trans_orth_sig.head()
+
+
+# In[81]:
+
+
+fig = plt.figure(figsize=(1, 1.75))
+ax = sns.boxplot(data=trans_orth_sig, x="sig", y="perc_similarity", palette=palette, order=order,
+                 flierprops = dict(marker='o', markersize=5))
+mimic_r_boxplot(ax)
+
+ax.set_xticklabels(order, rotation=50, ha='right', va='top')
+ax.set_xlabel("")
+ax.set_ylabel("% sequence similarity")
+
+for i, label in enumerate(order):
+    n = len(trans_orth_sig[trans_orth_sig["sig"] == label])
+    ax.annotate(str(n), xy=(i, 10), xycoords="data", xytext=(0, 0), 
+                textcoords="offset pixels", ha='center', va='top', 
+                color=palette[label], size=fontsize)
+
+ax.set_ylim((0, 115))
+
+# calc p-vals b/w dists
+dist1 = np.asarray(trans_orth_sig[trans_orth_sig["sig"] == "sig"]["perc_similarity"])
+dist2 = np.asarray(trans_orth_sig[trans_orth_sig["sig"] != "sig"]["perc_similarity"])
+
+dist1 = dist1[~np.isnan(dist1)]
+dist2 = dist2[~np.isnan(dist2)]
+
+u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
+print(pval)
+
+annotate_pval(ax, 0.2, 0.8, 100, 0, 100, pval, fontsize)
+
+plt.show()
+fig.savefig("DE_v_similarity_boxplot.pdf", dpi="figure", bbox_inches="tight")
+plt.close()
+
+
 # ## 8. look at strength of motifs associated w/ trans effects
 
-# In[74]:
+# In[84]:
 
 
 data_filt.head()
 
 
-# In[75]:
+# In[85]:
 
 
 human_motifs.columns
 
 
-# In[76]:
+# In[87]:
 
 
-trans_ids = data_filt[data_filt["trans_status"] == "significant trans effect"]["tss_index"].unique()
+trans_ids = data_filt_plot[data_filt_plot["trans_status_one"] == "significant trans effect"]["tss_id"].unique()
 len(trans_ids)
 
 
-# In[77]:
+# In[88]:
 
 
-filt_ids = list(data_filt["tss_index"].unique())
+filt_ids = list(data_filt_plot["tss_id"].unique())
 len(filt_ids)
 
 
-# In[78]:
+# In[89]:
 
 
 len(sig_results)
 
 
-# In[79]:
+# In[98]:
 
 
-uniq_motifs_sig = list(sig_results["index"].unique())
+uniq_motifs = list(trans_orth["index"].unique())
+len(uniq_motifs)
 
 
-# In[80]:
+# In[101]:
 
 
 strength_results = pd.DataFrame()
 
-for i, motif_id in enumerate(uniq_motifs_sig):
+for i, motif_id in enumerate(uniq_motifs):
     
     # subset motif dfs to occurrences
     human_motifs_sub = human_motifs[human_motifs["#pattern name"] == motif_id]
     mouse_motifs_sub = mouse_motifs[mouse_motifs["#pattern name"] == motif_id]
     
     # subset motif dfs to data filt ids
-    human_motifs_sub = human_motifs_sub[human_motifs_sub["hg19_index"].isin(filt_ids)]
-    mouse_motifs_sub = mouse_motifs_sub[mouse_motifs_sub["mm9_index"].isin(filt_ids)]
+    human_motifs_sub = human_motifs_sub[human_motifs_sub["hg19_id"].isin(filt_ids)]
+    mouse_motifs_sub = mouse_motifs_sub[mouse_motifs_sub["mm9_id"].isin(filt_ids)]
     
     # subset into trans vs. no trans effects
-    human_motifs_sub["trans_status"] = human_motifs_sub["hg19_index"].isin(trans_ids)
-    mouse_motifs_sub["trans_status"] = mouse_motifs_sub["mm9_index"].isin(trans_ids)
+    human_motifs_sub["trans_status"] = human_motifs_sub["hg19_id"].isin(trans_ids)
+    mouse_motifs_sub["trans_status"] = mouse_motifs_sub["mm9_id"].isin(trans_ids)
     
     # get data we need
     human_sub = human_motifs_sub[["#pattern name", "score", "trans_status"]]
@@ -911,45 +1078,49 @@ for i, motif_id in enumerate(uniq_motifs_sig):
     print("(#%s) %s" % (i+1, motif_id))
 
 
-# In[81]:
+# In[102]:
 
 
 print(len(strength_results))
-strength_results_mrg = strength_results.merge(sig_motifs, on="index")
+strength_results_mrg = strength_results.merge(trans_orth, on="index")
 strength_results_mrg.head()
 
 
-# In[82]:
+# In[108]:
 
 
-uniq_motifs_sig1 = uniq_motifs_sig[0:41]
-uniq_motifs_sig2 = uniq_motifs_sig[41:82]
-uniq_motifs_sig3 = uniq_motifs_sig[82:123]
-uniq_motifs_sig4 = uniq_motifs_sig[123:]
-print(len(uniq_motifs_sig1))
-print(len(uniq_motifs_sig2))
-print(len(uniq_motifs_sig3))
-print(len(uniq_motifs_sig4))
+motif_strength_res = {}
+
+for i, motif_id in enumerate(uniq_motifs):
+    print("...# %s (%s)..." % (i, motif_id))
+    sub = strength_results_mrg[strength_results_mrg["index"] == motif_id]
+    sub_trans = sub[sub["trans_status"]]
+    sub_no_trans = sub[~sub["trans_status"]]
+    
+    # calc p-vals b/w dists
+    dist1 = np.asarray(sub_trans["motif_score"])
+    dist2 = np.asarray(sub_no_trans["motif_score"])
+
+    dist1 = dist1[~np.isnan(dist1)]
+    dist2 = dist2[~np.isnan(dist2)]
+
+    u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
+    logFC = np.log2(np.nanmedian(dist1)/np.nanmedian(dist2))
+    
+    motif_strength_res[motif_id] = {"strength_pval": pval, "strength_logFC": logFC}
 
 
-# In[83]:
+# In[109]:
 
 
-pal = {False: "gray", True: sns.color_palette("Set2")[2]}
-hue_order = [False, True]
+motif_strength_res = pd.DataFrame.from_dict(motif_strength_res, orient="index").reset_index()
+motif_strength_res = motif_strength_res[~pd.isnull(motif_strength_res["strength_pval"])]
+motif_strength_res["strength_padj"] = multicomp.multipletests(motif_strength_res["strength_pval"], method="fdr_bh")[1]
+len(motif_strength_res[motif_strength_res["strength_padj"] < 0.05])
 
 
-# In[84]:
+# In[111]:
 
 
-fig = plt.figure(figsize=(15, 2))
-
-sub = strength_results_mrg[strength_results_mrg["index"].isin(uniq_motifs_sig1)]
-ax = sns.boxplot(data=sub, x="index", y="motif_score", hue="trans_status", hue_order=hue_order, palette=pal,
-                 flierprops = dict(marker='o', markersize=5))
-mimic_r_boxplot(ax)
-
-ax.set_xlabel("")
-ax.set_xticklabels(sub["index"], rotation=50, ha="right", va="top")
-ax.set_ylabel("motif score")
+motif_strength_res.sort_values(by="strength_padj").head(12)
 

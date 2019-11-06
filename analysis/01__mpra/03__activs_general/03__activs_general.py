@@ -427,23 +427,141 @@ for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "
     plt.close()
 
 
-# ## 5. correlate MPRA activities w/ endogenous activs
+# find max tile in each species
 
 # In[32]:
+
+
+human_max = human_df[["hg19_id", "tss_tile_num", "HUES64"]]
+human_max = human_max.sort_values(by="HUES64", ascending=False)
+human_max = human_max.drop_duplicates(subset=["hg19_id"])
+human_max = human_max.sort_values(by="hg19_id")
+human_max.head()
+
+
+# In[33]:
+
+
+human_grp = human_df[["hg19_id", "tss_tile_num", "HUES64"]]
+human_grp = human_grp[~pd.isnull(human_grp["HUES64"])]
+human_grp = human_grp.groupby("hg19_id")["tss_tile_num"].agg("count").reset_index()
+human_grp.columns = ["hg19_id", "n_tiles_hg19"]
+print(len(human_grp))
+len(human_grp[human_grp["n_tiles_hg19"] == 2])
+
+
+# In[34]:
+
+
+mouse_max = mouse_df[["mm9_id", "tss_tile_num", "mESC"]]
+mouse_max = mouse_max.sort_values(by="mESC", ascending=False)
+mouse_max = mouse_max.drop_duplicates(subset=["mm9_id"])
+mouse_max = mouse_max.sort_values(by="mm9_id")
+mouse_max.head()
+
+
+# In[35]:
+
+
+mouse_grp = mouse_df[["mm9_id", "tss_tile_num", "mESC"]]
+mouse_grp = mouse_grp[~pd.isnull(mouse_grp["mESC"])]
+mouse_grp = mouse_grp.groupby("mm9_id")["tss_tile_num"].agg("count").reset_index()
+mouse_grp.columns = ["mm9_id", "n_tiles_mm9"]
+print(len(mouse_grp))
+len(mouse_grp[mouse_grp["n_tiles_mm9"] == 2])
+
+
+# In[36]:
+
+
+tss_map_mrg = tss_map.merge(human_max[["hg19_id", "tss_tile_num"]], on="hg19_id", how="left", 
+                            suffixes=("", "")).merge(mouse_max[["mm9_id", "tss_tile_num"]],
+                                                              on="mm9_id", how="left", suffixes=("_max_hg19", 
+                                                                                                 "_max_mm9"))
+tss_map_mrg = tss_map_mrg.merge(human_grp, on="hg19_id", how="left").merge(mouse_grp, on="mm9_id", how="left")
+tss_map_mrg.sample(10)
+
+
+# In[37]:
+
+
+print(len(tss_map_mrg))
+print(len(tss_map_mrg[(tss_map_mrg["n_tiles_hg19"] >= 2) & (tss_map_mrg["n_tiles_mm9"] >= 2)]))
+
+
+# In[38]:
+
+
+def tile_match(row):
+    if pd.isnull(row.tss_tile_num_max_hg19) or pd.isnull(row.tss_tile_num_max_mm9):
+        return np.nan
+    else:
+        if row.tss_tile_num_max_hg19 == "tile1":
+            if row.tss_tile_num_max_mm9 == "tile1":
+                return "tile1:tile1"
+            else:
+                return "tile1:tile2"
+        else:
+            if row.tss_tile_num_max_mm9 == "tile2":
+                return "tile2:tile2"
+            else:
+                return "tile1:tile2"
+
+
+# In[39]:
+
+
+tss_map_mrg["tile_match"] = tss_map_mrg.apply(tile_match, axis=1)
+tss_map_mrg.tile_match.value_counts()
+
+
+# In[40]:
+
+
+tss_map_mrg[tss_map_mrg["tile_match"] == "tile1:tile2"].sample(5)
+
+
+# In[41]:
+
+
+human_df[human_df["hg19_id"] == "h.299"][["hg19_id", "tss_tile_num", "HUES64"]].sort_values(by="tss_tile_num")
+
+
+# In[42]:
+
+
+mouse_df[mouse_df["mm9_id"] == "m.192"][["mm9_id", "tss_tile_num", "mESC"]].sort_values(by="tss_tile_num")
+
+
+# In[43]:
+
+
+fig = plt.figure(figsize=(1, 1))
+
+ax = sns.countplot(data=tss_map_mrg, x="tile_match", color=sns.color_palette("Set2")[2])
+ax.set_xticklabels(["tile1:tile1", "tile1:tile2", "tile2:tile2"], rotation=50, ha="right", va="top")
+
+ax.set_xlabel("")
+ax.set_ylabel("count of pairs")
+
+
+# ## 5. correlate MPRA activities w/ endogenous activs
+
+# In[44]:
 
 
 human_tmp = human_df_w_ctrls
 human_tmp.columns
 
 
-# In[33]:
+# In[45]:
 
 
 human_tmp["stem_exp_hg19_fixed"] = human_tmp.apply(fix_cage_exp, col="stem_exp_hg19", axis=1)
 human_tmp.sample(5)
 
 
-# In[34]:
+# In[46]:
 
 
 for tile_num in ["tile1", "tile2"]:
@@ -476,7 +594,7 @@ for tile_num in ["tile1", "tile2"]:
     plt.close()
 
 
-# In[35]:
+# In[47]:
 
 
 for tile_num in ["tile1", "tile2"]:
@@ -508,7 +626,7 @@ for tile_num in ["tile1", "tile2"]:
     plt.close()
 
 
-# In[36]:
+# In[48]:
 
 
 mouse_tmp = mouse_df_w_ctrls
@@ -516,7 +634,7 @@ mouse_tmp["stem_exp_mm9_fixed"] = mouse_tmp.apply(fix_cage_exp, col="stem_exp_mm
 len(mouse_tmp)
 
 
-# In[37]:
+# In[49]:
 
 
 for tile_num in ["tile1", "tile2"]:
@@ -549,7 +667,7 @@ for tile_num in ["tile1", "tile2"]:
     plt.close()
 
 
-# In[38]:
+# In[50]:
 
 
 for tile_num in ["tile1", "tile2"]:
@@ -583,7 +701,7 @@ for tile_num in ["tile1", "tile2"]:
 
 # ## 6. how does endogenous CAGE expr compare between human and mouse
 
-# In[39]:
+# In[51]:
 
 
 human_tmp["species"] = "human"
@@ -600,13 +718,13 @@ tmp["log_max"] = np.log10(tmp["max_cage"]+1)
 tmp.head(5)
 
 
-# In[40]:
+# In[52]:
 
 
 tmp_pal = {"human": sns.color_palette("Set2")[1], "mouse": sns.color_palette("Set2")[0]}
 
 
-# In[41]:
+# In[53]:
 
 
 fig = plt.figure(figsize=(2.5, 1.5))
@@ -656,7 +774,7 @@ ax.set_ylim((-1.25, 1500))
 fig.savefig("human_v_mouse_cage.min.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[42]:
+# In[54]:
 
 
 fig = plt.figure(figsize=(2.5, 1.5))
@@ -708,16 +826,22 @@ for i, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
 
 # ## 7. write files
 
-# In[43]:
+# In[55]:
 
 
 human_df_filename = "%s/human_TSS_vals.both_tiles.txt" % data_dir
 mouse_df_filename = "%s/mouse_TSS_vals.both_tiles.txt" % data_dir
 
 
-# In[44]:
+# In[56]:
 
 
 human_df.to_csv(human_df_filename, sep="\t", index=False)
 mouse_df.to_csv(mouse_df_filename, sep="\t", index=False)
+
+
+# In[57]:
+
+
+tss_map_mrg.to_csv("../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED_WITH_MAX.txt", sep="\t", index=False)
 
