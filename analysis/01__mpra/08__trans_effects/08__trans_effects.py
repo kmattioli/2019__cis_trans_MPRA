@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[2]:
 
 
 import warnings
@@ -33,20 +33,20 @@ get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'svg'")
 mpl.rcParams['figure.autolayout'] = False
 
 
-# In[2]:
+# In[3]:
 
 
 sns.set(**PAPER_PRESET)
 fontsize = PAPER_FONTSIZE
 
 
-# In[3]:
+# In[4]:
 
 
 np.random.seed(2019)
 
 
-# In[4]:
+# In[5]:
 
 
 QUANT_ALPHA = 0.05
@@ -54,7 +54,7 @@ QUANT_ALPHA = 0.05
 
 # ## functions
 
-# In[5]:
+# In[6]:
 
 
 def trans_sig_status(row):
@@ -70,7 +70,7 @@ def trans_sig_status(row):
 
 # ## variables
 
-# In[6]:
+# In[7]:
 
 
 data_f = "../../../data/02__mpra/03__results/all_processed_results.txt"
@@ -78,7 +78,7 @@ data_f = "../../../data/02__mpra/03__results/all_processed_results.txt"
 
 # ## 1. import data
 
-# In[7]:
+# In[8]:
 
 
 data = pd.read_table(data_f, sep="\t")
@@ -87,21 +87,21 @@ data.head()
 
 # ## 2. filter data
 
-# In[8]:
+# In[9]:
 
 
 data = data[~pd.isnull(data["minimal_biotype_hg19"])]
 len(data)
 
 
-# In[9]:
+# In[10]:
 
 
 data_filt = data[((data["HUES64_padj_hg19"] < QUANT_ALPHA) | (data["mESC_padj_mm9"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[10]:
+# In[11]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -109,28 +109,28 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[11]:
+# In[12]:
 
 
 # data_filt_tile1 = data_filt[data_filt["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1)
 
 
-# In[12]:
+# In[13]:
 
 
 # data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1_sp)
 
 
-# In[13]:
+# In[14]:
 
 
 # data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
 # len(data_filt_tile2)
 
 
-# In[14]:
+# In[15]:
 
 
 # data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
@@ -139,7 +139,7 @@ len(data_filt_sp)
 
 # ## 3. count of trans effects
 
-# In[15]:
+# In[16]:
 
 
 trans_order = ["no trans effect", "significant trans effect"]
@@ -152,7 +152,7 @@ det_pal = {"trans effect\n(higher in human)": sns.light_palette(sns.color_palett
            "trans effect\n(higher in mouse)": sns.light_palette(sns.color_palette("Set2")[0])[2]}
 
 
-# In[16]:
+# In[17]:
 
 
 # dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
@@ -160,7 +160,7 @@ det_pal = {"trans effect\n(higher in human)": sns.light_palette(sns.color_palett
 # labels = ["both_tiles", "tile1_only", "tile2_only"]
 
 
-# In[17]:
+# In[18]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -187,13 +187,13 @@ det_pal = {"trans effect\n(higher in human)": sns.light_palette(sns.color_palett
 #     plt.close()
 
 
-# In[18]:
+# In[19]:
 
 
 df = data_filt_sp
 
 
-# In[19]:
+# In[20]:
 
 
 fig, ax = plt.subplots(figsize=(0.75, 1.75), nrows=1, ncols=1)
@@ -219,7 +219,7 @@ plt.close()
 
 # ## 4. plot trans effect sizes between human and mouse
 
-# In[20]:
+# In[21]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -259,7 +259,7 @@ plt.close()
 #     fig.savefig("trans_effect_bw_seqs_scatter.sig_status_color.%s.pdf" % label, dpi="figure", bbox_inches="tight")
 
 
-# In[21]:
+# In[22]:
 
 
 df["trans_sig_status"] = df.apply(trans_sig_status, axis=1)
@@ -300,7 +300,7 @@ fig.savefig("trans_effect_bw_seqs_scatter.sig_status_color.pdf", dpi="figure", b
 
 # ## 5. effect size differences across biotypes
 
-# In[22]:
+# In[23]:
 
 
 min_switch_order = ["CAGE turnover - eRNA", "CAGE turnover - lncRNA", "CAGE turnover - mRNA", 
@@ -313,7 +313,7 @@ min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2],
                   "mRNA": sns.color_palette("Set2")[7]}
 
 
-# In[23]:
+# In[24]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -348,7 +348,7 @@ min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2],
 #     plt.close()
 
 
-# In[24]:
+# In[25]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -418,7 +418,7 @@ min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2],
 #     plt.close()
 
 
-# In[25]:
+# In[26]:
 
 
 df["abs_logFC_trans"] = np.abs(df["logFC_trans_one"])
@@ -486,7 +486,7 @@ fig.savefig("trans_minimal_biotype_switch_effectsize_boxplot.pdf", dpi="figure",
 plt.close()
 
 
-# In[26]:
+# In[27]:
 
 
 def cage_status(row):
@@ -496,7 +496,7 @@ def cage_status(row):
         return "conserved"
 
 
-# In[27]:
+# In[28]:
 
 
 def one_biotype(row):
@@ -506,13 +506,13 @@ def one_biotype(row):
         return row.minimal_biotype_hg19
 
 
-# In[28]:
+# In[29]:
 
 
 pal = {"conserved": sns.color_palette("Set2")[7], "turnover": sns.color_palette("Set2")[2]}
 
 
-# In[29]:
+# In[30]:
 
 
 # for df, title, pltname in zip(dfs, titles, labels):
@@ -567,7 +567,7 @@ pal = {"conserved": sns.color_palette("Set2")[7], "turnover": sns.color_palette(
 #     fig.savefig("trans_effect_biotype_sep_cage.%s.pdf" % pltname, dpi="figure", bbox_inches="tight")
 
 
-# In[30]:
+# In[31]:
 
 
 df["abs_logFC_trans"] = np.abs(df["logFC_trans_one"])
@@ -622,7 +622,7 @@ fig.savefig("trans_effect_biotype_sep_cage.pdf", dpi="figure", bbox_inches="tigh
 
 # ## 6. percent sig across biotypes
 
-# In[31]:
+# In[32]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -655,7 +655,7 @@ fig.savefig("trans_effect_biotype_sep_cage.pdf", dpi="figure", bbox_inches="tigh
 #     plt.close()
 
 
-# In[32]:
+# In[33]:
 
 
 tots = df.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
@@ -683,4 +683,58 @@ for i, l in enumerate(min_switch_order):
 plt.show()
 fig.savefig("perc_sig_trans_minimal_biotype_switch.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
+
+
+# ## 7. plot example
+
+# In[80]:
+
+
+ex = df[df["mm9_id"] == "m.2911"]
+ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HUES64_hg19", "HUES64_mm9",
+         "mESC_hg19", "mESC_mm9", "trans_human_status_det", "fdr_trans_human", "trans_mouse_status_det", 
+         "fdr_trans_mouse"]]
+ex
+
+
+# In[81]:
+
+
+ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
+ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9", "fdr_trans_human", "fdr_trans_mouse"])]
+
+
+# In[82]:
+
+
+ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
+ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
+ex.head()
+
+
+# In[86]:
+
+
+order = ["hg19", "mm9"]
+hue_order = ["HUES64", "mESC"]
+pal = {"HUES64": sns.color_palette("Set2")[1], "mESC": sns.color_palette("Set2")[0]}
+
+
+# In[89]:
+
+
+fig = plt.figure(figsize=(1.5, 1.5))
+
+sub = ex[ex["cell"].isin(["HUES64", "mESC"])]
+ax = sns.barplot(data=sub, x="seq", y="value", hue="cell", order=order, hue_order=hue_order, palette=pal)
+ax.set_xticklabels(["human seq.", "mouse seq."], rotation=50, va="top", ha="right")
+ax.set_ylabel("MPRA activity")
+ax.set_xlabel("")
+ax.get_legend().remove()
+
+ax.set_ylim((0, 3))
+annotate_pval(ax, -0.25, 0.25, 1.25, 0, 1.25, ex[ex["variable"] == "fdr_trans_human"]["value"].iloc[0], fontsize-1)
+annotate_pval(ax, 0.75, 1.25, 2.35, 0, 2.35, ex[ex["variable"] == "fdr_trans_mouse"]["value"].iloc[0], fontsize-1)
+
+fig.savefig("trans_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 

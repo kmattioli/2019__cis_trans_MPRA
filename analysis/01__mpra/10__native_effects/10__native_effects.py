@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[35]:
 
 
 import warnings
@@ -32,20 +32,20 @@ get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'svg'")
 mpl.rcParams['figure.autolayout'] = False
 
 
-# In[2]:
+# In[36]:
 
 
 sns.set(**PAPER_PRESET)
 fontsize = PAPER_FONTSIZE
 
 
-# In[3]:
+# In[37]:
 
 
 np.random.seed(2019)
 
 
-# In[4]:
+# In[38]:
 
 
 QUANT_ALPHA = 0.05
@@ -53,7 +53,7 @@ QUANT_ALPHA = 0.05
 
 # ## functions
 
-# In[5]:
+# In[39]:
 
 
 def get_cage_fc(row):
@@ -69,7 +69,7 @@ def get_cage_fc(row):
     return cage_fc
 
 
-# In[6]:
+# In[40]:
 
 
 def cage_status_det(row):
@@ -84,7 +84,7 @@ def cage_status_det(row):
 
 # ## variables
 
-# In[7]:
+# In[41]:
 
 
 data_f = "../../../data/02__mpra/03__results/all_processed_results.txt"
@@ -92,7 +92,7 @@ data_f = "../../../data/02__mpra/03__results/all_processed_results.txt"
 
 # ## 1. import data
 
-# In[8]:
+# In[42]:
 
 
 data = pd.read_table(data_f, sep="\t")
@@ -101,27 +101,27 @@ data.head()
 
 # ## 2. filter data
 
-# In[9]:
+# In[43]:
 
 
 len(data)
 
 
-# In[10]:
+# In[44]:
 
 
 data = data[~pd.isnull(data["minimal_biotype_hg19"])]
 len(data)
 
 
-# In[11]:
+# In[45]:
 
 
 data_filt = data[((data["HUES64_padj_hg19"] < QUANT_ALPHA) | (data["mESC_padj_mm9"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[12]:
+# In[46]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -129,28 +129,28 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[13]:
+# In[47]:
 
 
 # data_filt_tile1 = data_filt[data_filt["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1)
 
 
-# In[14]:
+# In[48]:
 
 
 # data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1_sp)
 
 
-# In[15]:
+# In[49]:
 
 
 # data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
 # len(data_filt_tile2)
 
 
-# In[16]:
+# In[50]:
 
 
 # data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
@@ -159,7 +159,7 @@ len(data_filt_sp)
 
 # ## 3. counts of native effects in general (across all biotypes)
 
-# In[17]:
+# In[51]:
 
 
 native_order = ["no native effect", "significant native effect"]
@@ -172,7 +172,7 @@ det_pal = {"native effect\n(higher in human)": sns.color_palette("Set2")[1],
            "native effect\n(higher in mouse)": sns.color_palette("Set2")[0]}
 
 
-# In[18]:
+# In[52]:
 
 
 # dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
@@ -180,13 +180,13 @@ det_pal = {"native effect\n(higher in human)": sns.color_palette("Set2")[1],
 # labels = ["both_tiles", "tile1_only", "tile2_only"]
 
 
-# In[19]:
+# In[53]:
 
 
 df = data_filt_sp
 
 
-# In[20]:
+# In[54]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -213,7 +213,7 @@ df = data_filt_sp
 #     plt.close()
 
 
-# In[21]:
+# In[55]:
 
 
 fig, ax = plt.subplots(figsize=(0.75, 1.75), nrows=1, ncols=1)
@@ -237,7 +237,7 @@ fig.savefig("count_native_status.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[22]:
+# In[56]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -260,7 +260,7 @@ plt.close()
 #     fig.savefig("count_native_status_detail.%s.pdf" % label, dpi="figure", bbox_inches="tight")
 
 
-# In[23]:
+# In[57]:
 
 
 fig, ax = plt.subplots(figsize=(0.75, 1.75), nrows=1, ncols=1)
@@ -282,14 +282,14 @@ fig.savefig("count_native_status_detail.pdf", dpi="figure", bbox_inches="tight")
 
 # ## 4. count of native status when looking only at CAGE
 
-# In[24]:
+# In[58]:
 
 
 det_order = ["higher in human", "higher in mouse"]
 pal = {"higher in human": sns.color_palette("Set2")[1], "higher in mouse": sns.color_palette("Set2")[0]}
 
 
-# In[25]:
+# In[59]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -316,7 +316,7 @@ pal = {"higher in human": sns.color_palette("Set2")[1], "higher in mouse": sns.c
 #     fig.savefig("count_cage_status_detail.%s.pdf" % label, dpi="figure", bbox_inches="tight")
 
 
-# In[26]:
+# In[60]:
 
 
 df["cage_fc"] = df.apply(get_cage_fc, axis=1)
@@ -343,14 +343,14 @@ fig.savefig("count_cage_status_detail.pdf", dpi="figure", bbox_inches="tight")
 
 # ## 5. effect sizes across biotypes
 
-# In[27]:
+# In[61]:
 
 
 min_switch_order = ["CAGE turnover - eRNA", "CAGE turnover - lncRNA", "CAGE turnover - mRNA", 
                     "eRNA", "lncRNA", "mRNA"]
 
 
-# In[28]:
+# In[62]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -384,7 +384,7 @@ min_switch_order = ["CAGE turnover - eRNA", "CAGE turnover - lncRNA", "CAGE turn
 #     plt.close()
 
 
-# In[29]:
+# In[63]:
 
 
 def turnover_status(row):
@@ -400,7 +400,7 @@ def turnover_biotype(row):
         return row["biotype_switch_minimal"]
 
 
-# In[30]:
+# In[64]:
 
 
 turnover_order = ["eRNA", "lncRNA", "mRNA"]
@@ -408,7 +408,7 @@ turnover_pal = {"CAGE turnover": "gray", "none": sns.color_palette("Set2")[2]}
 hue_order = ["CAGE turnover", "none"]
 
 
-# In[31]:
+# In[65]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -458,7 +458,7 @@ hue_order = ["CAGE turnover", "none"]
 
 # ## 6. number sig across biotypes
 
-# In[32]:
+# In[66]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -491,7 +491,7 @@ hue_order = ["CAGE turnover", "none"]
 #     plt.close()
 
 
-# In[33]:
+# In[67]:
 
 
 tots = df.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
@@ -523,7 +523,7 @@ plt.close()
 
 # ## 7. direc v. comp in native status
 
-# In[34]:
+# In[68]:
 
 
 # for df, title, label in zip(dfs, titles, labels):

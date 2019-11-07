@@ -1037,7 +1037,7 @@ fig.savefig("direc_v_comp.pdf", dpi="figure", bbox_inches="tight")
 #     plt.close()
 
 
-# In[49]:
+# In[48]:
 
 
 cis_trans = df[(df["cis_status_one"] == "significant cis effect") & 
@@ -1075,4 +1075,216 @@ for i, l in enumerate(min_switch_order):
 plt.show()
 fig.savefig("perc_sig_compensatory_minimal_biotype_switch.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
+
+
+# ## 11. plot some examples
+
+# ### compensatory
+
+# In[124]:
+
+
+ex = df[df["hg19_id"] == "h.1433"]
+ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HUES64_hg19", "HUES64_mm9",
+         "mESC_hg19", "mESC_mm9", "trans_human_status_det", "fdr_trans_human", "trans_mouse_status_det", 
+         "fdr_trans_mouse", "cis_HUES64_status_det", "fdr_cis_HUES64", "cis_mESC_status_det", "fdr_cis_mESC",
+         "logFC_trans_human", "logFC_trans_mouse", "logFC_cis_HUES64", "logFC_cis_mESC"]]
+ex
+
+
+# In[125]:
+
+
+ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
+ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9",
+                             "fdr_cis_HUES64", "fdr_cis_mESC",
+                             "fdr_trans_human", "fdr_trans_mouse", "logFC_cis_HUES64", "logFC_cis_mESC",
+                             "logFC_trans_human", "logFC_trans_mouse"])]
+
+
+# In[126]:
+
+
+ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
+ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
+ex.head()
+
+
+# In[127]:
+
+
+order = ["HUES64", "mESC"]
+hue_order = ["hg19", "mm9"]
+pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
+
+
+# In[128]:
+
+
+fig = plt.figure(figsize=(1.5, 1.5))
+
+sub = ex[ex["cell"].isin(["HUES64", "mESC"])]
+ax = sns.barplot(data=sub, x="cell", y="value", hue="seq", order=order, hue_order=hue_order, palette=pal)
+ax.set_xticklabels(["hESCs", "mESCs"], rotation=50, va="top", ha="right")
+ax.set_ylabel("MPRA activity")
+ax.set_xlabel("")
+ax.get_legend().remove()
+
+ax.set_ylim((0, 14))
+annotate_pval(ax, -0.25, 0.25, 9.5, 0, 9.5, ex[ex["variable"] == "fdr_cis_HUES64"]["value"].iloc[0], fontsize-1)
+annotate_pval(ax, 0.75, 1.25, 8.25, 0, 8.25, ex[ex["variable"] == "fdr_cis_mESC"]["value"].iloc[0], fontsize-1)
+annotate_pval(ax, -0.25, 0.75, 11.5, 0, 11.5, ex[ex["variable"] == "fdr_trans_human"]["value"].iloc[0], fontsize-1)
+annotate_pval(ax, 0.25, 1.25, 12.75, 0, 12.75, ex[ex["variable"] == "fdr_trans_mouse"]["value"].iloc[0], fontsize-1)
+
+fig.savefig("compensatory_example_barplot.pdf", dpi="figure", bbox_inches="tight")
+
+
+# In[129]:
+
+
+ex_sub = ex[ex["variable"].str.contains("logFC")]
+ex_sub["sp"] = ex_sub["variable"].str.split("_", expand=True)[2]
+ex_sub = ex_sub.sort_values(by=["seq", "sp"])
+ex_sub
+
+
+# In[130]:
+
+
+def sp(row):
+    if row.sp in ["HUES64", "human"]:
+        return "human"
+    else:
+        return "mouse"
+    
+ex_sub["sp"] = ex_sub.apply(sp, axis=1)
+ex_sub
+
+
+# In[131]:
+
+
+order = ["cis", "trans"]
+
+
+# In[132]:
+
+
+fig, axarr = plt.subplots(figsize=(1.5, 1.5), nrows=1, ncols=2, sharey=True)
+human_ax = axarr[0]
+mouse_ax = axarr[1]
+
+sub = ex_sub[ex_sub["sp"] == "human"]
+sns.barplot(data=sub, x="seq", y="value", ax=human_ax, color=sns.color_palette("Set2")[1])
+human_ax.set_xticklabels(order, rotation=50, va="top", ha="right")
+human_ax.set_ylabel("effect size")
+human_ax.set_xlabel("")
+human_ax.axhline(y=0, linestyle="dashed", color="black")
+
+sub = ex_sub[ex_sub["sp"] == "mouse"]
+sns.barplot(data=sub, x="seq", y="value", ax=mouse_ax, color=sns.color_palette("Set2")[0])
+mouse_ax.set_xticklabels(order, rotation=50, va="top", ha="right")
+mouse_ax.set_ylabel("")
+mouse_ax.set_xlabel("")
+mouse_ax.axhline(y=0, linestyle="dashed", color="black")
+fig.savefig("compensatory_example_effectsize.pdf", dpi="figure", bbox_inches="tight")
+
+
+# ### directional
+
+# In[133]:
+
+
+ex = df[df["hg19_id"] == "h.1389"]
+ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HUES64_hg19", "HUES64_mm9",
+         "mESC_hg19", "mESC_mm9", "trans_human_status_det", "fdr_trans_human", "trans_mouse_status_det", 
+         "fdr_trans_mouse", "cis_HUES64_status_det", "fdr_cis_HUES64", "cis_mESC_status_det", "fdr_cis_mESC",
+         "logFC_trans_human", "logFC_trans_mouse", "logFC_cis_HUES64", "logFC_cis_mESC"]]
+ex
+
+
+# In[134]:
+
+
+ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
+ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9",
+                             "fdr_cis_HUES64", "fdr_cis_mESC",
+                             "fdr_trans_human", "fdr_trans_mouse", "logFC_cis_HUES64", "logFC_cis_mESC",
+                             "logFC_trans_human", "logFC_trans_mouse"])]
+
+
+# In[135]:
+
+
+ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
+ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
+ex.head()
+
+
+# In[136]:
+
+
+order = ["HUES64", "mESC"]
+hue_order = ["hg19", "mm9"]
+pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
+
+
+# In[137]:
+
+
+fig = plt.figure(figsize=(1.5, 1.5))
+
+sub = ex[ex["cell"].isin(["HUES64", "mESC"])]
+ax = sns.barplot(data=sub, x="cell", y="value", hue="seq", order=order, hue_order=hue_order, palette=pal)
+ax.set_xticklabels(["hESCs", "mESCs"], rotation=50, va="top", ha="right")
+ax.set_ylabel("MPRA activity")
+ax.set_xlabel("")
+ax.get_legend().remove()
+
+ax.set_ylim((0, 7))
+annotate_pval(ax, -0.25, 0.25, 5, 0, 5, ex[ex["variable"] == "fdr_cis_HUES64"]["value"].iloc[0], fontsize-1)
+annotate_pval(ax, 0.75, 1.25, 2.25, 0, 2.25, ex[ex["variable"] == "fdr_cis_mESC"]["value"].iloc[0], fontsize-1)
+annotate_pval(ax, -0.25, 0.75, 6.15, 0, 6.15, ex[ex["variable"] == "fdr_trans_human"]["value"].iloc[0], fontsize-1)
+annotate_pval(ax, 0.25, 1.25, 3.25, 0, 3.25, ex[ex["variable"] == "fdr_trans_mouse"]["value"].iloc[0], fontsize-1)
+
+fig.savefig("directional_example_barplot.pdf", dpi="figure", bbox_inches="tight")
+
+
+# In[138]:
+
+
+ex_sub = ex[ex["variable"].str.contains("logFC")]
+ex_sub["sp"] = ex_sub["variable"].str.split("_", expand=True)[2]
+ex_sub = ex_sub.sort_values(by=["seq", "sp"])
+ex_sub["sp"] = ex_sub.apply(sp, axis=1)
+ex_sub
+
+
+# In[139]:
+
+
+order = ["cis", "trans"]
+
+
+# In[140]:
+
+
+fig, axarr = plt.subplots(figsize=(1.5, 1.5), nrows=1, ncols=2, sharey=True)
+human_ax = axarr[0]
+mouse_ax = axarr[1]
+
+sub = ex_sub[ex_sub["sp"] == "human"]
+sns.barplot(data=sub, x="seq", y="value", ax=human_ax, color=sns.color_palette("Set2")[1])
+human_ax.set_xticklabels(order, rotation=50, va="top", ha="right")
+human_ax.set_ylabel("effect size")
+human_ax.set_xlabel("")
+human_ax.axhline(y=0, linestyle="dashed", color="black")
+
+sub = ex_sub[ex_sub["sp"] == "mouse"]
+sns.barplot(data=sub, x="seq", y="value", ax=mouse_ax, color=sns.color_palette("Set2")[0])
+mouse_ax.set_xticklabels(order, rotation=50, va="top", ha="right")
+mouse_ax.set_ylabel("")
+mouse_ax.set_xlabel("")
+mouse_ax.axhline(y=0, linestyle="dashed", color="black")
+fig.savefig("directional_example_effectsize.pdf", dpi="figure", bbox_inches="tight")
 

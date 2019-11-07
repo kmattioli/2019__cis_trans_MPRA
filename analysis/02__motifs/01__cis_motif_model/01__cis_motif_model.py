@@ -641,7 +641,7 @@ for i, row in sig_results.iterrows():
     full_pal[row["HGNC symbol"]] = pal[row["activ_or_repr"]]
 
 
-# In[76]:
+# In[70]:
 
 
 # fig = plt.figure(figsize=(4, 2.5))
@@ -686,7 +686,7 @@ for i, row in sig_results.iterrows():
 # plt.close()
 
 
-# In[85]:
+# In[71]:
 
 
 fig = plt.figure(figsize=(4, 2.5))
@@ -725,7 +725,7 @@ fig.savefig("cis_motif_enrichment.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[86]:
+# In[72]:
 
 
 data_filt = data_elem[((data_elem["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_elem["mESC_padj_mm9"] < QUANT_ALPHA))]
@@ -734,7 +734,7 @@ print(len(data_filt))
 # len(data_filt)
 
 
-# In[87]:
+# In[73]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -742,14 +742,14 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[88]:
+# In[74]:
 
 
 data_filt_sp["hg19_index"] = data_filt_sp["hg19_id"] + "__" + data_filt_sp["tss_tile_num"]
 data_filt_sp["mm9_index"] = data_filt_sp["mm9_id"] + "__" + data_filt_sp["tss_tile_num"]
 
 
-# In[89]:
+# In[75]:
 
 
 def uniq_motif(row):
@@ -765,13 +765,13 @@ def uniq_motif(row):
             return "not present"
 
 
-# In[90]:
+# In[76]:
 
 
 sns.palplot(sns.color_palette("Set2"))
 
 
-# In[94]:
+# In[77]:
 
 
 # plot some examples
@@ -865,14 +865,14 @@ for symb in examps:
 # - full turnover = motifs that are only present in one species
 # - partial turnover = motifs that are in both species but don't map to the exact same sequence
 
-# In[96]:
+# In[78]:
 
 
 print(len(data))
 data.tss_tile_num.value_counts()
 
 
-# In[97]:
+# In[79]:
 
 
 turnover_results = {}
@@ -934,7 +934,7 @@ for i, row in data.iterrows():
                                                                        "delta_motifs": delta_motifs}
 
 
-# In[98]:
+# In[80]:
 
 
 turnover_df = pd.DataFrame.from_dict(turnover_results, orient="index").reset_index()
@@ -956,7 +956,7 @@ turnover_df.head()
 
 # ## 9. merge motif turnover data w/ cis effects
 
-# In[99]:
+# In[81]:
 
 
 data_motifs = data.merge(turnover_df, on=["hg19_id", "mm9_id", "tss_tile_num"], how="left")

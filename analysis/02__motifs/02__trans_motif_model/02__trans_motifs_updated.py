@@ -852,14 +852,21 @@ plt.close()
 
 # ## 7. join w/ % similarity information
 
-# In[72]:
-
-
-orth_sub = orth[["Gene name", "Mouse gene name", "%id. target Mouse gene identical to query gene"]]
-orth_sub.columns = ["human_gene_name", "mouse_gene_name", "perc_similarity"]
-
-
 # In[73]:
+
+
+orth.columns
+
+
+# In[74]:
+
+
+orth_sub = orth[["Gene name", "Mouse gene name", "dN with Mouse", "dS with Mouse"]]
+orth_sub.columns = ["human_gene_name", "mouse_gene_name", "dN", "dS"]
+orth_sub["dNdS"] = orth_sub["dN"]/orth_sub["dS"]
+
+
+# In[75]:
 
 
 trans_orth = trans_orth.merge(orth_sub, left_on="HGNC symbol", right_on="human_gene_name").drop_duplicates()
@@ -867,7 +874,7 @@ print(len(trans_orth))
 trans_orth.sample(5)
 
 
-# In[74]:
+# In[76]:
 
 
 trans_orth["abs_l2fc"] = np.abs(trans_orth["logFC"])
@@ -875,20 +882,20 @@ trans_orth["sig_status"] = trans_orth.apply(sig_status, axis=1)
 trans_orth.head()
 
 
-# In[75]:
+# In[77]:
 
 
 trans_orth.sig_status.value_counts()
 
 
-# In[76]:
+# In[78]:
 
 
 order = ["not sig", "sig"]
 palette = {"not sig": "gray", "sig": sns.color_palette("Set2")[2]}
 
 
-# In[77]:
+# In[79]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -925,11 +932,11 @@ fig.savefig("trans_v_l2fc_boxplot.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[78]:
+# In[84]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
-ax = sns.boxplot(data=trans_orth, x="sig_status", y="perc_similarity", palette=palette, order=order,
+ax = sns.boxplot(data=trans_orth, x="sig_status", y="dNdS", palette=palette, order=order,
                  flierprops = dict(marker='o', markersize=5))
 mimic_r_boxplot(ax)
 
@@ -939,15 +946,15 @@ ax.set_ylabel("% sequence similarity")
 
 for i, label in enumerate(order):
     n = len(trans_orth[trans_orth["sig_status"] == label])
-    ax.annotate(str(n), xy=(i, 10), xycoords="data", xytext=(0, 0), 
-                textcoords="offset pixels", ha='center', va='top', 
+    ax.annotate(str(n), xy=(i, -0.05), xycoords="data", xytext=(0, 0), 
+                textcoords="offset pixels", ha='center', va='bottom', 
                 color=palette[label], size=fontsize)
 
-ax.set_ylim((0, 115))
+ax.set_ylim((-0.1, 0.6))
 
 # calc p-vals b/w dists
-dist1 = np.asarray(trans_orth[trans_orth["sig_status"] == "sig"]["perc_similarity"])
-dist2 = np.asarray(trans_orth[trans_orth["sig_status"] != "sig"]["perc_similarity"])
+dist1 = np.asarray(trans_orth[trans_orth["sig_status"] == "sig"]["dNdS"])
+dist2 = np.asarray(trans_orth[trans_orth["sig_status"] != "sig"]["dNdS"])
 
 dist1 = dist1[~np.isnan(dist1)]
 dist2 = dist2[~np.isnan(dist2)]
@@ -955,14 +962,14 @@ dist2 = dist2[~np.isnan(dist2)]
 u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
 print(pval)
 
-annotate_pval(ax, 0.2, 0.8, 100, 0, 100, pval, fontsize)
+annotate_pval(ax, 0.2, 0.8, 0.2, 0, 0.2, pval, fontsize-1)
 
 plt.show()
 fig.savefig("trans_v_similarity_boxplot.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[80]:
+# In[85]:
 
 
 trans_orth_sig = trans_orth[trans_orth["sig_status"] == "sig"]
@@ -970,29 +977,29 @@ print(len(trans_orth_sig))
 trans_orth_sig.head()
 
 
-# In[81]:
+# In[88]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
-ax = sns.boxplot(data=trans_orth_sig, x="sig", y="perc_similarity", palette=palette, order=order,
+ax = sns.boxplot(data=trans_orth_sig, x="sig", y="dNdS", palette=palette, order=order,
                  flierprops = dict(marker='o', markersize=5))
 mimic_r_boxplot(ax)
 
 ax.set_xticklabels(order, rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("% sequence similarity")
+ax.set_ylabel("dN/dS")
 
 for i, label in enumerate(order):
     n = len(trans_orth_sig[trans_orth_sig["sig"] == label])
-    ax.annotate(str(n), xy=(i, 10), xycoords="data", xytext=(0, 0), 
-                textcoords="offset pixels", ha='center', va='top', 
+    ax.annotate(str(n), xy=(i, -0.07), xycoords="data", xytext=(0, 0), 
+                textcoords="offset pixels", ha='center', va='bottom', 
                 color=palette[label], size=fontsize)
 
-ax.set_ylim((0, 115))
+ax.set_ylim((-0.09, 0.4))
 
 # calc p-vals b/w dists
-dist1 = np.asarray(trans_orth_sig[trans_orth_sig["sig"] == "sig"]["perc_similarity"])
-dist2 = np.asarray(trans_orth_sig[trans_orth_sig["sig"] != "sig"]["perc_similarity"])
+dist1 = np.asarray(trans_orth_sig[trans_orth_sig["sig"] == "sig"]["dNdS"])
+dist2 = np.asarray(trans_orth_sig[trans_orth_sig["sig"] != "sig"]["dNdS"])
 
 dist1 = dist1[~np.isnan(dist1)]
 dist2 = dist2[~np.isnan(dist2)]
@@ -1000,7 +1007,7 @@ dist2 = dist2[~np.isnan(dist2)]
 u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
 print(pval)
 
-annotate_pval(ax, 0.2, 0.8, 100, 0, 100, pval, fontsize)
+annotate_pval(ax, 0.2, 0.8, 0.2, 0, 0.2, pval, fontsize-1)
 
 plt.show()
 fig.savefig("DE_v_similarity_boxplot.pdf", dpi="figure", bbox_inches="tight")

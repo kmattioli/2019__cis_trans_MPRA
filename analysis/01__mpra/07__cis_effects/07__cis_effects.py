@@ -656,3 +656,56 @@ plt.show()
 fig.savefig("perc_sig_cis_minimal_biotype_switch.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
+
+# ## 7. plot example
+
+# In[46]:
+
+
+ex = df[df["hg19_id"] == "h.1096"]
+ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HUES64_hg19", "HUES64_mm9",
+         "mESC_hg19", "mESC_mm9", "cis_HUES64_status_det", "fdr_cis_HUES64", "cis_mESC_status_det", "fdr_cis_mESC"]]
+ex
+
+
+# In[47]:
+
+
+ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
+ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9", "fdr_cis_HUES64", "fdr_cis_mESC"])]
+
+
+# In[49]:
+
+
+ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
+ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
+ex.head()
+
+
+# In[55]:
+
+
+order = ["HUES64", "mESC"]
+hue_order = ["hg19", "mm9"]
+pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
+
+
+# In[61]:
+
+
+fig = plt.figure(figsize=(1.5, 1.5))
+
+sub = ex[ex["cell"].isin(["HUES64", "mESC"])]
+ax = sns.barplot(data=sub, x="cell", y="value", hue="seq", order=order, hue_order=hue_order, palette=pal)
+ax.set_xticklabels(["hESCs", "mESCs"], rotation=50, va="top", ha="right")
+ax.set_ylabel("MPRA activity")
+ax.set_xlabel("")
+ax.get_legend().remove()
+
+ax.set_ylim((0, 4.25))
+annotate_pval(ax, -0.25, 0.25, 3.75, 0, 3.75, ex[ex["variable"] == "fdr_cis_HUES64"]["value"].iloc[0], fontsize-1)
+annotate_pval(ax, 0.75, 1.25, 2.25, 0, 2.25, ex[ex["variable"] == "fdr_cis_mESC"]["value"].iloc[0], fontsize-1)
+
+fig.savefig("cis_example_barplot.pdf", dpi="figure", bbox_inches="tight")
+

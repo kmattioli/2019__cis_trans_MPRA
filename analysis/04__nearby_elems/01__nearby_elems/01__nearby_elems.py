@@ -989,7 +989,7 @@ fig.savefig("cis_trans_n_enh_mm9.pdf", dpi="figure", bbox_inches="tight")
 #     fig.savefig("cis_trans_n_enh_mean.%s.pdf" % label, dpi="figure", bbox_inches="tight")
 
 
-# In[50]:
+# In[49]:
 
 
 fig = plt.figure(figsize=(1, 1.5))
@@ -1026,7 +1026,7 @@ ax.set_ylim((-30, 150))
 fig.savefig("cis_trans_n_enh_mean.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[51]:
+# In[50]:
 
 
 print("")
@@ -1058,8 +1058,20 @@ print((len(int))/(len(sub)))
 print("===")
 
 
-# In[52]:
+# In[51]:
 
 
 df[df["cis_trans_int_status"].str.contains("significant")]
+
+
+# In[56]:
+
+
+df[df["hg19_id"] == "h.1433"].iloc[0]
+
+
+# In[55]:
+
+
+df[df["hg19_id"] == "h.1389"]
 
