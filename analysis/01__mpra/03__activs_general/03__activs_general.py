@@ -249,10 +249,10 @@ min_mouse_ctrl_pal = {"negative control": "lightgray", "no CAGE activity": "gray
                       "mRNA": sns.color_palette("Set2")[0],"positive control": "black"}
 
 
-# In[26]:
+# In[39]:
 
 
-fig = plt.figure(figsize=(2.65, 1.5))
+fig = plt.figure(figsize=(2.35, 1.5))
 ax = sns.boxplot(data=human_df_w_ctrls, x="minimal_biotype_hg19", y="HUES64", flierprops = dict(marker='o', markersize=5),
                  order=min_ctrl_order, palette=min_human_ctrl_pal)
 mimic_r_boxplot(ax)
@@ -275,10 +275,10 @@ fig.savefig("better_neg_ctrl_boxplot.human.pdf", dpi="figure", bbox_inches="tigh
 plt.close()
 
 
-# In[27]:
+# In[40]:
 
 
-fig = plt.figure(figsize=(2.65, 1.5))
+fig = plt.figure(figsize=(2.35, 1.5))
 ax = sns.boxplot(data=mouse_df_w_ctrls, x="minimal_biotype_mm9", y="mESC", flierprops = dict(marker='o', markersize=5),
                  order=min_ctrl_order, palette=min_mouse_ctrl_pal)
 mimic_r_boxplot(ax)
@@ -303,7 +303,7 @@ plt.close()
 
 # ## 4. compare activities across tiles
 
-# In[28]:
+# In[41]:
 
 
 df = data[data["tss_tile_num"].isin(["tile1", "tile2"])]
@@ -317,34 +317,44 @@ mouse_df = mouse_df.merge(tss_map[["mm9_id", "minimal_biotype_mm9", "stem_exp_mm
 mouse_df.sample(5)
 
 
-# In[29]:
+# In[51]:
 
 
-for df, species, colname, color in zip([human_df, mouse_df], ["hESCs", "mESCs"], ["HUES64", "mESC"], [sns.color_palette("Set2")[1], sns.color_palette("Set2")[0]]):
-    fig = plt.figure(figsize=(1, 1))
-    ax = sns.boxplot(data=df, x="tss_tile_num", y=colname, flierprops = dict(marker='o', markersize=5),
-                     color=color)
+for df, species, colname, color, sp in zip([human_df, mouse_df], ["hESCs", "mESCs"], ["HUES64", "mESC"], 
+                                           [sns.color_palette("Set2")[1], sns.color_palette("Set2")[0]],
+                                           ["hg19", "mm9"]):
+    fig = plt.figure(figsize=(2, 1.5))
+    ax = sns.boxplot(data=df, x="minimal_biotype_%s" % sp, y=colname, hue="tss_tile_num", 
+                     flierprops = dict(marker='o', markersize=5),
+                     order=["eRNA", "lncRNA", "mRNA"], hue_order=["tile1", "tile2"],
+                     palette={"tile1": sns.light_palette(color)[5], "tile2": sns.light_palette(color)[2]})
     mimic_r_boxplot(ax)
+    ax.set_xticklabels(["eRNA", "lncRNA", "mRNA"], rotation=50, ha="right", va="top")
 
     # calc p-vals b/w dists
-    tile1_dist = np.asarray(df[df["tss_tile_num"] == "tile1"][colname])
-    tile2_dist = np.asarray(df[df["tss_tile_num"] == "tile2"][colname])
+    for i, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
+        sub = df[df["minimal_biotype_%s" % sp] == label]
+        tile1_dist = np.asarray(sub[sub["tss_tile_num"] == "tile1"][colname])
+        tile2_dist = np.asarray(sub[sub["tss_tile_num"] == "tile2"][colname])
 
-    tile1_dist = tile1_dist[~np.isnan(tile1_dist)]
-    tile2_dist = tile2_dist[~np.isnan(tile2_dist)]
+        tile1_dist = tile1_dist[~np.isnan(tile1_dist)]
+        tile2_dist = tile2_dist[~np.isnan(tile2_dist)]
 
-    tile_u, tile_pval = stats.mannwhitneyu(tile1_dist, tile2_dist, alternative="two-sided", use_continuity=False)
-    print(tile_pval)
+        tile_u, tile_pval = stats.mannwhitneyu(tile1_dist, tile2_dist, alternative="two-sided", use_continuity=False)
+        print(tile_pval)
 
-    annotate_pval(ax, 0.2, 0.8, 5, 0, 5, tile_pval, fontsize)
+        annotate_pval(ax, i-0.2, i+0.2, 50, 0, 50, tile_pval, fontsize-1)
+        
     ax.set_yscale('symlog')
-    ax.set_ylabel("MPRA activity\n(%s)" % species)
+    ax.set_ylabel("MPRA activity in %s" % species)
     ax.set_xlabel("")
-    ax.set_title(species)
+    ax.get_legend().remove()
+#     ax.set_title(species)
     ax.set_ylim((-0.1, 100))
+    fig.savefig("tile_comp_biotype.%s.pdf" % species, dpi="figure", bbox_inches="tight")
 
 
-# In[30]:
+# In[52]:
 
 
 for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "mESCs"], ["HUES64", "mESC"], 
@@ -389,7 +399,7 @@ for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "
     plt.close()
 
 
-# In[31]:
+# In[53]:
 
 
 for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "mESCs"], ["HUES64", "mESC"], 
@@ -429,7 +439,7 @@ for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "
 
 # find max tile in each species
 
-# In[32]:
+# In[54]:
 
 
 human_max = human_df[["hg19_id", "tss_tile_num", "HUES64"]]
@@ -439,7 +449,7 @@ human_max = human_max.sort_values(by="hg19_id")
 human_max.head()
 
 
-# In[33]:
+# In[55]:
 
 
 human_grp = human_df[["hg19_id", "tss_tile_num", "HUES64"]]
@@ -450,7 +460,7 @@ print(len(human_grp))
 len(human_grp[human_grp["n_tiles_hg19"] == 2])
 
 
-# In[34]:
+# In[56]:
 
 
 mouse_max = mouse_df[["mm9_id", "tss_tile_num", "mESC"]]
@@ -460,7 +470,7 @@ mouse_max = mouse_max.sort_values(by="mm9_id")
 mouse_max.head()
 
 
-# In[35]:
+# In[57]:
 
 
 mouse_grp = mouse_df[["mm9_id", "tss_tile_num", "mESC"]]
@@ -471,7 +481,7 @@ print(len(mouse_grp))
 len(mouse_grp[mouse_grp["n_tiles_mm9"] == 2])
 
 
-# In[36]:
+# In[58]:
 
 
 tss_map_mrg = tss_map.merge(human_max[["hg19_id", "tss_tile_num"]], on="hg19_id", how="left", 
@@ -482,7 +492,7 @@ tss_map_mrg = tss_map_mrg.merge(human_grp, on="hg19_id", how="left").merge(mouse
 tss_map_mrg.sample(10)
 
 
-# In[37]:
+# In[59]:
 
 
 print(len(tss_map_mrg))

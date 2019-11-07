@@ -1064,12 +1064,6 @@ print("===")
 df[df["cis_trans_int_status"].str.contains("significant")]
 
 
-# In[56]:
-
-
-df[df["hg19_id"] == "h.1433"].iloc[0]
-
-
 # In[55]:
 
 
