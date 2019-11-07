@@ -1,3 +1,0 @@
-column	condition
-rep1	rep1
-rep2	rep2
