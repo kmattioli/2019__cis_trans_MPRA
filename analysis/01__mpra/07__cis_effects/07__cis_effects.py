@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[ ]:
 
 
 import warnings
@@ -33,20 +33,20 @@ get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'svg'")
 mpl.rcParams['figure.autolayout'] = False
 
 
-# In[2]:
+# In[ ]:
 
 
 sns.set(**PAPER_PRESET)
 fontsize = PAPER_FONTSIZE
 
 
-# In[3]:
+# In[ ]:
 
 
 np.random.seed(2019)
 
 
-# In[4]:
+# In[ ]:
 
 
 QUANT_ALPHA = 0.05
@@ -54,7 +54,7 @@ QUANT_ALPHA = 0.05
 
 # ## functions
 
-# In[5]:
+# In[ ]:
 
 
 def cis_sig_status(row):
@@ -70,7 +70,7 @@ def cis_sig_status(row):
 
 # ## variables
 
-# In[6]:
+# In[ ]:
 
 
 data_f = "../../../data/02__mpra/03__results/all_processed_results.txt"
@@ -78,7 +78,7 @@ data_f = "../../../data/02__mpra/03__results/all_processed_results.txt"
 
 # ## 1. import data
 
-# In[7]:
+# In[ ]:
 
 
 data = pd.read_table(data_f, sep="\t")
@@ -87,33 +87,33 @@ data.head()
 
 # ## 2. filter data
 
-# In[8]:
+# In[ ]:
 
 
 len(data)
 
 
-# In[9]:
+# In[ ]:
 
 
 data = data[~pd.isnull(data["minimal_biotype_hg19"])]
 len(data)
 
 
-# In[10]:
+# In[ ]:
 
 
 data.cis_HUES64_status.value_counts()
 
 
-# In[11]:
+# In[ ]:
 
 
 data_filt = data[((data["HUES64_padj_hg19"] < QUANT_ALPHA) | (data["mESC_padj_mm9"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[12]:
+# In[ ]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -121,28 +121,28 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[13]:
+# In[ ]:
 
 
 # data_filt_tile1 = data_filt[data_filt["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1)
 
 
-# In[14]:
+# In[ ]:
 
 
 # data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1_sp)
 
 
-# In[15]:
+# In[ ]:
 
 
 # data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
 # len(data_filt_tile2)
 
 
-# In[16]:
+# In[ ]:
 
 
 # data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
@@ -151,7 +151,7 @@ len(data_filt_sp)
 
 # ## 3. counts of cis effects
 
-# In[17]:
+# In[ ]:
 
 
 # dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
@@ -159,7 +159,7 @@ len(data_filt_sp)
 # labels = ["both_tiles", "tile1_only", "tile2_only"]
 
 
-# In[18]:
+# In[ ]:
 
 
 cis_order = ["no cis effect", "significant cis effect"]
@@ -172,7 +172,7 @@ det_pal = {"cis effect\n(higher in human)": sns.light_palette(sns.color_palette(
            "cis effect\n(higher in mouse)": sns.light_palette(sns.color_palette("Set2")[0])[2]}
 
 
-# In[19]:
+# In[ ]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -199,7 +199,7 @@ det_pal = {"cis effect\n(higher in human)": sns.light_palette(sns.color_palette(
 #     plt.close()
 
 
-# In[20]:
+# In[ ]:
 
 
 fig, ax = plt.subplots(figsize=(0.75, 1.75), nrows=1, ncols=1)
@@ -225,7 +225,7 @@ plt.close()
 
 # ## 4. plot cis effect sizes between HUES64 and mESC
 
-# In[21]:
+# In[ ]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -269,13 +269,13 @@ plt.close()
 #     plt.close()
 
 
-# In[22]:
+# In[ ]:
 
 
 df = data_filt_sp
 
 
-# In[23]:
+# In[ ]:
 
 
 df["cis_sig_status"] = df.apply(cis_sig_status, axis=1)
@@ -319,7 +319,7 @@ plt.close()
 
 # ## 5. effect size differences across biotypes
 
-# In[24]:
+# In[ ]:
 
 
 min_switch_order = ["CAGE turnover - eRNA", "CAGE turnover - lncRNA", "CAGE turnover - mRNA", 
@@ -332,7 +332,7 @@ min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2],
                   "mRNA": sns.color_palette("Set2")[7]}
 
 
-# In[25]:
+# In[ ]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -396,13 +396,13 @@ min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2],
 #     plt.close()
 
 
-# In[26]:
+# In[ ]:
 
 
 df["abs_logFC_cis"] = np.abs(df["logFC_cis_one"])
 #df = df[df["native_status"] == "significant native effect"]
 
-fig = plt.figure(figsize=(2.5, 1.5))
+fig = plt.figure(figsize=(2.5, 1.75))
 ax = sns.boxplot(data=df, x="biotype_switch_minimal", y="abs_logFC_cis", 
                  flierprops = dict(marker='o', markersize=5), 
                  order=min_switch_order, palette=min_switch_pal)
@@ -458,7 +458,7 @@ fig.savefig("cis_minimal_biotype_switch_effectsize_boxplot.pdf", dpi="figure", b
 plt.close()
 
 
-# In[27]:
+# In[ ]:
 
 
 def cage_status(row):
@@ -468,7 +468,7 @@ def cage_status(row):
         return "conserved"
 
 
-# In[28]:
+# In[ ]:
 
 
 def one_biotype(row):
@@ -478,13 +478,13 @@ def one_biotype(row):
         return row.minimal_biotype_hg19
 
 
-# In[29]:
+# In[ ]:
 
 
 pal = {"conserved": sns.color_palette("Set2")[7], "turnover": sns.color_palette("Set2")[2]}
 
 
-# In[30]:
+# In[ ]:
 
 
 # for df, title, pltname in zip(dfs, titles, labels):
@@ -539,14 +539,14 @@ pal = {"conserved": sns.color_palette("Set2")[7], "turnover": sns.color_palette(
 #     fig.savefig("cis_effect_biotype_sep_cage.%s.pdf" % pltname, dpi="figure", bbox_inches="tight")
 
 
-# In[31]:
+# In[ ]:
 
 
 df["abs_logFC_cis"] = np.abs(df["logFC_cis_one"])
 df["cage_status"] = df.apply(cage_status, axis=1)
 df["one_biotype"] = df.apply(one_biotype, axis=1)
 
-fig = plt.figure(figsize=(2.75, 1.5))
+fig = plt.figure(figsize=(2.75, 1.75))
 
 ax = sns.boxplot(data=df, x="one_biotype", y="abs_logFC_cis", hue="cage_status",
                  flierprops = dict(marker='o', markersize=5),
@@ -594,7 +594,7 @@ fig.savefig("cis_effect_biotype_sep_cage.pdf", dpi="figure", bbox_inches="tight"
 
 # ## 6. percent sig across biotypes
 
-# In[32]:
+# In[ ]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -627,7 +627,7 @@ fig.savefig("cis_effect_biotype_sep_cage.pdf", dpi="figure", bbox_inches="tight"
 #     plt.close()
 
 
-# In[33]:
+# In[ ]:
 
 
 tots = df.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
@@ -635,7 +635,7 @@ sig = df[df["cis_status_one"] != "no cis effect"].groupby("biotype_switch_minima
 clean_sig = tots.merge(sig, on="biotype_switch_minimal", how="left").fillna(0)
 clean_sig["percent_sig"] = (clean_sig["hg19_id_y"]/clean_sig["hg19_id_x"])*100
 
-fig = plt.figure(figsize=(2.5, 1.5))
+fig = plt.figure(figsize=(2.5, 1.75))
 ax = sns.barplot(data=clean_sig, x="biotype_switch_minimal", y="percent_sig", 
                  order=min_switch_order, color=sns.color_palette("Set2")[2])
 
@@ -659,7 +659,7 @@ plt.close()
 
 # ## 7. plot example
 
-# In[46]:
+# In[ ]:
 
 
 ex = df[df["hg19_id"] == "h.1096"]
@@ -668,14 +668,14 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[47]:
+# In[ ]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
 ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9", "fdr_cis_HUES64", "fdr_cis_mESC"])]
 
 
-# In[49]:
+# In[ ]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -683,7 +683,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[55]:
+# In[ ]:
 
 
 order = ["HUES64", "mESC"]
@@ -691,10 +691,10 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[61]:
+# In[ ]:
 
 
-fig = plt.figure(figsize=(1.5, 1.5))
+fig = plt.figure(figsize=(1.5, 1.75))
 
 sub = ex[ex["cell"].isin(["HUES64", "mESC"])]
 ax = sns.barplot(data=sub, x="cell", y="value", hue="seq", order=order, hue_order=hue_order, palette=pal)

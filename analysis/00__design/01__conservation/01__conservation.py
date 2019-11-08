@@ -219,7 +219,7 @@ order = ["eRNA", "lncRNA", "mRNA"]
 # In[17]:
 
 
-fig, axarr = plt.subplots(figsize=(1.4, 1.8), ncols=1, nrows=2, sharex=True, sharey=True)
+fig, axarr = plt.subplots(figsize=(1.4, 2), ncols=1, nrows=2, sharex=True, sharey=True)
 
 ax = axarr[0]
 sns.barplot(data=human_seq_perc, x="biotype", y="perc",
@@ -232,7 +232,7 @@ ax = axarr[1]
 sns.barplot(data=human_cage_perc, x="biotype", y="perc",
             order=order, color=sns.color_palette("Set2")[1], ax=ax)
 ax.set_xlabel("")
-ax.set_ylabel("% activity\northologs")
+ax.set_ylabel("% conserved")
 ax.set_xticklabels(order, rotation=50, ha='right', va='top')
 ax.set_ylim((0, 100))
 fig.savefig("human_orth_percents.pdf", dpi="figure", bbox_inches="tight")
@@ -241,13 +241,13 @@ fig.savefig("human_orth_percents.pdf", dpi="figure", bbox_inches="tight")
 # In[18]:
 
 
-fig, axarr = plt.subplots(figsize=(1.4, 1.8), ncols=1, nrows=2, sharex=True, sharey=True)
+fig, axarr = plt.subplots(figsize=(1.4, 2), ncols=1, nrows=2, sharex=True, sharey=True)
 
 ax = axarr[0]
 sns.barplot(data=mouse_seq_perc, x="biotype", y="perc",
             order=order, color=sns.color_palette("Set2")[0], ax=ax)
 ax.set_xlabel("")
-ax.set_ylabel("% sequence\northologs")
+ax.set_ylabel("% conserved")
 ax.set_ylim((0, 100))
 
 ax = axarr[1]

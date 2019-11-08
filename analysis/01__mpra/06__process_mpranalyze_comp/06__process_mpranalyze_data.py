@@ -555,6 +555,8 @@ for model, df, logFC, fdr, label, thresh in zip(models, dfs, logFCs, fdrs, label
                color="gray", linewidths=0.5, edgecolors="white")
 
     plt.xlabel("%s effect size" % model)
+    if model == "HUES64":
+        plt.xlabel("hESC cis effect size")
     plt.ylabel("-log10(FDR)")
     ax.axhline(y=-np.log10(thresh), color="black", linestyle="dashed")
 
