@@ -502,6 +502,8 @@ def cage_status(row):
 def one_biotype(row):
     if row.minimal_biotype_hg19 == "no CAGE activity":
         return row.minimal_biotype_mm9
+    elif row.biotype_switch_minimal == "biotype switch":
+        return "biotype switch"
     else:
         return row.minimal_biotype_hg19
 

@@ -474,6 +474,7 @@ def cage_status(row):
 def one_biotype(row):
     if row.minimal_biotype_hg19 == "no CAGE activity":
         return row.minimal_biotype_mm9
+    elif row.minimal_biotype_
     else:
         return row.minimal_biotype_hg19
 
@@ -590,6 +591,20 @@ for i, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
 
 ax.set_ylim((-1, 6))
 fig.savefig("cis_effect_biotype_sep_cage.pdf", dpi="figure", bbox_inches="tight")
+
+
+# In[40]:
+
+
+pd.pivot_table(df, index="one_biotype", columns="cage_status", values="hg19_id", aggfunc="count")
+
+
+# In[50]:
+
+
+tmp = df[(df["biotype_switch_minimal"].isin(["eRNA", "lncRNA", "mRNA"]))]
+df[df["biotype_switch_minimal"] != df["one_biotype"]][["minimal_biotype_hg19", "minimal_biotype_mm9", 
+                                                       "biotype_switch_minimal", "cage_status", "one_biotype"]]
 
 
 # ## 6. percent sig across biotypes
