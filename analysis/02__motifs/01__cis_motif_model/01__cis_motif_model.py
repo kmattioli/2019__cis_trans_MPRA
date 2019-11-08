@@ -644,49 +644,101 @@ for i, row in sig_results.iterrows():
 # In[70]:
 
 
-# fig = plt.figure(figsize=(4, 2.5))
-
-# ax1 = plt.subplot2grid((1, 7), (0, 0), colspan=3)
-# ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=3)
-# ax3 = plt.subplot2grid((1, 7), (0, 6), colspan=1)
-
-# yvals = []
-# symbs = []
-# c = 0
-# for i, row in sig_results.iterrows():
-#     symb = row["HGNC symbol"]
-#     if symb not in symbs:
-#         yvals.append(c)
-#         symbs.append(symb)
-#         c += 1
-#     else:
-#         yvals.append(c)
-
-# sig_results["yval"] = yvals
-# sns.barplot(y="HGNC symbol", x="beta_cis", data=sig_results, palette=full_pal, ax=ax1)
-# ax1.set_ylabel("")
-# ax1.set_xlabel("effect size of motif disruption")
-
-# sns.barplot(y="HGNC symbol", x="rsq_activ", data=sig_results, palette=full_pal, ax=ax2)
-# ax2.set_ylabel("")
-# ax2.tick_params(left=False, labelleft=False)
-# ax2.set_xlabel("additional variance explained")
-
-# melt = pd.melt(sig_results, id_vars=["HGNC symbol", "yval"], value_vars=["no_CAGE_enr", "eRNA_enr",
-#                                                                                  "lncRNA_enr", "mRNA_enr"])
-# ax3.plot(melt["value"], melt["yval"], 'o', color="black")
-# ax3.set_xlim((-0.5, 3.5))
-# ax3.set_ylim((np.max(yvals)-0.5, -0.5))
-# ax3.tick_params(labelleft=False, labelbottom=False, bottom=False, left=False, top=True, labeltop=True)
-# ax3.xaxis.set_ticks([0, 1, 2, 3])
-# ax3.set_xticklabels(["no CAGE", "eRNA", "lncRNA", "mRNA"], rotation=60, ha="left", va="bottom")
-
-# plt.show()
-# fig.savefig("cis_motif_enrichment.pdf", dpi="figure", bbox_inches="tight")
-# plt.close()
+sig_activ = sig_results[sig_results["activ_or_repr"] == "activating"]
+sig_repr = sig_results[sig_results["activ_or_repr"] == "repressing"]
 
 
-# In[71]:
+# In[78]:
+
+
+fig = plt.figure(figsize=(4, 2))
+
+ax1 = plt.subplot2grid((1, 7), (0, 0), colspan=3)
+ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=3)
+ax3 = plt.subplot2grid((1, 7), (0, 6), colspan=1)
+
+yvals = []
+symbs = []
+c = 0
+for i, row in sig_activ.iterrows():
+    symb = row["HGNC symbol"]
+    if symb not in symbs:
+        yvals.append(c)
+        symbs.append(symb)
+        c += 1
+    else:
+        yvals.append(c)
+
+sig_activ["yval"] = yvals
+sns.barplot(y="HGNC symbol", x="beta_cis", data=sig_activ, palette=full_pal, ax=ax1)
+ax1.set_ylabel("")
+ax1.set_xlabel("effect size of motif disruption")
+
+sns.barplot(y="HGNC symbol", x="rsq_activ", data=sig_activ, palette=full_pal, ax=ax2)
+ax2.set_ylabel("")
+ax2.tick_params(left=False, labelleft=False)
+ax2.set_xlabel("variance explained")
+
+melt = pd.melt(sig_activ, id_vars=["HGNC symbol", "yval"], value_vars=["no_CAGE_enr", "eRNA_enr",
+                                                                                 "lncRNA_enr", "mRNA_enr"])
+ax3.plot(melt["value"], melt["yval"], 'o', color="black")
+ax3.set_xlim((-0.5, 3.5))
+ax3.set_ylim((np.max(yvals)-0.5, -0.5))
+ax3.tick_params(labelleft=False, labelbottom=False, bottom=False, left=False, top=True, labeltop=True)
+ax3.xaxis.set_ticks([0, 1, 2, 3])
+ax3.set_xticklabels(["no CAGE", "eRNA", "lncRNA", "mRNA"], rotation=60, ha="left", va="bottom")
+
+plt.show()
+fig.savefig("cis_motif_enrichment.activ_only.pdf", dpi="figure", bbox_inches="tight")
+plt.close()
+
+
+# In[79]:
+
+
+fig = plt.figure(figsize=(4, 0.5))
+
+ax1 = plt.subplot2grid((1, 7), (0, 0), colspan=3)
+ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=3)
+ax3 = plt.subplot2grid((1, 7), (0, 6), colspan=1)
+
+yvals = []
+symbs = []
+c = 0
+for i, row in sig_repr.iterrows():
+    symb = row["HGNC symbol"]
+    if symb not in symbs:
+        yvals.append(c)
+        symbs.append(symb)
+        c += 1
+    else:
+        yvals.append(c)
+
+sig_repr["yval"] = yvals
+sns.barplot(y="HGNC symbol", x="beta_cis", data=sig_repr, palette=full_pal, ax=ax1)
+ax1.set_ylabel("")
+ax1.set_xlabel("effect size of motif disruption")
+
+sns.barplot(y="HGNC symbol", x="rsq_activ", data=sig_repr, palette=full_pal, ax=ax2)
+ax2.set_ylabel("")
+ax2.tick_params(left=False, labelleft=False)
+ax2.set_xlabel("variance explained")
+
+melt = pd.melt(sig_repr, id_vars=["HGNC symbol", "yval"], value_vars=["no_CAGE_enr", "eRNA_enr",
+                                                                                 "lncRNA_enr", "mRNA_enr"])
+ax3.plot(melt["value"], melt["yval"], 'o', color="black")
+ax3.set_xlim((-0.5, 3.5))
+ax3.set_ylim((np.max(yvals)-0.5, -0.5))
+ax3.tick_params(labelleft=False, labelbottom=False, bottom=False, left=False, top=True, labeltop=True)
+ax3.xaxis.set_ticks([0, 1, 2, 3])
+ax3.set_xticklabels(["no CAGE", "eRNA", "lncRNA", "mRNA"], rotation=60, ha="left", va="bottom")
+
+plt.show()
+fig.savefig("cis_motif_enrichment.repr_only.pdf", dpi="figure", bbox_inches="tight")
+plt.close()
+
+
+# In[80]:
 
 
 fig = plt.figure(figsize=(4, 2.5))
@@ -725,7 +777,7 @@ fig.savefig("cis_motif_enrichment.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[72]:
+# In[81]:
 
 
 data_filt = data_elem[((data_elem["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_elem["mESC_padj_mm9"] < QUANT_ALPHA))]
@@ -734,7 +786,7 @@ print(len(data_filt))
 # len(data_filt)
 
 
-# In[73]:
+# In[82]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -742,14 +794,14 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[74]:
+# In[83]:
 
 
 data_filt_sp["hg19_index"] = data_filt_sp["hg19_id"] + "__" + data_filt_sp["tss_tile_num"]
 data_filt_sp["mm9_index"] = data_filt_sp["mm9_id"] + "__" + data_filt_sp["tss_tile_num"]
 
 
-# In[75]:
+# In[84]:
 
 
 def uniq_motif(row):
@@ -765,13 +817,13 @@ def uniq_motif(row):
             return "not present"
 
 
-# In[76]:
+# In[85]:
 
 
 sns.palplot(sns.color_palette("Set2"))
 
 
-# In[77]:
+# In[87]:
 
 
 # plot some examples
@@ -798,7 +850,7 @@ for symb in examps:
     tmp["motif_disrupted"] = tmp.apply(motif_disrupted, axis=1)
     tmp["uniq_motif"] = tmp.apply(uniq_motif, axis=1)
     
-    fig, axarr = plt.subplots(figsize=(3.5, 1.5), nrows=1, ncols=2)
+    fig, axarr = plt.subplots(figsize=(3.5, 2), nrows=1, ncols=2)
     
     ax = axarr[0]
     sns.boxplot(data=tmp, x="motif_disrupted", y="abs_logFC_cis", order=order1, palette=pal1, 
@@ -806,7 +858,7 @@ for symb in examps:
     mimic_r_boxplot(ax)
     ax.set_xticklabels(["motif not present", "motif maintained", "motif disrupted"], rotation=50, 
                        ha="right", va="top")
-    ax.set_ylabel("| assigned cis effect size |")
+    ax.set_ylabel("| cis effect size |")
     ax.set_title(symb)
     ax.set_xlabel("")
     
@@ -823,7 +875,7 @@ for symb in examps:
                 flierprops = dict(marker='o', markersize=5), ax=ax)
     ax.set_xticklabels(order2, rotation=50, ha="right", va="top")
     mimic_r_boxplot(ax)
-    ax.set_ylabel(" assigned cis effect size")
+    ax.set_ylabel("cis effect size")
     ax.set_title(symb)
     ax.set_xlabel("")
     ax.axhline(y=0, linestyle="dashed", color="black", zorder=100)
@@ -853,7 +905,7 @@ for symb in examps:
 
     ax.set_ylim((-8, 6))
     
-    plt.subplots_adjust(wspace=0.4)
+    plt.subplots_adjust(wspace=0.5)
     fig.savefig("%s.cis_effect_boxplot.pdf" % symb, dpi="figure", bbox_inches="tight")
     plt.show()
 
@@ -865,14 +917,14 @@ for symb in examps:
 # - full turnover = motifs that are only present in one species
 # - partial turnover = motifs that are in both species but don't map to the exact same sequence
 
-# In[78]:
+# In[88]:
 
 
 print(len(data))
 data.tss_tile_num.value_counts()
 
 
-# In[79]:
+# In[ ]:
 
 
 turnover_results = {}
@@ -934,7 +986,7 @@ for i, row in data.iterrows():
                                                                        "delta_motifs": delta_motifs}
 
 
-# In[80]:
+# In[ ]:
 
 
 turnover_df = pd.DataFrame.from_dict(turnover_results, orient="index").reset_index()
@@ -956,7 +1008,7 @@ turnover_df.head()
 
 # ## 9. merge motif turnover data w/ cis effects
 
-# In[81]:
+# In[ ]:
 
 
 data_motifs = data.merge(turnover_df, on=["hg19_id", "mm9_id", "tss_tile_num"], how="left")
@@ -966,14 +1018,14 @@ data_motifs.head()
 
 # ## 6. filter data
 
-# In[100]:
+# In[ ]:
 
 
 data_filt = data_motifs[((data_motifs["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_motifs["mESC_padj_mm9"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[101]:
+# In[ ]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -981,28 +1033,28 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[102]:
+# In[ ]:
 
 
 # data_filt_tile1 = data_filt[data_filt["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1)
 
 
-# In[103]:
+# In[ ]:
 
 
 # # data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1_sp)
 
 
-# In[104]:
+# In[ ]:
 
 
 # data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
 # len(data_filt_tile2)
 
 
-# In[105]:
+# In[ ]:
 
 
 # data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
@@ -1011,7 +1063,7 @@ len(data_filt_sp)
 
 # ## 7. plot cis effects v motif turnover
 
-# In[106]:
+# In[ ]:
 
 
 # dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
@@ -1019,7 +1071,7 @@ len(data_filt_sp)
 # labels = ["both_tiles", "tile1_only", "tile2_only"]
 
 
-# In[107]:
+# In[ ]:
 
 
 order = ["no cis effect", "significant cis effect"]
@@ -1028,7 +1080,7 @@ palette = {"no cis effect": "gray", "significant cis effect": sns.color_palette(
 
 # ### % shared motifs
 
-# In[108]:
+# In[ ]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -1068,16 +1120,16 @@ palette = {"no cis effect": "gray", "significant cis effect": sns.color_palette(
 #     plt.close()
 
 
-# In[110]:
+# In[ ]:
 
 
 df = data_filt_sp
 
 
-# In[113]:
+# In[ ]:
 
 
-fig = plt.figure(figsize=(1.25, 1.5))
+fig = plt.figure(figsize=(1.25, 2))
 ax = sns.boxplot(data=df, x="cis_status_one", y="perc_shared_motifs", palette=palette, order=order,
                  flierprops = dict(marker='o', markersize=5))
 mimic_r_boxplot(ax)
@@ -1113,7 +1165,7 @@ plt.close()
 
 # ## 8. plot motif #s across biotypes
 
-# In[127]:
+# In[ ]:
 
 
 def turnover_status(row):
@@ -1135,7 +1187,7 @@ def turnover_biotype(row):
             return row["biotype_switch_minimal"]
 
 
-# In[128]:
+# In[ ]:
 
 
 turnover_order = ["eRNA", "lncRNA", "mRNA"]
@@ -1143,7 +1195,7 @@ turnover_pal = {"turnover": sns.color_palette("Set2")[2], "conserved": sns.color
 hue_order = ["turnover", "conserved"]
 
 
-# In[129]:
+# In[ ]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -1191,7 +1243,7 @@ hue_order = ["turnover", "conserved"]
 #     plt.close()
 
 
-# In[136]:
+# In[ ]:
 
 
 df["turnover_status"] = df.apply(turnover_status, axis=1)
@@ -1231,26 +1283,26 @@ plt.close()
 
 # ## 11. write motif files
 
-# In[137]:
+# In[ ]:
 
 
 len(human_df)
 
 
-# In[138]:
+# In[ ]:
 
 
 len(mouse_df)
 
 
-# In[139]:
+# In[ ]:
 
 
 human_f = "../../../data/04__mapped_motifs/human_motifs_filtered.txt.gz"
 human_df.to_csv(human_f, sep="\t", index=False, compression="gzip")
 
 
-# In[140]:
+# In[ ]:
 
 
 mouse_f = "../../../data/04__mapped_motifs/mouse_motifs_filtered.txt.gz"
