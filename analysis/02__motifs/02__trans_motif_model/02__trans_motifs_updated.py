@@ -526,7 +526,7 @@ data_filt_plot["abs_logFC_trans"] = np.abs(data_filt_plot["logFC_trans_one"])
 data_filt_plot.head()
 
 
-# In[56]:
+# In[81]:
 
 
 # example plots
@@ -553,7 +553,7 @@ for symb in examps:
     sns.boxplot(data=tmp, x="has_motif", y="abs_logFC_trans", order=order, palette=pal, 
                 flierprops = dict(marker='o', markersize=5), ax=ax)
     mimic_r_boxplot(ax)
-    ax.set_xticklabels(["motif not present", "motif present"], rotation=50, 
+    ax.set_xticklabels(["no motif", "motif"], rotation=50, 
                        ha="right", va="top")
     ax.set_ylabel("trans effect size")
     ax.set_title(symb)
