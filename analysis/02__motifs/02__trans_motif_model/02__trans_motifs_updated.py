@@ -555,7 +555,7 @@ for symb in examps:
     mimic_r_boxplot(ax)
     ax.set_xticklabels(["motif not present", "motif present"], rotation=50, 
                        ha="right", va="top")
-    ax.set_ylabel("| assigned trans effect size |")
+    ax.set_ylabel("trans effect size")
     ax.set_title(symb)
     ax.set_xlabel("")
     
@@ -572,7 +572,7 @@ for symb in examps:
                 flierprops = dict(marker='o', markersize=5), ax=ax)
     ax.set_xticklabels(["motif not present", "motif present"], rotation=50, ha="right", va="top")
     mimic_r_boxplot(ax)
-    ax.set_ylabel("assigned trans effect size")
+    ax.set_ylabel("trans effect size")
     ax.set_title(symb)
     ax.set_xlabel("")
     ax.axhline(y=0, linestyle="dashed", color="black", zorder=100)
@@ -808,7 +808,14 @@ trans_orth_match = trans_orth_sub[trans_orth_sub["direction_match"] == "match"]
 # In[71]:
 
 
-fig = plt.figure(figsize=(4, 5))
+match_activ = trans_orth_match[trans_orth_match["activ_or_repr"] == "activating"]
+match_repr = trans_orth_match[trans_orth_match["activ_or_repr"] == "repressing"]
+
+
+# In[79]:
+
+
+fig = plt.figure(figsize=(4, 4))
 
 ax1 = plt.subplot2grid((1, 7), (0, 0), colspan=3)
 ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=3)
@@ -817,7 +824,7 @@ ax3 = plt.subplot2grid((1, 7), (0, 6), colspan=1)
 yvals = []
 symbs = []
 c = 0
-for i, row in trans_orth_match.iterrows():
+for i, row in match_activ.iterrows():
     symb = row["HGNC symbol"]
     if symb not in symbs:
         yvals.append(c)
@@ -826,17 +833,19 @@ for i, row in trans_orth_match.iterrows():
     else:
         yvals.append(c)
 
-trans_orth_match["yval"] = yvals
-sns.barplot(y="HGNC symbol", x="beta_trans", data=trans_orth_match, palette=full_pal, ax=ax1)
+match_activ["yval"] = yvals
+sns.barplot(y="HGNC symbol", x="beta_trans", data=match_activ, palette=full_pal, ax=ax1)
 ax1.set_ylabel("")
-ax1.set_xlabel("odds ratio")
+ax1.set_xlabel("effect size of\nmotif presence")
+ax1.axvline(x=0, linestyle="dashed", color="black")
 
-sns.barplot(y="HGNC symbol", x="logFC", data=trans_orth_match, palette=full_pal, ax=ax2)
+sns.barplot(y="HGNC symbol", x="logFC", data=match_activ, palette=full_pal, ax=ax2)
 ax2.set_ylabel("")
 ax2.tick_params(left=False, labelleft=False)
 ax2.set_xlabel("log2(mESC/hESC)")
+ax2.axvline(x=0, linestyle="dashed", color="black")
 
-melt = pd.melt(trans_orth_match, id_vars=["HGNC symbol", "yval"], value_vars=["no_CAGE_enr", "eRNA_enr",
+melt = pd.melt(match_activ, id_vars=["HGNC symbol", "yval"], value_vars=["no_CAGE_enr", "eRNA_enr",
                                                                                  "lncRNA_enr", "mRNA_enr"])
 ax3.plot(melt["value"], melt["yval"], 'o', color="black")
 ax3.set_xlim((-0.5, 3.5))
@@ -846,7 +855,54 @@ ax3.xaxis.set_ticks([0, 1, 2, 3])
 ax3.set_xticklabels(["no CAGE", "eRNA", "lncRNA", "mRNA"], rotation=60, ha="left", va="bottom")
 
 plt.show()
-fig.savefig("trans_motif_enrichment.with_expr.match_only.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("trans_motif_enrichment.with_expr.match_only.activ.pdf", dpi="figure", bbox_inches="tight")
+plt.close()
+
+
+# In[80]:
+
+
+fig = plt.figure(figsize=(4, 0.5))
+
+ax1 = plt.subplot2grid((1, 7), (0, 0), colspan=3)
+ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=3)
+ax3 = plt.subplot2grid((1, 7), (0, 6), colspan=1)
+
+yvals = []
+symbs = []
+c = 0
+for i, row in match_repr.iterrows():
+    symb = row["HGNC symbol"]
+    if symb not in symbs:
+        yvals.append(c)
+        symbs.append(symb)
+        c += 1
+    else:
+        yvals.append(c)
+
+match_repr["yval"] = yvals
+sns.barplot(y="HGNC symbol", x="beta_trans", data=match_repr, palette=full_pal, ax=ax1)
+ax1.set_ylabel("")
+ax1.set_xlabel("effect size of\nmotif presence")
+ax1.axvline(x=0, linestyle="dashed", color="black")
+
+sns.barplot(y="HGNC symbol", x="logFC", data=match_repr, palette=full_pal, ax=ax2)
+ax2.set_ylabel("")
+ax2.tick_params(left=False, labelleft=False)
+ax2.set_xlabel("log2(mESC/hESC)")
+ax2.axvline(x=0, linestyle="dashed", color="black")
+
+melt = pd.melt(match_repr, id_vars=["HGNC symbol", "yval"], value_vars=["no_CAGE_enr", "eRNA_enr",
+                                                                                 "lncRNA_enr", "mRNA_enr"])
+ax3.plot(melt["value"], melt["yval"], 'o', color="black")
+ax3.set_xlim((-0.5, 3.5))
+ax3.set_ylim((np.max(yvals)-0.5, -0.5))
+ax3.tick_params(labelleft=False, labelbottom=False, bottom=False, left=False, top=True, labeltop=True)
+ax3.xaxis.set_ticks([0, 1, 2, 3])
+ax3.set_xticklabels(["no CAGE", "eRNA", "lncRNA", "mRNA"], rotation=60, ha="left", va="bottom")
+
+plt.show()
+fig.savefig("trans_motif_enrichment.with_expr.match_only.repr.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 

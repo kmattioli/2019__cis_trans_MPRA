@@ -701,10 +701,10 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[51]:
+# In[52]:
 
 
-fig = plt.figure(figsize=(1, 1.4))
+fig = plt.figure(figsize=(1.2, 1.4))
 
 sub = ex[ex["cell"].isin(["HUES64", "mESC"])]
 ax = sns.barplot(data=sub, x="cell", y="value", hue="seq", order=order, hue_order=hue_order, palette=pal)
