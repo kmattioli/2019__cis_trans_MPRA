@@ -474,7 +474,8 @@ def cage_status(row):
 def one_biotype(row):
     if row.minimal_biotype_hg19 == "no CAGE activity":
         return row.minimal_biotype_mm9
-    elif row.minimal_biotype_
+    elif row.biotype_switch_minimal == "biotype switch":
+        return "biotype switch"
     else:
         return row.minimal_biotype_hg19
 
@@ -593,23 +594,15 @@ ax.set_ylim((-1, 6))
 fig.savefig("cis_effect_biotype_sep_cage.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[40]:
+# In[32]:
 
 
 pd.pivot_table(df, index="one_biotype", columns="cage_status", values="hg19_id", aggfunc="count")
 
 
-# In[50]:
-
-
-tmp = df[(df["biotype_switch_minimal"].isin(["eRNA", "lncRNA", "mRNA"]))]
-df[df["biotype_switch_minimal"] != df["one_biotype"]][["minimal_biotype_hg19", "minimal_biotype_mm9", 
-                                                       "biotype_switch_minimal", "cage_status", "one_biotype"]]
-
-
 # ## 6. percent sig across biotypes
 
-# In[32]:
+# In[33]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -642,7 +635,7 @@ df[df["biotype_switch_minimal"] != df["one_biotype"]][["minimal_biotype_hg19", "
 #     plt.close()
 
 
-# In[33]:
+# In[34]:
 
 
 tots = df.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
@@ -674,7 +667,9 @@ plt.close()
 
 # ## 7. plot example
 
-# In[34]:
+# ### cis effect 
+
+# In[47]:
 
 
 ex = df[df["hg19_id"] == "h.1096"]
@@ -683,14 +678,14 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[35]:
+# In[48]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
 ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9", "fdr_cis_HUES64", "fdr_cis_mESC"])]
 
 
-# In[36]:
+# In[49]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -698,7 +693,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[37]:
+# In[50]:
 
 
 order = ["HUES64", "mESC"]
@@ -706,10 +701,10 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[38]:
+# In[51]:
 
 
-fig = plt.figure(figsize=(1.5, 1.75))
+fig = plt.figure(figsize=(1, 1.4))
 
 sub = ex[ex["cell"].isin(["HUES64", "mESC"])]
 ax = sns.barplot(data=sub, x="cell", y="value", hue="seq", order=order, hue_order=hue_order, palette=pal)

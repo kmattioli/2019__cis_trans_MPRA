@@ -427,6 +427,8 @@ def cage_status(row):
 def one_biotype(row):
     if row.minimal_biotype_hg19 == "no CAGE activity":
         return row.minimal_biotype_mm9
+    elif row.biotype_switch_minimal == "biotype switch":
+        return "biotype switch"
     else:
         return row.minimal_biotype_hg19
 
@@ -1077,11 +1079,51 @@ fig.savefig("perc_sig_compensatory_minimal_biotype_switch.pdf", dpi="figure", bb
 plt.close()
 
 
+# In[ ]:
+
+
+cis_trans = df[(df["cis_status_one"] == "significant cis effect") & 
+               (df["trans_status_one"] == "significant trans effect")]
+tots = cis_trans.groupby("native_status")["hg19_id"].agg("count").reset_index()
+
+direc = cis_trans[((cis_trans["cis_status_det_one"].str.contains("higher in human") & 
+                    cis_trans["trans_status_det_one"].str.contains("higher in human")) |
+                   (cis_trans["cis_status_det_one"].str.contains("higher in mouse") &
+                    cis_trans["trans_status_det_one"].str.contains("higher in mouse")))]
+sig = direc.groupby("native_status")["hg19_id"].agg("count").reset_index()
+clean_sig = tots.merge(sig, on="native_status", how="left").fillna(0)
+clean_sig["percent_sig"] = (clean_sig["hg19_id_y"]/clean_sig["hg19_id_x"])*100
+clean_sig["percent_tot"] = (clean_sig["hg19_id_x"]/clean_sig["hg19_id_x"])*100
+
+fig = plt.figure(figsize=(2.5, 1.5))
+ax = sns.barplot(data=clean_sig, x="native_status", y="percent_tot", 
+                 order=min_switch_order, color=sns.color_palette("Set2")[7])
+sns.barplot(data=clean_sig, x="biotype_switch_minimal", y="percent_sig", 
+            order=min_switch_order, color=sns.color_palette("Set2")[2])
+
+ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
+ax.set_xlabel("")
+ax.set_ylabel("% of sequence pairs")
+ax.axvline(x=2.5, linestyle="dashed", color="black")
+
+for i, l in enumerate(min_switch_order):
+    sub = clean_sig[clean_sig["biotype_switch_minimal"] == l]
+    print("%s perc sig: %s" % (l, sub["percent_sig"].iloc[0]))
+    n = sub["hg19_id_x"].iloc[0]
+    ax.annotate(str(n), xy=(i, 5), xycoords="data", xytext=(0, 0), 
+                textcoords="offset pixels", ha='center', va='bottom', 
+                color="white", size=fontsize)
+
+plt.show()
+fig.savefig("perc_sig_compensatory_minimal_biotype_switch.pdf", dpi="figure", bbox_inches="tight")
+plt.close()
+
+
 # ## 11. plot some examples
 
 # ### compensatory
 
-# In[124]:
+# In[49]:
 
 
 ex = df[df["hg19_id"] == "h.1433"]
@@ -1092,7 +1134,7 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[125]:
+# In[50]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
@@ -1102,7 +1144,7 @@ ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9
                              "logFC_trans_human", "logFC_trans_mouse"])]
 
 
-# In[126]:
+# In[51]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -1110,7 +1152,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[127]:
+# In[52]:
 
 
 order = ["HUES64", "mESC"]
@@ -1118,7 +1160,7 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[128]:
+# In[53]:
 
 
 fig = plt.figure(figsize=(1.5, 1.5))
@@ -1139,7 +1181,7 @@ annotate_pval(ax, 0.25, 1.25, 12.75, 0, 12.75, ex[ex["variable"] == "fdr_trans_m
 fig.savefig("compensatory_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[129]:
+# In[54]:
 
 
 ex_sub = ex[ex["variable"].str.contains("logFC")]
@@ -1148,7 +1190,7 @@ ex_sub = ex_sub.sort_values(by=["seq", "sp"])
 ex_sub
 
 
-# In[130]:
+# In[55]:
 
 
 def sp(row):
@@ -1161,13 +1203,13 @@ ex_sub["sp"] = ex_sub.apply(sp, axis=1)
 ex_sub
 
 
-# In[131]:
+# In[56]:
 
 
 order = ["cis", "trans"]
 
 
-# In[132]:
+# In[57]:
 
 
 fig, axarr = plt.subplots(figsize=(1.5, 1.5), nrows=1, ncols=2, sharey=True)
@@ -1192,7 +1234,7 @@ fig.savefig("compensatory_example_effectsize.pdf", dpi="figure", bbox_inches="ti
 
 # ### directional
 
-# In[133]:
+# In[58]:
 
 
 ex = df[df["hg19_id"] == "h.1389"]
@@ -1203,7 +1245,7 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[134]:
+# In[59]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
@@ -1213,7 +1255,7 @@ ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9
                              "logFC_trans_human", "logFC_trans_mouse"])]
 
 
-# In[135]:
+# In[60]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -1221,7 +1263,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[136]:
+# In[61]:
 
 
 order = ["HUES64", "mESC"]
@@ -1229,7 +1271,7 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[137]:
+# In[62]:
 
 
 fig = plt.figure(figsize=(1.5, 1.5))
@@ -1250,7 +1292,7 @@ annotate_pval(ax, 0.25, 1.25, 3.25, 0, 3.25, ex[ex["variable"] == "fdr_trans_mou
 fig.savefig("directional_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[138]:
+# In[63]:
 
 
 ex_sub = ex[ex["variable"].str.contains("logFC")]
@@ -1260,13 +1302,13 @@ ex_sub["sp"] = ex_sub.apply(sp, axis=1)
 ex_sub
 
 
-# In[139]:
+# In[64]:
 
 
 order = ["cis", "trans"]
 
 
-# In[140]:
+# In[65]:
 
 
 fig, axarr = plt.subplots(figsize=(1.5, 1.5), nrows=1, ncols=2, sharey=True)
