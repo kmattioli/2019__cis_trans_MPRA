@@ -499,14 +499,14 @@ ax.text(0.05, 0.90, "n = %s" % (len(no_nan)), ha="left", va="top", fontsize=font
 fig.savefig("TF_human_v_mouse_scatter.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[53]:
+# In[52]:
 
 
 orth_tf_expr["neg_log_padj"] = -np.log10(orth_tf_expr["adj.P.Val"])
 orth_tf_expr.head()
 
 
-# In[54]:
+# In[53]:
 
 
 fig, ax = plt.subplots(figsize=(2.2, 2.2), nrows=1, ncols=1)
@@ -547,22 +547,22 @@ ax.text(0.05, 0.83, "# not sig = %s" % (len(not_sig)), ha="left", va="top", font
 fig.savefig("TF_human_v_mouse_scatter.w_sig_outline.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[59]:
+# In[54]:
 
 
 sig.sort_values(by="logFC", ascending=False).head()
 
 
-# In[60]:
+# In[55]:
 
 
 sig.sort_values(by="logFC", ascending=True).head()
 
 
-# In[99]:
+# In[56]:
 
 
-fig, ax = plt.subplots(figsize=(2.2, 2.2), nrows=1, ncols=1)
+fig, ax = plt.subplots(figsize=(2.5, 2.2), nrows=1, ncols=1)
 
 ax.scatter(sig["logFC"], 
            sig["neg_log_padj"],
@@ -607,47 +607,47 @@ fig.savefig("TF_human_v_mouse_volcano.pdf", dpi="figure", bbox_inches="tight")
 
 # ## 6. write files
 
-# In[100]:
+# In[57]:
 
 
 orth_tf_expr.head()
 
 
-# In[101]:
+# In[58]:
 
 
 orth_tf_expr[orth_tf_expr["gene_name_human"] == "ZNF524"]
 
 
-# In[102]:
+# In[59]:
 
 
 orth_tf_expr_f = "../../../data/03__rna_seq/04__TF_expr/orth_TF_expression.txt"
 orth_tf_expr.to_csv(orth_tf_expr_f, sep="\t", index=False)
 
 
-# In[103]:
+# In[60]:
 
 
 hESC_TFs = hESC_TFs[["index", "gene_name", "mean_tpm"]].drop_duplicates()
 len(hESC_TFs)
 
 
-# In[104]:
+# In[61]:
 
 
 hESC_TF_expr_f = "../../../data/03__rna_seq/04__TF_expr/hESC_TF_expression.txt"
 hESC_TFs.to_csv(hESC_TF_expr_f, sep="\t", index=False)
 
 
-# In[105]:
+# In[62]:
 
 
 mESC_TFs = human_mouse_TFs[["gene_id_human", "gene_name_human", "gene_id_mouse", "gene_name_mouse", "mean_tpm_mouse"]].drop_duplicates()
 len(mESC_TFs)
 
 
-# In[106]:
+# In[63]:
 
 
 mESC_TF_expr_f = "../../../data/03__rna_seq/04__TF_expr/mESC_TF_expression.txt"

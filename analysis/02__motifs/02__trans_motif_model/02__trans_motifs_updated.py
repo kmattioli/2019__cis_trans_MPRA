@@ -526,7 +526,7 @@ data_filt_plot["abs_logFC_trans"] = np.abs(data_filt_plot["logFC_trans_one"])
 data_filt_plot.head()
 
 
-# In[81]:
+# In[84]:
 
 
 # example plots
@@ -547,7 +547,7 @@ for symb in examps:
     tmp["mm9_motif"] = tmp["tss_id"].isin(mouse_motifs_sub)
     tmp["has_motif"] = tmp[["hg19_motif", "mm9_motif"]].sum(axis=1).astype(bool)
     
-    fig, axarr = plt.subplots(figsize=(3, 1.5), nrows=1, ncols=2)
+    fig, axarr = plt.subplots(figsize=(2.75, 1.5), nrows=1, ncols=2)
     
     ax = axarr[0]
     sns.boxplot(data=tmp, x="has_motif", y="abs_logFC_trans", order=order, palette=pal, 
@@ -570,7 +570,7 @@ for symb in examps:
     ax = axarr[1]
     sns.boxplot(data=tmp, x="has_motif", y="logFC_trans_one", order=order, palette=pal,
                 flierprops = dict(marker='o', markersize=5), ax=ax)
-    ax.set_xticklabels(["motif not present", "motif present"], rotation=50, ha="right", va="top")
+    ax.set_xticklabels(["no motif", "motif"], rotation=50, ha="right", va="top")
     mimic_r_boxplot(ax)
     ax.set_ylabel("trans effect size")
     ax.set_title(symb)
@@ -585,7 +585,7 @@ for symb in examps:
         
     ax.set_ylim((-2.5, 2))
         
-    plt.subplots_adjust(wspace=0.4)
+    plt.subplots_adjust(wspace=0.5)
     fig.savefig("%s.trans_effect_boxplot.pdf" % symb, dpi="figure", bbox_inches="tight")
     plt.show()
 
@@ -812,10 +812,10 @@ match_activ = trans_orth_match[trans_orth_match["activ_or_repr"] == "activating"
 match_repr = trans_orth_match[trans_orth_match["activ_or_repr"] == "repressing"]
 
 
-# In[79]:
+# In[86]:
 
 
-fig = plt.figure(figsize=(4, 4))
+fig = plt.figure(figsize=(4, 4.4))
 
 ax1 = plt.subplot2grid((1, 7), (0, 0), colspan=3)
 ax2 = plt.subplot2grid((1, 7), (0, 3), colspan=3)
