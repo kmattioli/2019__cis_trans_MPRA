@@ -824,7 +824,7 @@ def uniq_motif(row):
 sns.palplot(sns.color_palette("Set2"))
 
 
-# In[183]:
+# In[184]:
 
 
 # plot some examples
@@ -901,8 +901,8 @@ for symb in examps:
     print(pval1)
     print(pval2)
 
-    annotate_pval(ax, 0.2, 0.8, 5, 0, 5, pval1, fontsize)
-    annotate_pval(ax, 0.2, 1.8, 6.5, 0, 6.5, pval2, fontsize)
+    annotate_pval(ax, 0.2, 0.8, 5.3, 0, 5.3, pval1, fontsize)
+    annotate_pval(ax, 0.2, 1.8, 6.8, 0, 6.8, pval2, fontsize)
 
     ax.set_ylim((-6, 8))
     
