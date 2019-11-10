@@ -534,7 +534,7 @@ mimic_r_boxplot(ax)
 
 ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("# total REs within 1 Mb\n(mean human & mouse)")
+ax.set_ylabel("# total REs within 1 Mb")
 
 for i, l in enumerate(min_order):
     sub = df[df["cis_trans_status"] == l]
@@ -767,7 +767,7 @@ mimic_r_boxplot(ax)
 
 ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("# TSSs within 1 Mb\n(mean human & mouse)")
+ax.set_ylabel("# TSSs within 1 Mb")
 
 for i, l in enumerate(min_order):
     sub = df[df["cis_trans_status"] == l]
@@ -1000,7 +1000,7 @@ mimic_r_boxplot(ax)
 
 ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("# enhancers within 1 Mb\n(mean human & mouse)")
+ax.set_ylabel("# enhancers within 1 Mb")
 
 for i, l in enumerate(min_order):
     sub = df[df["cis_trans_status"] == l]
@@ -1064,7 +1064,7 @@ print("===")
 df[df["cis_trans_int_status"].str.contains("significant")]
 
 
-# In[55]:
+# In[52]:
 
 
 df[df["hg19_id"] == "h.1389"]

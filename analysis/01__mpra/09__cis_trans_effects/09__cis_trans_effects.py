@@ -1113,7 +1113,7 @@ fig.savefig("perc_sig_compensatory_minimal_biotype_switch.pdf", dpi="figure", bb
 plt.close()
 
 
-# In[52]:
+# In[71]:
 
 
 cis_trans_order = ["cis/trans compensatory", "cis/trans directional"]
@@ -1121,7 +1121,7 @@ cis_trans_pal = {"cis/trans compensatory": sns.color_palette("Set2")[7],
                  "cis/trans directional": sns.color_palette("Set2")[2]}
 df["abs_logFC_native"] = np.abs(df["logFC_native"])
 
-fig = plt.figure(figsize=(1, 1.5))
+fig = plt.figure(figsize=(1, 1.75))
 ax = sns.boxplot(data=df, x="cis_trans_status", y="abs_logFC_native", 
                  flierprops = dict(marker='o', markersize=5), 
                  order=cis_trans_order, palette=cis_trans_pal)
@@ -1151,7 +1151,7 @@ vals2 = vals2[~np.isnan(vals2)]
 u, pval = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
 annotate_pval(ax, 0, 1, 5, 0, 5, pval, fontsize-1)
 ax.set_ylim((-0.8, 6))
-fig.savefig("native_effect_comp_v_dir.pdf")
+fig.savefig("native_effect_comp_v_dir.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ## 11. plot some examples
