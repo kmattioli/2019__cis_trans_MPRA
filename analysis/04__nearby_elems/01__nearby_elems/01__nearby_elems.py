@@ -526,13 +526,13 @@ fig.savefig("cis_trans_n_elems_mm9.pdf", dpi="figure", bbox_inches="tight")
 # In[37]:
 
 
-fig = plt.figure(figsize=(1, 1.5))
+fig = plt.figure(figsize=(1, 1.75))
 
 ax = sns.boxplot(data=df, x="cis_trans_status", y="mean_elems", order=min_order, 
                  flierprops = dict(marker='o', markersize=5), palette=pal)
 mimic_r_boxplot(ax)
 
-ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
+ax.set_xticklabels(["compensatory", "directional"], rotation=50, ha='right', va='top')
 ax.set_xlabel("")
 ax.set_ylabel("# total REs within 1 Mb")
 
@@ -759,7 +759,7 @@ fig.savefig("cis_trans_n_tss_mm9.pdf", dpi="figure", bbox_inches="tight")
 # In[43]:
 
 
-fig = plt.figure(figsize=(1, 1.5))
+fig = plt.figure(figsize=(1, 1.75))
 
 ax = sns.boxplot(data=df, x="cis_trans_status", y="mean_tss", order=min_order, 
                  flierprops = dict(marker='o', markersize=5), palette=pal)
