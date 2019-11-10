@@ -410,7 +410,7 @@ mimic_r_boxplot(ax)
 
 ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("cis effect size")
+ax.set_ylabel(r"$\vert$ cis effect size $\vert$")
 
 for i, l in enumerate(min_switch_order):
     sub = df[df["biotype_switch_minimal"] == l]
@@ -557,7 +557,7 @@ mimic_r_boxplot(ax)
 
 ax.set_xticklabels(["eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("cis effect size")
+ax.set_ylabel(r"$\vert$ cis effect size $\vert$")
 plt.legend(loc=2, bbox_to_anchor=(1.05, 1))
 
 ys = [2, 2, 2.5]
@@ -669,7 +669,7 @@ plt.close()
 
 # ### cis effect 
 
-# In[47]:
+# In[35]:
 
 
 ex = df[df["hg19_id"] == "h.1096"]
@@ -678,14 +678,14 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[48]:
+# In[36]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
 ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9", "fdr_cis_HUES64", "fdr_cis_mESC"])]
 
 
-# In[49]:
+# In[37]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -693,7 +693,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[50]:
+# In[38]:
 
 
 order = ["HUES64", "mESC"]
@@ -701,7 +701,7 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[52]:
+# In[39]:
 
 
 fig = plt.figure(figsize=(1.2, 1.4))

@@ -431,7 +431,7 @@ mimic_r_boxplot(ax)
 
 ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("trans effect size")
+ax.set_ylabel(r"$\vert$ trans effect size $\vert$")
 
 for i, l in enumerate(min_switch_order):
     sub = df[df["biotype_switch_minimal"] == l]
@@ -585,7 +585,7 @@ mimic_r_boxplot(ax)
 
 ax.set_xticklabels(["eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("trans effect size")
+ax.set_ylabel(r"$\vert$ trans effect size $\vert$")
 plt.legend(loc=2, bbox_to_anchor=(1.05, 1))
 
 ys = [0.75, 0.75, 0.75]

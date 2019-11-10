@@ -526,7 +526,7 @@ data_filt_plot["abs_logFC_trans"] = np.abs(data_filt_plot["logFC_trans_one"])
 data_filt_plot.head()
 
 
-# In[84]:
+# In[95]:
 
 
 # example plots
@@ -582,6 +582,17 @@ for symb in examps:
         ax.annotate(str(n), xy=(i, -2.4), xycoords="data", xytext=(0, 0), 
                     textcoords="offset pixels", ha='center', va='bottom', 
                     color=pal[label], size=fontsize)
+        
+    ## annotate pvals
+    sub1 = tmp[tmp["has_motif"] == True]
+    sub2 = tmp[tmp["has_motif"] == False]
+    vals1 = np.asarray(sub1["logFC_trans_one"])
+    vals2 = np.asarray(sub2["logFC_trans_one"])
+    vals1 = vals1[~np.isnan(vals1)]
+    vals2 = vals2[~np.isnan(vals2)]
+    u, pval = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
+    print(pval)
+    annotate_pval(ax, 0.2, 0.8, 1, 0, 1, pval, fontsize-1)
         
     ax.set_ylim((-2.5, 2))
         
@@ -812,7 +823,7 @@ match_activ = trans_orth_match[trans_orth_match["activ_or_repr"] == "activating"
 match_repr = trans_orth_match[trans_orth_match["activ_or_repr"] == "repressing"]
 
 
-# In[86]:
+# In[72]:
 
 
 fig = plt.figure(figsize=(4, 4.4))
@@ -859,7 +870,7 @@ fig.savefig("trans_motif_enrichment.with_expr.match_only.activ.pdf", dpi="figure
 plt.close()
 
 
-# In[80]:
+# In[73]:
 
 
 fig = plt.figure(figsize=(4, 0.5))
@@ -908,13 +919,13 @@ plt.close()
 
 # ## 7. join w/ % similarity information
 
-# In[72]:
+# In[74]:
 
 
 orth.columns
 
 
-# In[73]:
+# In[75]:
 
 
 orth_sub = orth[["Gene name", "Mouse gene name", "dN with Mouse", "dS with Mouse"]]
@@ -922,7 +933,7 @@ orth_sub.columns = ["human_gene_name", "mouse_gene_name", "dN", "dS"]
 orth_sub["dNdS"] = orth_sub["dN"]/orth_sub["dS"]
 
 
-# In[74]:
+# In[76]:
 
 
 trans_orth = trans_orth.merge(orth_sub, left_on="HGNC symbol", right_on="human_gene_name").drop_duplicates()
@@ -930,7 +941,7 @@ print(len(trans_orth))
 trans_orth.sample(5)
 
 
-# In[75]:
+# In[77]:
 
 
 trans_orth["abs_l2fc"] = np.abs(trans_orth["logFC"])
@@ -938,20 +949,20 @@ trans_orth["sig_status"] = trans_orth.apply(sig_status, axis=1)
 trans_orth.head()
 
 
-# In[76]:
+# In[78]:
 
 
 trans_orth.sig_status.value_counts()
 
 
-# In[77]:
+# In[79]:
 
 
 order = ["not sig", "sig"]
 palette = {"not sig": "gray", "sig": sns.color_palette("Set2")[2]}
 
 
-# In[78]:
+# In[80]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -988,7 +999,7 @@ fig.savefig("trans_v_l2fc_boxplot.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[79]:
+# In[81]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -1025,7 +1036,7 @@ fig.savefig("trans_v_similarity_boxplot.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[80]:
+# In[82]:
 
 
 trans_orth_sig = trans_orth[trans_orth["sig_status"] == "sig"]
@@ -1033,7 +1044,7 @@ print(len(trans_orth_sig))
 trans_orth_sig.head()
 
 
-# In[81]:
+# In[83]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -1072,46 +1083,46 @@ plt.close()
 
 # ## 8. look at strength of motifs associated w/ trans effects
 
-# In[82]:
+# In[84]:
 
 
 data_filt.head()
 
 
-# In[83]:
+# In[85]:
 
 
 human_motifs.columns
 
 
-# In[84]:
+# In[86]:
 
 
 trans_ids = data_filt_plot[data_filt_plot["trans_status_one"] == "significant trans effect"]["tss_id"].unique()
 len(trans_ids)
 
 
-# In[85]:
+# In[87]:
 
 
 filt_ids = list(data_filt_plot["tss_id"].unique())
 len(filt_ids)
 
 
-# In[86]:
+# In[88]:
 
 
 len(sig_results)
 
 
-# In[87]:
+# In[89]:
 
 
 uniq_motifs = list(trans_orth["index"].unique())
 len(uniq_motifs)
 
 
-# In[88]:
+# In[90]:
 
 
 strength_results = pd.DataFrame()
@@ -1141,7 +1152,7 @@ for i, motif_id in enumerate(uniq_motifs):
     print("(#%s) %s" % (i+1, motif_id))
 
 
-# In[89]:
+# In[91]:
 
 
 print(len(strength_results))
@@ -1149,7 +1160,7 @@ strength_results_mrg = strength_results.merge(trans_orth, on="index")
 strength_results_mrg.head()
 
 
-# In[90]:
+# In[92]:
 
 
 motif_strength_res = {}
@@ -1173,7 +1184,7 @@ for i, motif_id in enumerate(uniq_motifs):
     motif_strength_res[motif_id] = {"strength_pval": pval, "strength_logFC": logFC}
 
 
-# In[91]:
+# In[93]:
 
 
 motif_strength_res = pd.DataFrame.from_dict(motif_strength_res, orient="index").reset_index()
@@ -1182,7 +1193,7 @@ motif_strength_res["strength_padj"] = multicomp.multipletests(motif_strength_res
 len(motif_strength_res[motif_strength_res["strength_padj"] < 0.05])
 
 
-# In[92]:
+# In[94]:
 
 
 motif_strength_res.sort_values(by="strength_padj").head(12)

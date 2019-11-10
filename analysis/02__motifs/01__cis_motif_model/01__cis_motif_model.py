@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[102]:
 
 
 import warnings
@@ -40,20 +40,20 @@ get_ipython().run_line_magic('config', "InlineBackend.figure_format = 'svg'")
 mpl.rcParams['figure.autolayout'] = False
 
 
-# In[2]:
+# In[103]:
 
 
 sns.set(**PAPER_PRESET)
 fontsize = PAPER_FONTSIZE
 
 
-# In[3]:
+# In[104]:
 
 
 np.random.seed(2019)
 
 
-# In[4]:
+# In[105]:
 
 
 QUANT_ALPHA = 0.05
@@ -61,7 +61,7 @@ QUANT_ALPHA = 0.05
 
 # ## functions
 
-# In[5]:
+# In[106]:
 
 
 def calculate_gc(row, col):
@@ -71,7 +71,7 @@ def calculate_gc(row, col):
     return gc
 
 
-# In[6]:
+# In[107]:
 
 
 def calculate_cpg(row, col):
@@ -80,7 +80,7 @@ def calculate_cpg(row, col):
     return cpg
 
 
-# In[7]:
+# In[108]:
 
 
 def lrtest(llmin, llmax):
@@ -91,20 +91,20 @@ def lrtest(llmin, llmax):
 
 # ## variables
 
-# In[8]:
+# In[109]:
 
 
 motif_dir = "../../../data/04__mapped_motifs/elem_fimo_out"
 motifs_f = "%s/fimo.txt.gz" % motif_dir
 
 
-# In[9]:
+# In[110]:
 
 
 elem_map_f = "../../../data/04__mapped_motifs/fastas/elem_map.txt"
 
 
-# In[10]:
+# In[111]:
 
 
 motif_info_dir = "../../../misc/01__motif_info"
@@ -112,25 +112,25 @@ motif_map_f = "%s/00__lambert_et_al_files/00__metadata/curated_motif_map.txt" % 
 motif_info_f = "%s/00__lambert_et_al_files/00__metadata/motif_info.txt" % motif_info_dir
 
 
-# In[11]:
+# In[112]:
 
 
 sig_motifs_f = "../../../data/04__mapped_motifs/sig_motifs.txt"
 
 
-# In[12]:
+# In[113]:
 
 
 tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED_WITH_MAX.txt"
 
 
-# In[13]:
+# In[114]:
 
 
 index_f = "../../../data/01__design/02__index/TWIST_pool4_v8_final.with_element_id.txt.gz"
 
 
-# In[14]:
+# In[115]:
 
 
 data_f = "../../../data/02__mpra/03__results/all_processed_results.txt"
@@ -138,7 +138,7 @@ data_f = "../../../data/02__mpra/03__results/all_processed_results.txt"
 
 # ## 1. import data
 
-# In[15]:
+# In[116]:
 
 
 index = pd.read_table(index_f, sep="\t")
@@ -147,42 +147,42 @@ index_elem = index[["element", "tile_type", "element_id", "name", "tile_number",
 index_elem = index_elem.drop_duplicates()
 
 
-# In[16]:
+# In[117]:
 
 
 tss_map = pd.read_table(tss_map_f, sep="\t")
 tss_map.head()
 
 
-# In[17]:
+# In[118]:
 
 
 motifs = pd.read_table(motifs_f, sep="\t")
 motifs.head()
 
 
-# In[18]:
+# In[119]:
 
 
 elem_map = pd.read_table(elem_map_f, sep="\t")
 elem_map.head()
 
 
-# In[19]:
+# In[120]:
 
 
 motif_map = pd.read_table(motif_map_f, sep="\t")
 motif_map.head()
 
 
-# In[20]:
+# In[121]:
 
 
 motif_info = pd.read_table(motif_info_f, sep="\t")
 motif_info.head()
 
 
-# In[21]:
+# In[122]:
 
 
 sig_motifs = pd.read_table(sig_motifs_f)
@@ -191,7 +191,7 @@ print(len(sig_motifs))
 sig_motifs.head()
 
 
-# In[22]:
+# In[123]:
 
 
 data = pd.read_table(data_f)
@@ -200,14 +200,14 @@ data.head()
 
 # ## 2. filter to significant motifs only (found via model)
 
-# In[23]:
+# In[124]:
 
 
 mapped_sig_motifs = motifs[motifs["#pattern name"].isin(sig_motifs["index"])]
 len(mapped_sig_motifs)
 
 
-# In[24]:
+# In[125]:
 
 
 uniq_motifs = list(mapped_sig_motifs["#pattern name"].unique())
@@ -216,21 +216,21 @@ print(len(uniq_motifs))
 
 # ## 3. join motifs w/ element metadata
 
-# In[25]:
+# In[126]:
 
 
 motifs_merged = mapped_sig_motifs.merge(elem_map, left_on="sequence name", right_on="elem_key")
 motifs_merged.head()
 
 
-# In[26]:
+# In[127]:
 
 
 motifs_merged = motifs_merged.merge(index_elem, left_on="elem", right_on="element")
 motifs_merged.head()
 
 
-# In[27]:
+# In[128]:
 
 
 motifs_merged["tss_id"] = motifs_merged["name"].str.split("__", expand=True)[1]
@@ -239,7 +239,7 @@ motifs_merged["tss_tile_num"] = motifs_merged["name"].str.split("__", expand=Tru
 motifs_merged.sample(5)
 
 
-# In[28]:
+# In[129]:
 
 
 human_df = motifs_merged[(motifs_merged["species"] == "HUMAN") | (motifs_merged["name"] == "random_sequence")]
@@ -257,14 +257,14 @@ print(len(mouse_df))
 mouse_df.sample(5)
 
 
-# In[29]:
+# In[130]:
 
 
 both_tile_ids = tss_map[(~pd.isnull(tss_map["n_tiles_hg19"]) & ~(pd.isnull(tss_map["n_tiles_mm9"])))]
 len(both_tile_ids)
 
 
-# In[30]:
+# In[131]:
 
 
 tile1_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile1:tile1") | 
@@ -272,14 +272,14 @@ tile1_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile1:tile1") |
 len(tile1_ids)
 
 
-# In[31]:
+# In[132]:
 
 
 tile2_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile2:tile2")][["hg19_id", "mm9_id"]].drop_duplicates()
 len(tile2_ids)
 
 
-# In[32]:
+# In[133]:
 
 
 # limit dfs to tile1s where appropriate and tile2 where appropriate
@@ -289,7 +289,7 @@ human_tile1 = human_tile1.drop(["orig_species", "mm9_id", "tile_match"], axis=1)
 len(human_tile1)
 
 
-# In[33]:
+# In[134]:
 
 
 human_tile2 = human_df.merge(tile2_ids, on=["hg19_id", "mm9_id"])
@@ -298,7 +298,7 @@ human_tile2 = human_tile2.drop(["orig_species", "mm9_id", "tile_match"], axis=1)
 len(human_tile2)
 
 
-# In[34]:
+# In[135]:
 
 
 mouse_tile1 = mouse_df.merge(tile1_ids, on=["mm9_id", "hg19_id"])
@@ -307,7 +307,7 @@ mouse_tile1 = mouse_tile1.drop(["orig_species", "hg19_id", "tile_match"], axis=1
 len(mouse_tile1)
 
 
-# In[35]:
+# In[136]:
 
 
 mouse_tile2 = mouse_df.merge(tile2_ids, on=["mm9_id", "hg19_id"])
@@ -316,28 +316,28 @@ mouse_tile2 = mouse_tile2.drop(["orig_species", "hg19_id", "tile_match"], axis=1
 len(mouse_tile2)
 
 
-# In[36]:
+# In[137]:
 
 
 print(len(human_tile1.hg19_id.unique()))
 print(len(mouse_tile1.mm9_id.unique()))
 
 
-# In[37]:
+# In[138]:
 
 
 print(len(human_tile2.hg19_id.unique()))
 print(len(mouse_tile2.mm9_id.unique()))
 
 
-# In[38]:
+# In[139]:
 
 
 human_df = human_tile1.append(human_tile2)
 mouse_df = mouse_tile1.append(mouse_tile2)
 
 
-# In[39]:
+# In[140]:
 
 
 human_df = human_df.drop_duplicates()
@@ -349,14 +349,14 @@ print(len(mouse_df))
 
 # ## 4. merge cis data w/ element data for model
 
-# In[40]:
+# In[141]:
 
 
 index_elem = index_elem[index_elem["name"].str.contains("EVO")]
 index_elem.head()
 
 
-# In[41]:
+# In[142]:
 
 
 index_elem["tss_id"] = index_elem["name"].str.split("__", expand=True)[1]
@@ -364,7 +364,7 @@ index_elem["tss_tile_num"] = index_elem["name"].str.split("__", expand=True)[2]
 index_elem.sample(5)
 
 
-# In[42]:
+# In[143]:
 
 
 index_human = index_elem[index_elem["name"].str.contains("HUMAN")]
@@ -372,7 +372,7 @@ index_mouse = index_elem[index_elem["name"].str.contains("MOUSE")]
 index_mouse.sample(5)
 
 
-# In[43]:
+# In[144]:
 
 
 print(len(data))
@@ -385,7 +385,7 @@ print(len(data))
 data_elem.head()
 
 
-# In[44]:
+# In[145]:
 
 
 data_elem["gc_human"] = data_elem.apply(calculate_gc, col="element_human", axis=1)
@@ -395,7 +395,7 @@ data_elem["cpg_mouse"] = data_elem.apply(calculate_cpg, col="element_mouse", axi
 data_elem.sample(5)
 
 
-# In[45]:
+# In[146]:
 
 
 data_elem["delta_gc"] = data_elem["gc_mouse"] - data_elem["gc_human"] 
@@ -407,14 +407,14 @@ data_elem["abs_delta_cpg"] = np.abs(data_elem["delta_cpg"])
 data_elem.sample(5)
 
 
-# In[46]:
+# In[147]:
 
 
 data_elem["abs_logFC_cis"] = np.abs(data_elem["logFC_cis_one"])
 data_elem["box_abs_logFC_cis"] = boxcox(data_elem["abs_logFC_cis"])[0]
 
 
-# In[47]:
+# In[148]:
 
 
 data_elem.columns
@@ -422,7 +422,7 @@ data_elem.columns
 
 # ## 5. build reduced model
 
-# In[48]:
+# In[149]:
 
 
 scaled_features = StandardScaler().fit_transform(data_elem[["box_abs_logFC_cis", "abs_delta_gc", "abs_delta_cpg",
@@ -440,7 +440,7 @@ data_norm["cis_status_one"] = data_elem["cis_status_one"]
 data_norm.head()
 
 
-# In[49]:
+# In[150]:
 
 
 data_filt = data_norm[((data_norm["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_norm["mESC_padj_mm9"] < QUANT_ALPHA))]
@@ -448,27 +448,27 @@ print(len(data_filt))
 data_filt.head()
 
 
-# In[50]:
+# In[151]:
 
 
 # data_filt = data_filt[data_filt["tss_tile_num"] == "tile1"].drop_duplicates()
 # len(data_filt)
 
 
-# In[51]:
+# In[152]:
 
 
 mod = smf.ols(formula='box_abs_logFC_cis ~ mean_gc + mean_cpg + abs_delta_gc + abs_delta_cpg', 
               data=data_filt).fit()
 
 
-# In[52]:
+# In[153]:
 
 
 mod.summary()
 
 
-# In[53]:
+# In[154]:
 
 
 res = mod.resid
@@ -479,14 +479,14 @@ ax.set_title("Normal QQ: cis effects model")
 fig.savefig("avg_activ_qq.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[54]:
+# In[155]:
 
 
 reduced_llf = mod.llf
 reduced_llf
 
 
-# In[55]:
+# In[156]:
 
 
 reduced_rsq = mod.rsquared
@@ -495,27 +495,27 @@ reduced_rsq
 
 # ## 6. add motifs to model
 
-# In[56]:
+# In[157]:
 
 
 len(data_filt)
 
 
-# In[57]:
+# In[158]:
 
 
 data_filt["hg19_index"] = data_filt["hg19_id"] + "__" + data_filt["tss_tile_num"]
 data_filt["mm9_index"] = data_filt["mm9_id"] + "__" + data_filt["tss_tile_num"]
 
 
-# In[58]:
+# In[159]:
 
 
 human_df["hg19_index"] = human_df["hg19_id"] + "__" + human_df["tss_tile_num"]
 mouse_df["mm9_index"] = mouse_df["mm9_id"] + "__" + mouse_df["tss_tile_num"]
 
 
-# In[59]:
+# In[160]:
 
 
 def motif_disrupted(row):
@@ -527,13 +527,13 @@ def motif_disrupted(row):
         return "a - maintained"
 
 
-# In[60]:
+# In[161]:
 
 
 len(human_df[human_df["tss_tile_num"] == "tile2"]["hg19_id"].unique())
 
 
-# In[61]:
+# In[162]:
 
 
 motif_results = {}
@@ -581,7 +581,7 @@ for i, motif_id in enumerate(uniq_motifs):
                                "n_maintained": n_maintained}
 
 
-# In[62]:
+# In[163]:
 
 
 motif_results = pd.DataFrame.from_dict(motif_results, orient="index").reset_index()
@@ -590,21 +590,21 @@ print(len(motif_results))
 motif_results.head()
 
 
-# In[63]:
+# In[164]:
 
 
 motif_results["padj"] = multicomp.multipletests(motif_results["pval"], method="fdr_bh")[1]
 len(motif_results[motif_results["padj"] < 0.05])
 
 
-# In[64]:
+# In[165]:
 
 
 motif_results["beta_padj"] = multicomp.multipletests(motif_results["beta_p"], method="fdr_bh")[1]
 len(motif_results[motif_results["beta_padj"] < 0.05])
 
 
-# In[65]:
+# In[166]:
 
 
 motif_results.sort_values(by="beta_padj").head(10)
@@ -612,14 +612,14 @@ motif_results.sort_values(by="beta_padj").head(10)
 
 # ## 7. join w/ TF info
 
-# In[66]:
+# In[167]:
 
 
 motif_results_mrg = motif_results.merge(sig_motifs, on="index", suffixes=("_cis", "_activ"))
 motif_results_mrg.sort_values(by="padj_cis").head()
 
 
-# In[67]:
+# In[168]:
 
 
 #sig_results = motif_results_mrg[(motif_results_mrg["padj_cis"] < 0.05) & (motif_results_mrg["beta_cis"] > 0)]
@@ -627,13 +627,13 @@ sig_results = motif_results_mrg[(motif_results_mrg["beta_padj"] < 0.05) & (motif
 sig_results = sig_results.sort_values(by="beta_cis", ascending=False)
 
 
-# In[68]:
+# In[169]:
 
 
 pal = {"repressing": sns.color_palette("pastel")[3], "activating": sns.color_palette("pastel")[0]}
 
 
-# In[69]:
+# In[170]:
 
 
 full_pal = {}
@@ -641,14 +641,14 @@ for i, row in sig_results.iterrows():
     full_pal[row["HGNC symbol"]] = pal[row["activ_or_repr"]]
 
 
-# In[70]:
+# In[171]:
 
 
 sig_activ = sig_results[sig_results["activ_or_repr"] == "activating"]
 sig_repr = sig_results[sig_results["activ_or_repr"] == "repressing"]
 
 
-# In[117]:
+# In[172]:
 
 
 fig = plt.figure(figsize=(3.5, 2))
@@ -694,7 +694,7 @@ fig.savefig("cis_motif_enrichment.activ_only.pdf", dpi="figure", bbox_inches="ti
 plt.close()
 
 
-# In[79]:
+# In[173]:
 
 
 fig = plt.figure(figsize=(4, 0.5))
@@ -739,7 +739,7 @@ fig.savefig("cis_motif_enrichment.repr_only.pdf", dpi="figure", bbox_inches="tig
 plt.close()
 
 
-# In[80]:
+# In[174]:
 
 
 fig = plt.figure(figsize=(4, 2.5))
@@ -778,7 +778,7 @@ fig.savefig("cis_motif_enrichment.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[81]:
+# In[175]:
 
 
 data_filt = data_elem[((data_elem["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_elem["mESC_padj_mm9"] < QUANT_ALPHA))]
@@ -787,7 +787,7 @@ print(len(data_filt))
 # len(data_filt)
 
 
-# In[82]:
+# In[176]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -795,14 +795,14 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[83]:
+# In[177]:
 
 
 data_filt_sp["hg19_index"] = data_filt_sp["hg19_id"] + "__" + data_filt_sp["tss_tile_num"]
 data_filt_sp["mm9_index"] = data_filt_sp["mm9_id"] + "__" + data_filt_sp["tss_tile_num"]
 
 
-# In[84]:
+# In[178]:
 
 
 def uniq_motif(row):
@@ -818,13 +818,13 @@ def uniq_motif(row):
             return "not present"
 
 
-# In[85]:
+# In[179]:
 
 
 sns.palplot(sns.color_palette("Set2"))
 
 
-# In[87]:
+# In[183]:
 
 
 # plot some examples
@@ -883,8 +883,8 @@ for symb in examps:
     
     for i, label in enumerate(order2):
         n = len(tmp[tmp["uniq_motif"] == label])
-        ax.annotate(str(n), xy=(i, -6.5), xycoords="data", xytext=(0, 0), 
-                    textcoords="offset pixels", ha='center', va='top', 
+        ax.annotate(str(n), xy=(i, -5.5), xycoords="data", xytext=(0, 0), 
+                    textcoords="offset pixels", ha='center', va='bottom', 
                     color=pal2[label], size=fontsize)
         
     # calc p-vals b/w dists
@@ -901,10 +901,10 @@ for symb in examps:
     print(pval1)
     print(pval2)
 
-#     annotate_pval(ax, 0.2, 0.8, 3, 0, 3, pval1, fontsize)
-#     annotate_pval(ax, 0.2, 1.8, 4, 0, 4, pval2, fontsize)
+    annotate_pval(ax, 0.2, 0.8, 5, 0, 5, pval1, fontsize)
+    annotate_pval(ax, 0.2, 1.8, 6.5, 0, 6.5, pval2, fontsize)
 
-    ax.set_ylim((-8, 6))
+    ax.set_ylim((-6, 8))
     
     plt.subplots_adjust(wspace=0.5)
     fig.savefig("%s.cis_effect_boxplot.pdf" % symb, dpi="figure", bbox_inches="tight")
@@ -918,14 +918,14 @@ for symb in examps:
 # - full turnover = motifs that are only present in one species
 # - partial turnover = motifs that are in both species but don't map to the exact same sequence
 
-# In[88]:
+# In[80]:
 
 
 print(len(data))
 data.tss_tile_num.value_counts()
 
 
-# In[89]:
+# In[81]:
 
 
 turnover_results = {}
@@ -987,7 +987,7 @@ for i, row in data.iterrows():
                                                                        "delta_motifs": delta_motifs}
 
 
-# In[90]:
+# In[82]:
 
 
 turnover_df = pd.DataFrame.from_dict(turnover_results, orient="index").reset_index()
@@ -1009,7 +1009,7 @@ turnover_df.head()
 
 # ## 9. merge motif turnover data w/ cis effects
 
-# In[91]:
+# In[83]:
 
 
 data_motifs = data.merge(turnover_df, on=["hg19_id", "mm9_id", "tss_tile_num"], how="left")
@@ -1019,14 +1019,14 @@ data_motifs.head()
 
 # ## 6. filter data
 
-# In[92]:
+# In[84]:
 
 
 data_filt = data_motifs[((data_motifs["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_motifs["mESC_padj_mm9"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[93]:
+# In[85]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -1034,28 +1034,28 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[94]:
+# In[86]:
 
 
 # data_filt_tile1 = data_filt[data_filt["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1)
 
 
-# In[95]:
+# In[87]:
 
 
 # # data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1_sp)
 
 
-# In[96]:
+# In[88]:
 
 
 # data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
 # len(data_filt_tile2)
 
 
-# In[97]:
+# In[89]:
 
 
 # data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
@@ -1064,7 +1064,7 @@ len(data_filt_sp)
 
 # ## 7. plot cis effects v motif turnover
 
-# In[98]:
+# In[90]:
 
 
 # dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
@@ -1072,7 +1072,7 @@ len(data_filt_sp)
 # labels = ["both_tiles", "tile1_only", "tile2_only"]
 
 
-# In[99]:
+# In[91]:
 
 
 order = ["no cis effect", "significant cis effect"]
@@ -1081,7 +1081,7 @@ palette = {"no cis effect": "gray", "significant cis effect": sns.color_palette(
 
 # ### % shared motifs
 
-# In[100]:
+# In[92]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -1121,13 +1121,13 @@ palette = {"no cis effect": "gray", "significant cis effect": sns.color_palette(
 #     plt.close()
 
 
-# In[101]:
+# In[93]:
 
 
 df = data_filt_sp
 
 
-# In[102]:
+# In[94]:
 
 
 fig = plt.figure(figsize=(1.25, 2))
@@ -1166,7 +1166,7 @@ plt.close()
 
 # ## 8. plot motif #s across biotypes
 
-# In[103]:
+# In[95]:
 
 
 def turnover_status(row):
@@ -1188,7 +1188,7 @@ def turnover_biotype(row):
             return row["biotype_switch_minimal"]
 
 
-# In[104]:
+# In[96]:
 
 
 turnover_order = ["eRNA", "lncRNA", "mRNA"]
@@ -1196,7 +1196,7 @@ turnover_pal = {"turnover": sns.color_palette("Set2")[2], "conserved": sns.color
 hue_order = ["turnover", "conserved"]
 
 
-# In[105]:
+# In[97]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -1244,7 +1244,7 @@ hue_order = ["turnover", "conserved"]
 #     plt.close()
 
 
-# In[107]:
+# In[98]:
 
 
 # df["turnover_status"] = df.apply(turnover_status, axis=1)
@@ -1284,26 +1284,26 @@ hue_order = ["turnover", "conserved"]
 
 # ## 11. write motif files
 
-# In[108]:
+# In[99]:
 
 
 len(human_df)
 
 
-# In[109]:
+# In[100]:
 
 
 len(mouse_df)
 
 
-# In[110]:
+# In[101]:
 
 
 human_f = "../../../data/04__mapped_motifs/human_motifs_filtered.txt.gz"
 human_df.to_csv(human_f, sep="\t", index=False, compression="gzip")
 
 
-# In[111]:
+# In[ ]:
 
 
 mouse_f = "../../../data/04__mapped_motifs/mouse_motifs_filtered.txt.gz"

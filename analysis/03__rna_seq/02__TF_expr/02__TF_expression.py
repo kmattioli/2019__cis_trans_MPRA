@@ -559,10 +559,10 @@ sig.sort_values(by="logFC", ascending=False).head()
 sig.sort_values(by="logFC", ascending=True).head()
 
 
-# In[56]:
+# In[64]:
 
 
-fig, ax = plt.subplots(figsize=(2.5, 2.2), nrows=1, ncols=1)
+fig, ax = plt.subplots(figsize=(2.5, 2), nrows=1, ncols=1)
 
 ax.scatter(sig["logFC"], 
            sig["neg_log_padj"],

@@ -101,7 +101,6 @@ data.head()
 
 
 data["cis_trans_status"] = data.apply(cis_trans_status, axis=1)
-data.cis_trans_status.value_counts()
 
 
 # ## 2. filter data
@@ -131,25 +130,59 @@ len(data_filt_sp)
 # In[12]:
 
 
+data_filt_sp.cis_trans_status.value_counts()
+
+
+# In[13]:
+
+
+# fisher's exact to see if cis/trans effects are enriched
+cis_trans = len(data_filt_sp[data_filt_sp["cis_trans_status"].isin(["cis/trans directional", "cis/trans compensatory"])])
+cis_no_trans = len(data_filt_sp[data_filt_sp["cis_trans_status"] == "cis effect only"])
+trans_no_cis = len(data_filt_sp[data_filt_sp["cis_trans_status"] == "trans effect only"])
+n_no_cis_trans = len(data_filt_sp[data_filt_sp["cis_trans_status"] == "no cis or trans effects"])
+
+# fisher's exact test
+arr = np.zeros((2, 2))
+arr[0, 0] = cis_trans
+arr[0, 1] = cis_no_trans
+arr[1, 0] = trans_no_cis
+arr[1, 1] = n_no_cis_trans
+print(arr)
+
+odds, p = stats.fisher_exact(arr)
+print(odds)
+print(p)
+
+
+# In[14]:
+
+
+stats.binom_test(94, 158)
+
+
+# In[15]:
+
+
 # data_filt_tile1 = data_filt[data_filt["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1)
 
 
-# In[13]:
+# In[16]:
 
 
 # data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
 # len(data_filt_tile1_sp)
 
 
-# In[14]:
+# In[17]:
 
 
 # data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
 # len(data_filt_tile2)
 
 
-# In[15]:
+# In[18]:
 
 
 # data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
@@ -158,25 +191,25 @@ len(data_filt_sp)
 
 # ## count of cis/trans/both
 
-# In[16]:
+# In[19]:
 
 
 len(data_filt_sp)
 
 
-# In[17]:
+# In[20]:
 
 
 len(data_filt_sp[(data_filt_sp["cis_status_one"] != "no cis effect") & (data_filt_sp["trans_status_one"] == "no trans effect")])
 
 
-# In[18]:
+# In[21]:
 
 
 len(data_filt_sp[(data_filt_sp["cis_status_one"] == "no cis effect") & (data_filt_sp["trans_status_one"] != "no trans effect")])
 
 
-# In[19]:
+# In[22]:
 
 
 len(data_filt_sp[(data_filt_sp["cis_status_one"] != "no cis effect") & (data_filt_sp["trans_status_one"] != "no trans effect")])
@@ -184,14 +217,14 @@ len(data_filt_sp[(data_filt_sp["cis_status_one"] != "no cis effect") & (data_fil
 
 # ## 3. count of cis/trans interactions
 
-# In[20]:
+# In[23]:
 
 
 int_order = ["no cis/trans int. effect", "significant cis/trans int. effect"]
 int_pal = {"no cis/trans int. effect": "gray", "significant cis/trans int. effect": "black"}
 
 
-# In[21]:
+# In[24]:
 
 
 # dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
@@ -199,7 +232,7 @@ int_pal = {"no cis/trans int. effect": "gray", "significant cis/trans int. effec
 # labels = ["both_tiles", "tile1_only", "tile2_only"]
 
 
-# In[22]:
+# In[25]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -227,13 +260,13 @@ int_pal = {"no cis/trans int. effect": "gray", "significant cis/trans int. effec
 #     plt.close()
 
 
-# In[23]:
+# In[26]:
 
 
 df = data_filt_sp
 
 
-# In[24]:
+# In[27]:
 
 
 fig, ax = plt.subplots(figsize=(0.75, 1.75), nrows=1, ncols=1)
@@ -260,7 +293,7 @@ plt.close()
 
 # ## 5. effect size differences across biotypes
 
-# In[25]:
+# In[28]:
 
 
 min_switch_order = ["CAGE turnover - eRNA", "CAGE turnover - lncRNA", "CAGE turnover - mRNA", 
@@ -273,7 +306,7 @@ min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2],
                   "mRNA": sns.color_palette("Set2")[7]}
 
 
-# In[26]:
+# In[29]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -343,7 +376,7 @@ min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2],
 #     plt.close()
 
 
-# In[27]:
+# In[30]:
 
 
 df["abs_logFC_int"] = np.abs(df["logFC_int"])
@@ -411,7 +444,7 @@ fig.savefig("cistrans_minimal_biotype_switch_effectsize_boxplot.pdf", dpi="figur
 plt.close()
 
 
-# In[28]:
+# In[31]:
 
 
 def cage_status(row):
@@ -421,7 +454,7 @@ def cage_status(row):
         return "conserved"
 
 
-# In[29]:
+# In[32]:
 
 
 def one_biotype(row):
@@ -433,13 +466,13 @@ def one_biotype(row):
         return row.minimal_biotype_hg19
 
 
-# In[30]:
+# In[33]:
 
 
 pal = {"conserved": sns.color_palette("Set2")[7], "turnover": sns.color_palette("Set2")[2]}
 
 
-# In[31]:
+# In[34]:
 
 
 # for df, title, pltname in zip(dfs, titles, labels):
@@ -494,7 +527,7 @@ pal = {"conserved": sns.color_palette("Set2")[7], "turnover": sns.color_palette(
 #     fig.savefig("cistrans_effect_biotype_sep_cage.%s.pdf" % pltname, dpi="figure", bbox_inches="tight")
 
 
-# In[32]:
+# In[35]:
 
 
 df["abs_logFC_int"] = np.abs(df["logFC_int"])
@@ -549,7 +582,7 @@ fig.savefig("cistrans_effect_biotype_sep_cage.pdf", dpi="figure", bbox_inches="t
 
 # ## 6. percent sig across biotypes
 
-# In[33]:
+# In[36]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -582,7 +615,7 @@ fig.savefig("cistrans_effect_biotype_sep_cage.pdf", dpi="figure", bbox_inches="t
 #     plt.close()
 
 
-# In[34]:
+# In[37]:
 
 
 tots = df.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
@@ -614,7 +647,7 @@ plt.close()
 
 # ## 7. look generally at significant interactions
 
-# In[35]:
+# In[38]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -650,7 +683,7 @@ plt.close()
 #     plt.close()
 
 
-# In[36]:
+# In[39]:
 
 
 # plot effect size agreement b/w the two cells
@@ -686,14 +719,14 @@ plt.close()
 
 # ## 8. look at highest cis/trans interactions
 
-# In[37]:
+# In[40]:
 
 
 sig_int = df[df["cis_trans_int_status"] != "no cis/trans int. effect"]
 len(sig_int)
 
 
-# In[38]:
+# In[41]:
 
 
 # sig_int_filt = sig_int[((sig_int["logFC_cis_HUES64"] < 0) & (sig_int["logFC_cis_mESC"] > 0)) |
@@ -702,7 +735,7 @@ sig_int_filt = sig_int
 len(sig_int_filt)
 
 
-# In[39]:
+# In[42]:
 
 
 sub = sig_int_filt[["hg19_id", "mm9_id", "biotype_hg19", "biotype_mm9", "biotype_switch_minimal", "logFC_int", "logFC_cis_HUES64", "logFC_cis_mESC",
@@ -710,13 +743,13 @@ sub = sig_int_filt[["hg19_id", "mm9_id", "biotype_hg19", "biotype_mm9", "biotype
 sub
 
 
-# In[40]:
+# In[43]:
 
 
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[41]:
+# In[44]:
 
 
 for row in sub.iterrows():
@@ -746,7 +779,7 @@ for row in sub.iterrows():
 # - compensatory: h.1433/m.1276, 
 # - directional: h.321/m.207, h.554/m.440, h.1389/m.1247
 
-# In[42]:
+# In[45]:
 
 
 # for row in sub.head(3).iterrows():
@@ -765,7 +798,7 @@ for row in sub.iterrows():
 
 # ## 9. look at cis/trans when subsetting by native
 
-# In[43]:
+# In[46]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -837,7 +870,7 @@ for row in sub.iterrows():
 # #     fig.savefig("cis_v_trans.%s.pdf" % label, dpi="figure", bbox_inches="tight")
 
 
-# In[44]:
+# In[47]:
 
 
 fig, axarr = plt.subplots(figsize=(5.8, 2), nrows=1, ncols=3, sharex=True, sharey=True)
@@ -909,7 +942,7 @@ ax.set_ylabel("")
 
 # ## 10. look at invidiual directionality of cis/trans
 
-# In[45]:
+# In[48]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -953,7 +986,7 @@ ax.set_ylabel("")
 #     fig.savefig("direc_v_comp.%s.pdf" % label, dpi="figure", bbox_inches="tight")
 
 
-# In[46]:
+# In[49]:
 
 
 res = {}
@@ -978,6 +1011,7 @@ res["compensatory"] = [comp]
 res = pd.DataFrame.from_dict(res, orient="index").reset_index()
 res["perc"] = (res[0]/tots)*100
 res["tmp"] = "tmp"
+print(res)
 
 fig, ax = plt.subplots(figsize=(0.5, 1.5), nrows=1, ncols=1)
 sns.barplot(data=res[res["index"] == "total"], 
@@ -996,7 +1030,7 @@ ax.annotate(str(tots), xy=(0, 5), xycoords="data", xytext=(0, 0),
 fig.savefig("direc_v_comp.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[47]:
+# In[50]:
 
 
 # for df, title, label in zip(dfs, titles, labels):
@@ -1039,7 +1073,7 @@ fig.savefig("direc_v_comp.pdf", dpi="figure", bbox_inches="tight")
 #     plt.close()
 
 
-# In[48]:
+# In[51]:
 
 
 cis_trans = df[(df["cis_status_one"] == "significant cis effect") & 
@@ -1079,51 +1113,52 @@ fig.savefig("perc_sig_compensatory_minimal_biotype_switch.pdf", dpi="figure", bb
 plt.close()
 
 
-# In[ ]:
+# In[52]:
 
 
-cis_trans = df[(df["cis_status_one"] == "significant cis effect") & 
-               (df["trans_status_one"] == "significant trans effect")]
-tots = cis_trans.groupby("native_status")["hg19_id"].agg("count").reset_index()
+cis_trans_order = ["cis/trans compensatory", "cis/trans directional"]
+cis_trans_pal = {"cis/trans compensatory": sns.color_palette("Set2")[7], 
+                 "cis/trans directional": sns.color_palette("Set2")[2]}
+df["abs_logFC_native"] = np.abs(df["logFC_native"])
 
-direc = cis_trans[((cis_trans["cis_status_det_one"].str.contains("higher in human") & 
-                    cis_trans["trans_status_det_one"].str.contains("higher in human")) |
-                   (cis_trans["cis_status_det_one"].str.contains("higher in mouse") &
-                    cis_trans["trans_status_det_one"].str.contains("higher in mouse")))]
-sig = direc.groupby("native_status")["hg19_id"].agg("count").reset_index()
-clean_sig = tots.merge(sig, on="native_status", how="left").fillna(0)
-clean_sig["percent_sig"] = (clean_sig["hg19_id_y"]/clean_sig["hg19_id_x"])*100
-clean_sig["percent_tot"] = (clean_sig["hg19_id_x"]/clean_sig["hg19_id_x"])*100
+fig = plt.figure(figsize=(1, 1.5))
+ax = sns.boxplot(data=df, x="cis_trans_status", y="abs_logFC_native", 
+                 flierprops = dict(marker='o', markersize=5), 
+                 order=cis_trans_order, palette=cis_trans_pal)
+mimic_r_boxplot(ax)
 
-fig = plt.figure(figsize=(2.5, 1.5))
-ax = sns.barplot(data=clean_sig, x="native_status", y="percent_tot", 
-                 order=min_switch_order, color=sns.color_palette("Set2")[7])
-sns.barplot(data=clean_sig, x="biotype_switch_minimal", y="percent_sig", 
-            order=min_switch_order, color=sns.color_palette("Set2")[2])
-
-ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
+ax.set_xticklabels(["compensatory", "directional"], rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("% of sequence pairs")
-ax.axvline(x=2.5, linestyle="dashed", color="black")
+ax.set_ylabel(r'$\vert$ native effect size $\vert$')
 
-for i, l in enumerate(min_switch_order):
-    sub = clean_sig[clean_sig["biotype_switch_minimal"] == l]
-    print("%s perc sig: %s" % (l, sub["percent_sig"].iloc[0]))
-    n = sub["hg19_id_x"].iloc[0]
-    ax.annotate(str(n), xy=(i, 5), xycoords="data", xytext=(0, 0), 
+for i, l in enumerate(cis_trans_order):
+    sub = df[df["cis_trans_status"] == l]
+    n = len(sub)
+    color = cis_trans_pal[l]
+    ax.annotate(str(n), xy=(i, -0.7), xycoords="data", xytext=(0, 0), 
                 textcoords="offset pixels", ha='center', va='bottom', 
-                color="white", size=fontsize)
+                color=color, size=fontsize)
+    
+sub1 = df[df["cis_trans_status"] == "cis/trans compensatory"]
+sub2 = df[df["cis_trans_status"] == "cis/trans directional"]
+    
+vals1 = np.asarray(sub1["abs_logFC_native"])
+vals2 = np.asarray(sub2["abs_logFC_native"])
 
-plt.show()
-fig.savefig("perc_sig_compensatory_minimal_biotype_switch.pdf", dpi="figure", bbox_inches="tight")
-plt.close()
+vals1 = vals1[~np.isnan(vals1)]
+vals2 = vals2[~np.isnan(vals2)]
+
+u, pval = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
+annotate_pval(ax, 0, 1, 5, 0, 5, pval, fontsize-1)
+ax.set_ylim((-0.8, 6))
+fig.savefig("native_effect_comp_v_dir.pdf")
 
 
 # ## 11. plot some examples
 
 # ### compensatory
 
-# In[49]:
+# In[53]:
 
 
 ex = df[df["hg19_id"] == "h.1433"]
@@ -1134,7 +1169,7 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[50]:
+# In[54]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
@@ -1144,7 +1179,7 @@ ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9
                              "logFC_trans_human", "logFC_trans_mouse"])]
 
 
-# In[51]:
+# In[55]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -1152,7 +1187,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[52]:
+# In[56]:
 
 
 order = ["HUES64", "mESC"]
@@ -1160,7 +1195,7 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[53]:
+# In[57]:
 
 
 fig = plt.figure(figsize=(1.5, 1.5))
@@ -1181,7 +1216,7 @@ annotate_pval(ax, 0.25, 1.25, 12.75, 0, 12.75, ex[ex["variable"] == "fdr_trans_m
 fig.savefig("compensatory_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[54]:
+# In[58]:
 
 
 ex_sub = ex[ex["variable"].str.contains("logFC")]
@@ -1190,7 +1225,7 @@ ex_sub = ex_sub.sort_values(by=["seq", "sp"])
 ex_sub
 
 
-# In[55]:
+# In[59]:
 
 
 def sp(row):
@@ -1203,13 +1238,13 @@ ex_sub["sp"] = ex_sub.apply(sp, axis=1)
 ex_sub
 
 
-# In[56]:
+# In[60]:
 
 
 order = ["cis", "trans"]
 
 
-# In[57]:
+# In[61]:
 
 
 fig, axarr = plt.subplots(figsize=(1.5, 1.5), nrows=1, ncols=2, sharey=True)
@@ -1234,7 +1269,7 @@ fig.savefig("compensatory_example_effectsize.pdf", dpi="figure", bbox_inches="ti
 
 # ### directional
 
-# In[58]:
+# In[62]:
 
 
 ex = df[df["hg19_id"] == "h.1389"]
@@ -1245,7 +1280,7 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[59]:
+# In[63]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
@@ -1255,7 +1290,7 @@ ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9
                              "logFC_trans_human", "logFC_trans_mouse"])]
 
 
-# In[60]:
+# In[64]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -1263,7 +1298,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[61]:
+# In[65]:
 
 
 order = ["HUES64", "mESC"]
@@ -1271,7 +1306,7 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[62]:
+# In[66]:
 
 
 fig = plt.figure(figsize=(1.5, 1.5))
@@ -1292,7 +1327,7 @@ annotate_pval(ax, 0.25, 1.25, 3.25, 0, 3.25, ex[ex["variable"] == "fdr_trans_mou
 fig.savefig("directional_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[63]:
+# In[67]:
 
 
 ex_sub = ex[ex["variable"].str.contains("logFC")]
@@ -1302,13 +1337,13 @@ ex_sub["sp"] = ex_sub.apply(sp, axis=1)
 ex_sub
 
 
-# In[64]:
+# In[68]:
 
 
 order = ["cis", "trans"]
 
 
-# In[65]:
+# In[69]:
 
 
 fig, axarr = plt.subplots(figsize=(1.5, 1.5), nrows=1, ncols=2, sharey=True)
