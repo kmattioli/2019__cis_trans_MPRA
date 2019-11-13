@@ -39,15 +39,15 @@ fontsize = PAPER_FONTSIZE
 
 
 def cleaner_biotype(row, biotype_col):
-    if row[biotype_col] in ["protein_coding", "div_pc"]:
+    if row[biotype_col] in ["protein_coding", "div_pc", "mRNA"]:
         return "mRNA"
     elif row[biotype_col] == "intergenic":
         return "lncRNA"
-    elif row[biotype_col] in ["antisense", "div_lnc"]:
+    elif row[biotype_col] in ["antisense", "div_lnc", "divergent", "lncRNA"]:
         return "lncRNA"
-    elif row[biotype_col] == "enhancer":
+    elif row[biotype_col] == "enhancer" or row[biotype_col] == "eRNA":
         return "eRNA"
-    elif row[biotype_col] == "no cage activity":
+    elif row[biotype_col] in ["no cage activity", "no CAGE activity"]:
         return "no CAGE activity"
     else:
         return "other"
@@ -262,7 +262,7 @@ human_master_cage.sample(5)
 human_master_cage[human_master_cage["cage_id_hg19"] == "chr10:104210390..104210444,+"]
 
 
-# In[28]:
+# In[27]:
 
 
 human_master[human_master["cage_id_hg19"] == "chr10:104210390..104210444,+"][["cage_id_hg19", "chr_tss_hg19", "start_tss_hg19",
@@ -270,7 +270,7 @@ human_master[human_master["cage_id_hg19"] == "chr10:104210390..104210444,+"][["c
                                                        "start_tss_mm9", "end_tss_mm9", "strand_tss_mm9", "biotype_hg19", "biotype_mm9"]]
 
 
-# In[29]:
+# In[28]:
 
 
 print(len(mouse_master))
@@ -283,13 +283,19 @@ mouse_master_cage.sample(5)
 
 # ## 4. fix biotypes + plot CAGE peaks
 
-# In[30]:
+# In[29]:
 
 
 human_master_cage["min_biotype_hg19"] = human_master_cage.apply(cleaner_biotype, biotype_col="biotype_hg19", axis=1)
 human_master_cage["min_biotype_mm9"] = human_master_cage.apply(cleaner_biotype, biotype_col="biotype_mm9", axis=1)
 mouse_master_cage["min_biotype_mm9"] = mouse_master_cage.apply(cleaner_biotype, biotype_col="biotype_mm9", axis=1)
 mouse_master_cage["min_biotype_hg19"] = mouse_master_cage.apply(cleaner_biotype, biotype_col="biotype_hg19", axis=1)
+
+
+# In[30]:
+
+
+human_master_cage[human_master_cage["cage_id_hg19"] == "chr1:203273760..203273784,-"]
 
 
 # In[31]:
@@ -430,43 +436,49 @@ mouse_master_cage.sample(5)
 # In[41]:
 
 
-human_seq = human_master_cage[human_master_cage["seq_orth"]]
-human_seq.min_biotype_mm9.value_counts()
+mouse_master_cage[mouse_master_cage["cage_id_mm9"] == "chr13:46058556-46059202"]
 
 
 # In[42]:
 
 
-human_seq.new_biotype_mm9.value_counts()
+human_seq = human_master_cage[human_master_cage["seq_orth"]]
+human_seq.min_biotype_mm9.value_counts()
 
 
 # In[43]:
+
+
+human_seq.new_biotype_mm9.value_counts()
+
+
+# In[44]:
 
 
 mouse_seq = mouse_master_cage[mouse_master_cage["seq_orth"]]
 mouse_seq.min_biotype_hg19.value_counts()
 
 
-# In[44]:
+# In[45]:
 
 
 mouse_seq.new_biotype_hg19.value_counts()
 
 
-# In[45]:
+# In[46]:
 
 
 human_master_cage.cage_orth.value_counts()
 
 
-# In[46]:
+# In[47]:
 
 
 human_master_cage["cage_orth"] = human_master_cage["new_biotype_mm9"] != "no CAGE activity"
 mouse_master_cage["cage_orth"] = mouse_master_cage["new_biotype_hg19"] != "no CAGE activity"
 
 
-# In[47]:
+# In[48]:
 
 
 human_master_cage.cage_orth.value_counts()
@@ -474,7 +486,7 @@ human_master_cage.cage_orth.value_counts()
 
 # ## 6. make new peak files
 
-# In[48]:
+# In[49]:
 
 
 human_master_cage["seq_orth_bin"] = human_master_cage["seq_orth"].astype(int)
@@ -483,7 +495,7 @@ human_master_cage = human_master_cage.drop_duplicates()
 human_master_cage.sample(5)
 
 
-# In[49]:
+# In[50]:
 
 
 mouse_master_cage["seq_orth_bin"] = mouse_master_cage["seq_orth"].astype(int)
@@ -492,7 +504,7 @@ mouse_master_cage = mouse_master_cage.drop_duplicates()
 mouse_master_cage.sample(5)
 
 
-# In[50]:
+# In[51]:
 
 
 human_sub = human_master_cage[["cage_id_hg19", "strand_tss_hg19", "min_biotype_hg19", "seq_orth_bin", 
@@ -501,7 +513,7 @@ mouse_sub = mouse_master_cage[["cage_id_mm9", "strand_tss_mm9", "min_biotype_mm9
                                "cage_orth_bin", "new_biotype_hg19"]].drop_duplicates()
 
 
-# In[51]:
+# In[52]:
 
 
 human_seq_grp = human_sub.groupby(["cage_id_hg19", "min_biotype_hg19"])["seq_orth_bin"].agg("sum").reset_index()
@@ -509,7 +521,7 @@ mouse_seq_grp = mouse_sub.groupby(["cage_id_mm9", "min_biotype_mm9"])["seq_orth_
 human_seq_grp.head()
 
 
-# In[52]:
+# In[53]:
 
 
 human_cage_grp = human_sub.groupby(["cage_id_hg19", "min_biotype_hg19"])["cage_orth_bin"].agg("sum").reset_index()
@@ -517,7 +529,7 @@ mouse_cage_grp = mouse_sub.groupby(["cage_id_mm9", "min_biotype_mm9"])["cage_ort
 human_cage_grp.head()
 
 
-# In[53]:
+# In[54]:
 
 
 human_grp = human_seq_grp.merge(human_cage_grp, on=["cage_id_hg19", "min_biotype_hg19"], how="left")
@@ -525,7 +537,7 @@ human_grp = human_grp.merge(human_sub[["cage_id_hg19", "new_biotype_mm9"]], on="
 human_grp.sample(5)
 
 
-# In[54]:
+# In[55]:
 
 
 mouse_grp = mouse_seq_grp.merge(mouse_cage_grp, on=["cage_id_mm9", "min_biotype_mm9"], how="left")
@@ -535,35 +547,35 @@ mouse_grp.sample(5)
 
 # ## 7. write files
 
-# In[55]:
+# In[56]:
 
 
 human_grp.columns = ["cage_id", "biotype", "seq_ortholog", "cage_ortholog", "other_sp_biotype"]
 mouse_grp.columns = ["cage_id", "biotype", "seq_ortholog", "cage_ortholog", "other_sp_biotype"]
 
 
-# In[56]:
+# In[57]:
 
 
 human_master_f = '../../../data/01__design/00__genome_list/hg19.master_list.reclassified.txt.gz'
 mouse_master_f = '../../../data/01__design/00__genome_list/mm9.master_list.reclassified.txt.gz'
 
 
-# In[57]:
+# In[58]:
 
 
 human_peak_f = '../../../data/01__design/00__genome_list/hg19.PEAK_STATUS.txt.gz'
 mouse_peak_f = '../../../data/01__design/00__genome_list/mm9.PEAK_STATUS.txt.gz'
 
 
-# In[58]:
+# In[59]:
 
 
 human_grp.to_csv(human_peak_f, sep="\t", index=False, compression="gzip")
 mouse_grp.to_csv(mouse_peak_f, sep="\t", index=False, compression="gzip")
 
 
-# In[59]:
+# In[60]:
 
 
 human_master_cage.to_csv(human_master_f, sep="\t", index=False, compression="gzip")
@@ -572,7 +584,7 @@ mouse_master_cage.to_csv(mouse_master_f, sep="\t", index=False, compression="gzi
 
 # ## 8. fix MPRA map file
 
-# In[60]:
+# In[61]:
 
 
 tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.txt"
@@ -580,13 +592,13 @@ tss_map = pd.read_table(tss_map_f, sep="\t")
 tss_map.head()
 
 
-# In[61]:
+# In[62]:
 
 
 len(tss_map)
 
 
-# In[62]:
+# In[63]:
 
 
 orig_human = tss_map[tss_map["orig_species"] == "human"]
@@ -598,7 +610,7 @@ print(len(orig_human))
 orig_human[orig_human["cage_id_hg19"] == "chr2:42217488-42217883"]
 
 
-# In[63]:
+# In[64]:
 
 
 orig_mouse = tss_map[tss_map["orig_species"] == "mouse"]
@@ -609,7 +621,7 @@ orig_mouse["end_tss_hg19"] = orig_mouse["end_tss_hg19"].astype(str)
 print(len(orig_mouse))
 
 
-# In[64]:
+# In[65]:
 
 
 human_master_cage_sub = human_master_cage[["cage_id_hg19", "start_tss_hg19", "end_tss_hg19", "strand_tss_hg19", 
@@ -620,7 +632,7 @@ human_master_cage_sub.columns = ["cage_id_hg19", "start_tss_hg19", "end_tss_hg19
                                  "minimal_biotype_mm9", "max_cage_hg19", "max_cage_mm9"]
 
 
-# In[65]:
+# In[66]:
 
 
 mouse_master_cage_sub = mouse_master_cage[["cage_id_mm9", "start_tss_mm9", "end_tss_mm9", "strand_tss_mm9", 
@@ -631,7 +643,7 @@ mouse_master_cage_sub.columns = ["cage_id_mm9", "start_tss_mm9", "end_tss_mm9", 
                                  "minimal_biotype_hg19", "max_cage_mm9", "max_cage_hg19"]
 
 
-# In[66]:
+# In[67]:
 
 
 mrg_human = orig_human.merge(human_master_cage_sub, on=["cage_id_hg19", "start_tss_hg19", 
@@ -644,12 +656,6 @@ print(len(mrg_human))
 # In[68]:
 
 
-mrg_human[mrg_human["cage_id_hg19"] == "chr10:104210390..104210444,+"]
-
-
-# In[69]:
-
-
 mrg_mouse = orig_mouse.merge(mouse_master_cage_sub, on=["cage_id_mm9", "start_tss_mm9", 
                                                         "end_tss_mm9", "strand_tss_mm9",
                                                         "start_tss_hg19", "end_tss_hg19", "strand_tss_hg19"], 
@@ -657,7 +663,7 @@ mrg_mouse = orig_mouse.merge(mouse_master_cage_sub, on=["cage_id_mm9", "start_ts
 print(len(mrg_mouse))
 
 
-# In[70]:
+# In[69]:
 
 
 new_map = mrg_human.append(mrg_mouse)
@@ -665,7 +671,37 @@ print(len(new_map))
 new_map.sample(5)
 
 
+# some biotypes are null because these seqs were not expressed in hESCs and thus did not make it in our "master" bed file with all enhancers & TSSs (43 total)
+# 
+# for these, assign the original biotype that was assigned upon pool design
+
+# In[70]:
+
+
+def fix_biotype(row, suff):
+    if pd.isnull(row["minimal_biotype_%s" % suff]):
+        return row["biotype_%s" % suff]
+    else:
+        return row["minimal_biotype_%s" % suff]
+
+new_map["tmp_hg19"] = new_map.apply(fix_biotype, suff="hg19", axis=1)
+new_map["tmp_mm9"] = new_map.apply(fix_biotype, suff="mm9", axis=1)
+
+
 # In[71]:
+
+
+new_map["minimal_biotype_hg19"] = new_map.apply(cleaner_biotype, biotype_col="tmp_hg19", axis=1)
+new_map["minimal_biotype_mm9"] = new_map.apply(cleaner_biotype, biotype_col="tmp_mm9", axis=1)
+
+
+# In[72]:
+
+
+new_map[pd.isnull(new_map["minimal_biotype_hg19"])]
+
+
+# In[73]:
 
 
 new_map = new_map[["hg19_id", "mm9_id", "cage_id_hg19", "cage_id_mm9", "name_peak_hg19", "name_peak_mm9", 
@@ -676,20 +712,20 @@ new_map = new_map[["hg19_id", "mm9_id", "cage_id_hg19", "cage_id_mm9", "name_pea
 new_map.head()
 
 
-# In[76]:
+# In[74]:
 
 
 new_map[new_map["cage_id_hg19"] == "chr1:203273760..203273784,-"]
 
 
-# In[73]:
+# In[75]:
 
 
 print(len(new_map[pd.isnull(new_map["minimal_biotype_hg19"])]))
 new_map[pd.isnull(new_map["minimal_biotype_hg19"])]
 
 
-# In[77]:
+# In[76]:
 
 
 tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED.txt"

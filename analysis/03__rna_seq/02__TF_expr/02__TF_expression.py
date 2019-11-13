@@ -559,7 +559,7 @@ sig.sort_values(by="logFC", ascending=False).head()
 sig.sort_values(by="logFC", ascending=True).head()
 
 
-# In[64]:
+# In[56]:
 
 
 fig, ax = plt.subplots(figsize=(2.5, 2), nrows=1, ncols=1)
@@ -652,4 +652,27 @@ len(mESC_TFs)
 
 mESC_TF_expr_f = "../../../data/03__rna_seq/04__TF_expr/mESC_TF_expression.txt"
 mESC_TFs.to_csv(mESC_TF_expr_f, sep="\t", index=False)
+
+
+# ### supplemental file
+
+# In[64]:
+
+
+len(orth_tf_expr)
+
+
+# In[67]:
+
+
+supp_table = orth_tf_expr[["gene_name_human", "gene_name_mouse", "gene_id_human", "gene_id_mouse",
+                           "mean_tpm_human", "mean_tpm_mouse", "logFC", "adj.P.Val"]]
+supp_table.columns = ["gene_name_human", "gene_name_mouse", "gene_id_human", "gene_id_mouse",
+                      "mean_tpm_hESCs", "mean_tpm_mESCs", "logFC", "padj"]
+
+
+# In[68]:
+
+
+supp_table.to_csv("../../../data/03__rna_seq/04__TF_expr/SuppTable_TFs.txt", sep="\t")
 

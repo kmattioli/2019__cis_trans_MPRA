@@ -582,7 +582,7 @@ tile2_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile2:tile2")][["hg19
 len(tile2_ids)
 
 
-# In[81]:
+# In[65]:
 
 
 # limit dfs to tile1s where appropriate and tile2 where appropriate
@@ -592,7 +592,7 @@ human_tile1 = human_tile1.drop(["orig_species", "mm9_id", "tile_match"], axis=1)
 len(human_tile1)
 
 
-# In[82]:
+# In[66]:
 
 
 human_tile2 = human_df.merge(tile2_ids, on=["hg19_id", "mm9_id"])
@@ -601,7 +601,7 @@ human_tile2 = human_tile2.drop(["orig_species", "mm9_id", "tile_match"], axis=1)
 len(human_tile2)
 
 
-# In[83]:
+# In[67]:
 
 
 mouse_tile1 = mouse_df.merge(tile1_ids, on=["mm9_id", "hg19_id"])
@@ -610,7 +610,7 @@ mouse_tile1 = mouse_tile1.drop(["orig_species", "hg19_id", "tile_match"], axis=1
 len(mouse_tile1)
 
 
-# In[84]:
+# In[68]:
 
 
 mouse_tile2 = mouse_df.merge(tile2_ids, on=["mm9_id", "hg19_id"])
@@ -619,28 +619,28 @@ mouse_tile2 = mouse_tile2.drop(["orig_species", "hg19_id", "tile_match"], axis=1
 len(mouse_tile2)
 
 
-# In[85]:
+# In[69]:
 
 
 print(len(human_tile1.hg19_id.unique()))
 print(len(mouse_tile1.mm9_id.unique()))
 
 
-# In[86]:
+# In[70]:
 
 
 print(len(human_tile2.hg19_id.unique()))
 print(len(mouse_tile2.mm9_id.unique()))
 
 
-# In[87]:
+# In[71]:
 
 
 human_df = human_tile1.append(human_tile2)
 mouse_df = mouse_tile1.append(mouse_tile2)
 
 
-# In[88]:
+# In[72]:
 
 
 biotype_motif_res = {}
@@ -703,34 +703,34 @@ for i, row in sig_motif_results.iterrows():
     
 
 
-# In[89]:
+# In[73]:
 
 
 biotype_res = pd.DataFrame.from_dict(biotype_motif_res, orient="index").reset_index()
 biotype_res.head()
 
 
-# In[90]:
+# In[74]:
 
 
 biotype_melt = pd.melt(biotype_res, id_vars="index")
 biotype_melt.head()
 
 
-# In[91]:
+# In[75]:
 
 
 biotype_melt["padj"] = multicomp.multipletests(biotype_melt["value"], method="fdr_bh")[1]
 len(biotype_melt[biotype_melt["padj"] < 0.05])
 
 
-# In[92]:
+# In[76]:
 
 
 biotype_melt.sample(5)
 
 
-# In[93]:
+# In[77]:
 
 
 def is_sig(row):
@@ -740,21 +740,21 @@ def is_sig(row):
         return 0
 
 
-# In[94]:
+# In[78]:
 
 
 biotype_melt["sig"] = biotype_melt.apply(is_sig, axis=1)
 biotype_melt.head()
 
 
-# In[95]:
+# In[79]:
 
 
 biotype_res = biotype_melt.pivot(index="index", columns="variable")["padj"]
 biotype_res.head()
 
 
-# In[96]:
+# In[80]:
 
 
 def no_cage_vars(row):
@@ -788,26 +788,26 @@ biotype_res["mRNA_enr"] = biotype_res.apply(mrna_vars, axis=1)
 biotype_res = biotype_res.reset_index()
 
 
-# In[97]:
+# In[81]:
 
 
 biotype_res.head()
 
 
-# In[98]:
+# In[82]:
 
 
 biotype_melt = pd.melt(biotype_res, id_vars="index", value_vars=["no_CAGE_enr", "eRNA_enr", "lncRNA_enr", "mRNA_enr"])
 biotype_melt.head()
 
 
-# In[99]:
+# In[83]:
 
 
 sub.head()
 
 
-# In[100]:
+# In[84]:
 
 
 all_tfs = over_1p["HGNC symbol"].unique()
@@ -815,7 +815,7 @@ print(len(all_tfs))
 all_tfs[0:5]
 
 
-# In[101]:
+# In[85]:
 
 
 all_tfs1 = all_tfs[0:72]
@@ -826,7 +826,7 @@ print(len(all_tfs2))
 print(len(all_tfs3))
 
 
-# In[102]:
+# In[86]:
 
 
 for tfs, xlims, pt in zip([all_tfs1, all_tfs2, all_tfs3],
@@ -874,13 +874,50 @@ for tfs, xlims, pt in zip([all_tfs1, all_tfs2, all_tfs3],
 
 # ## 7. write file
 
-# In[103]:
+# ### clean up file for supplement
+
+# In[87]:
 
 
-len(all_motif_results)
+supp_file = all_motif_results[["HGNC symbol", "short_id", "rsq", "beta", "padj", "activ_or_repr"]]
+supp_file = supp_file.sort_values(by="HGNC symbol")
+supp_file.head()
 
 
-# In[104]:
+# In[88]:
+
+
+supp_file.columns = ["gene_name", "cisbp_motif_id", "var_explained", "beta", "padj", "activ_or_repr"]
+supp_file.head()
+
+
+# In[89]:
+
+
+len(supp_file)
+
+
+# In[90]:
+
+
+len(supp_file.gene_name.unique())
+
+
+# In[91]:
+
+
+len(supp_file[supp_file["padj"] < 0.05])
+
+
+# In[92]:
+
+
+supp_file.to_csv("../../../data/04__mapped_motifs/SuppTable_Motifs.txt", sep="\t", index=False)
+
+
+# ### make file for downstream analyses
+
+# In[93]:
 
 
 all_motif_results = all_motif_results.merge(biotype_res[["index", "no_CAGE_enr", "eRNA_enr", "lncRNA_enr",
@@ -888,7 +925,7 @@ all_motif_results = all_motif_results.merge(biotype_res[["index", "no_CAGE_enr",
 all_motif_results.head()
 
 
-# In[105]:
+# In[94]:
 
 
 all_motif_results.to_csv("../../../data/04__mapped_motifs/sig_motifs.txt", sep="\t", index=False)

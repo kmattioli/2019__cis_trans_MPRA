@@ -719,3 +719,9 @@ annotate_pval(ax, 0.75, 1.25, 2.25, 0, 2.25, ex[ex["variable"] == "fdr_cis_mESC"
 
 fig.savefig("cis_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 
+
+# In[40]:
+
+
+np.median(np.abs(df[df["cis_status_one"] == "significant cis effect"]["logFC_cis_one"]))
+

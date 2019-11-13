@@ -138,13 +138,6 @@ tss_map = pd.read_table(tss_map_f, sep="\t")
 tss_map.head()
 
 
-# In[15]:
-
-
-# tss_map["minimal_biotype_hg19"] = tss_map.apply(consolidate_cage, biotype_col="minimal_biotype_hg19", axis=1)
-# tss_map["minimal_biotype_mm9"] = tss_map.apply(consolidate_cage, biotype_col="minimal_biotype_mm9", axis=1)
-
-
 # ## 2. merge alphas w/ index
 
 # In[16]:
@@ -402,39 +395,39 @@ for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "
 # In[31]:
 
 
-for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "mESCs"], ["HUES64", "mESC"], 
-                                               [sns.color_palette("Set2")[1], sns.color_palette("Set2")[0]],
-                                               ["hg19", "mm9"]):
-    fig, axarr = plt.subplots(figsize=(3.25, 1.25), nrows=1, ncols=2, sharex=False, sharey=False)
-    for i, tile_num in enumerate(["tile1", "tile2"]):
-        ax = axarr[i]
-        sub = df[df["tss_tile_num"] == tile_num]
-        sns.boxplot(data=sub, x="minimal_biotype_%s" % suffix, y="mESC", 
-                    flierprops = dict(marker='o', markersize=5),
-                    order=["eRNA", "lncRNA", "mRNA"], color=color, ax=ax)
-        mimic_r_boxplot(ax)
+# for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "mESCs"], ["HUES64", "mESC"], 
+#                                                [sns.color_palette("Set2")[1], sns.color_palette("Set2")[0]],
+#                                                ["hg19", "mm9"]):
+#     fig, axarr = plt.subplots(figsize=(3.25, 1.25), nrows=1, ncols=2, sharex=False, sharey=False)
+#     for i, tile_num in enumerate(["tile1", "tile2"]):
+#         ax = axarr[i]
+#         sub = df[df["tss_tile_num"] == tile_num]
+#         sns.boxplot(data=sub, x="minimal_biotype_%s" % suffix, y="mESC", 
+#                     flierprops = dict(marker='o', markersize=5),
+#                     order=["eRNA", "lncRNA", "mRNA"], color=color, ax=ax)
+#         mimic_r_boxplot(ax)
         
-        ax.set_yscale("symlog")
-        ax.set_xticklabels(["eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
+#         ax.set_yscale("symlog")
+#         ax.set_xticklabels(["eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
         
-        for j, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
-            n = len(sub[sub["minimal_biotype_%s" % suffix] == label])
-            ax.annotate(str(n), xy=(j, -0.7), xycoords="data", xytext=(0, 0), 
-                        textcoords="offset pixels", ha='center', va='bottom', 
-                        color=color, size=fontsize)
+#         for j, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
+#             n = len(sub[sub["minimal_biotype_%s" % suffix] == label])
+#             ax.annotate(str(n), xy=(j, -0.7), xycoords="data", xytext=(0, 0), 
+#                         textcoords="offset pixels", ha='center', va='bottom', 
+#                         color=color, size=fontsize)
             
-        ax.set_title(tile_num)
-        ax.set_xlabel("")
-        ax.set_ylim((-1, 60))
-        if i == 0:
-            ax.set_ylabel("MPRA activity in %ss" % species)
-        else:
-            ax.set_ylabel("")
+#         ax.set_title(tile_num)
+#         ax.set_xlabel("")
+#         ax.set_ylim((-1, 60))
+#         if i == 0:
+#             ax.set_ylabel("MPRA activity in %ss" % species)
+#         else:
+#             ax.set_ylabel("")
     
-    plt.subplots_adjust(wspace=0.3)
-    plt.show()
-    fig.savefig("tile_biotype_boxplot.%s.pdf" % species, dpi="figure", bbox_inches="tight")
-    plt.close()
+#     plt.subplots_adjust(wspace=0.3)
+#     plt.show()
+#     fig.savefig("tile_biotype_boxplot.%s.pdf" % species, dpi="figure", bbox_inches="tight")
+#     plt.close()
 
 
 # find max tile in each species
@@ -499,19 +492,19 @@ print(len(tss_map_mrg))
 print(len(tss_map_mrg[(tss_map_mrg["n_tiles_hg19"] >= 2) & (tss_map_mrg["n_tiles_mm9"] >= 2)]))
 
 
-# In[60]:
+# In[38]:
 
 
 tss_map_mrg.tss_tile_num_max_hg19.value_counts()
 
 
-# In[61]:
+# In[39]:
 
 
 tss_map_mrg.tss_tile_num_max_mm9.value_counts()
 
 
-# In[38]:
+# In[40]:
 
 
 fig, axarr = plt.subplots(figsize=(3, 1.5), nrows=1, ncols=2, sharey=True)
@@ -542,7 +535,7 @@ ax1.set_ylabel("count of mouse seqs")
 fig.savefig("tile_max_comp.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[39]:
+# In[41]:
 
 
 def tile_match(row):
@@ -561,32 +554,32 @@ def tile_match(row):
                 return "tile1:tile2"
 
 
-# In[40]:
+# In[42]:
 
 
 tss_map_mrg["tile_match"] = tss_map_mrg.apply(tile_match, axis=1)
 tss_map_mrg.tile_match.value_counts()
 
 
-# In[41]:
+# In[43]:
 
 
 tss_map_mrg[tss_map_mrg["tile_match"] == "tile1:tile2"].sample(5)
 
 
-# In[42]:
+# In[44]:
 
 
 human_df[human_df["hg19_id"] == "h.299"][["hg19_id", "tss_tile_num", "HUES64"]].sort_values(by="tss_tile_num")
 
 
-# In[43]:
+# In[45]:
 
 
 mouse_df[mouse_df["mm9_id"] == "m.192"][["mm9_id", "tss_tile_num", "mESC"]].sort_values(by="tss_tile_num")
 
 
-# In[44]:
+# In[47]:
 
 
 fig = plt.figure(figsize=(1, 1))
@@ -596,25 +589,26 @@ ax.set_xticklabels(["tile1:tile1", "tile1:tile2", "tile2:tile2"], rotation=50, h
 
 ax.set_xlabel("")
 ax.set_ylabel("count of pairs")
+fig.savefig("tile_match_counts.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ## 5. correlate MPRA activities w/ endogenous activs
 
-# In[45]:
+# In[48]:
 
 
 human_tmp = human_df_w_ctrls
 human_tmp.columns
 
 
-# In[46]:
+# In[49]:
 
 
 human_tmp["stem_exp_hg19_fixed"] = human_tmp.apply(fix_cage_exp, col="stem_exp_hg19", axis=1)
 human_tmp.sample(5)
 
 
-# In[47]:
+# In[50]:
 
 
 for tile_num in ["tile1", "tile2"]:

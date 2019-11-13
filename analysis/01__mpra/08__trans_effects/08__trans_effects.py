@@ -740,3 +740,9 @@ annotate_pval(ax, 0.75, 1.25, 2.35, 0, 2.35, ex[ex["variable"] == "fdr_trans_mou
 
 fig.savefig("trans_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 
+
+# In[38]:
+
+
+np.median(np.abs(df[df["trans_status_one"] == "significant trans effect"]["logFC_trans_one"]))
+
