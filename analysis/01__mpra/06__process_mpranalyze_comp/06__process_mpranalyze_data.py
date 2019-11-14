@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[ ]:
+# In[1]:
 
 
 import warnings
@@ -26,20 +26,20 @@ get_ipython().run_line_magic('matplotlib', 'inline')
 # mpl.rcParams['figure.autolayout'] = False
 
 
-# In[ ]:
+# In[2]:
 
 
 sns.set(**PAPER_PRESET)
 fontsize = PAPER_FONTSIZE
 
 
-# In[ ]:
+# In[3]:
 
 
 np.random.seed(2019)
 
 
-# In[ ]:
+# In[4]:
 
 
 QUANT_ALPHA = 0.05
@@ -49,7 +49,7 @@ QUANT_ALPHA = 0.05
 
 # ## variables
 
-# In[ ]:
+# In[5]:
 
 
 data_dir = "../../../data/02__mpra/02__activs"
@@ -58,7 +58,7 @@ human_vals_f = "%s/human_TSS_vals.both_tiles.txt" % data_dir
 mouse_vals_f= "%s/mouse_TSS_vals.both_tiles.txt" % data_dir
 
 
-# In[ ]:
+# In[6]:
 
 
 native_f = "%s/native_results.txt" % data_dir
@@ -69,19 +69,19 @@ mouse_trans_f = "%s/mouse_trans_results.txt" % data_dir
 cis_trans_int_f = "%s/cis_trans_interaction_results.txt" % data_dir
 
 
-# In[ ]:
+# In[7]:
 
 
 tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED_WITH_MAX.txt"
 
 
-# In[ ]:
+# In[8]:
 
 
 #align_f = "../../../misc/00__tss_metadata/tss_map.seq_alignment.txt"
 
 
-# In[ ]:
+# In[9]:
 
 
 #cage_data_f = "../../../misc/00__tss_metadata/All_TSS_and_enh.CAGE_grouped_exp.tissue_sp.txt.gz"
@@ -89,20 +89,20 @@ tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFI
 
 # ## 1. import data
 
-# In[ ]:
+# In[10]:
 
 
 alpha = pd.read_table(alpha_f, sep="\t").reset_index()
 alpha.head()
 
 
-# In[ ]:
+# In[11]:
 
 
 len(alpha)
 
 
-# In[ ]:
+# In[12]:
 
 
 human_vals = pd.read_table(human_vals_f)
@@ -110,7 +110,7 @@ mouse_vals = pd.read_table(mouse_vals_f)
 human_vals.head()
 
 
-# In[ ]:
+# In[13]:
 
 
 native = pd.read_table(native_f).reset_index()
@@ -120,7 +120,7 @@ native["index"] = native.apply(fix_ctrl_id, axis=1)
 native.sample(5)
 
 
-# In[ ]:
+# In[14]:
 
 
 HUES64_cis = pd.read_table(HUES64_cis_f).reset_index()
@@ -134,7 +134,7 @@ mESC_cis.columns = ["index", "stat_cis_mESC", "pval_cis_mESC", "fdr_cis_mESC", "
 mESC_cis["index"] = mESC_cis.apply(fix_ctrl_id, axis=1)
 
 
-# In[ ]:
+# In[15]:
 
 
 human_trans = pd.read_table(human_trans_f).reset_index()
@@ -148,7 +148,7 @@ mouse_trans.columns = ["index", "stat_trans_mouse", "pval_trans_mouse", "fdr_tra
 mouse_trans["index"] = mouse_trans.apply(fix_ctrl_id, axis=1)
 
 
-# In[ ]:
+# In[16]:
 
 
 cis_trans_int = pd.read_table(cis_trans_int_f).reset_index()
@@ -157,27 +157,27 @@ cis_trans_int.columns = ["index", "stat_int", "pval_int", "fdr_int", "df.test_in
 cis_trans_int["index"] = cis_trans_int.apply(fix_ctrl_id, axis=1)
 
 
-# In[ ]:
+# In[17]:
 
 
 tss_map = pd.read_table(tss_map_f)
 tss_map.head()
 
 
-# In[ ]:
+# In[18]:
 
 
 tss_map.minimal_biotype_hg19.value_counts()
 
 
-# In[ ]:
+# In[19]:
 
 
 # align = pd.read_table(align_f, sep=",", index_col=0)
 # align.head()
 
 
-# In[ ]:
+# In[20]:
 
 
 # cage_data = pd.read_table(cage_data_f, sep="\t")
@@ -188,32 +188,32 @@ tss_map.minimal_biotype_hg19.value_counts()
 
 # ## 2. add biotype switch to TSS map
 
-# In[ ]:
+# In[21]:
 
 
 tss_map[tss_map["hg19_id"] == "h.14"]
 
 
-# In[ ]:
+# In[22]:
 
 
 tss_map.minimal_biotype_hg19.value_counts()
 
 
-# In[ ]:
+# In[23]:
 
 
 # tss_map["biotype_switch_clean"] = tss_map.apply(biotype_switch_clean, axis=1)
 # tss_map.biotype_switch_clean.value_counts()
 
 
-# In[ ]:
+# In[24]:
 
 
 len(tss_map)
 
 
-# In[ ]:
+# In[25]:
 
 
 tss_map["biotype_switch_minimal"] = tss_map.apply(biotype_switch_minimal, axis=1)
@@ -224,7 +224,7 @@ tss_map.biotype_switch_minimal.value_counts()
 
 # split up into tile1 and tile2
 
-# In[ ]:
+# In[26]:
 
 
 human_vals_sub = human_vals[["element", "tss_id", "tss_tile_num"]]
@@ -235,7 +235,7 @@ mouse_vals_sub.columns = ["mm9_element", "mm9_id", "mm9_tile_num"]
 mouse_vals_sub.sample(5)
 
 
-# In[ ]:
+# In[27]:
 
 
 human_vals_tile1 = human_vals_sub[human_vals_sub["hg19_tile_num"] == "tile1"].drop_duplicates()
@@ -249,7 +249,7 @@ print(len(mouse_vals_tile1))
 print(len(mouse_vals_tile2))
 
 
-# In[ ]:
+# In[28]:
 
 
 # both_tile_ids = tss_map[(tss_map["n_tiles_hg19"] >= 2) & (tss_map["n_tiles_mm9"] >= 2)]
@@ -257,7 +257,7 @@ both_tile_ids = tss_map[(~pd.isnull(tss_map["n_tiles_hg19"]) & ~(pd.isnull(tss_m
 len(both_tile_ids)
 
 
-# In[ ]:
+# In[29]:
 
 
 tile1_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile1:tile1") | 
@@ -265,14 +265,14 @@ tile1_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile1:tile1") |
 len(tile1_ids)
 
 
-# In[ ]:
+# In[30]:
 
 
 tile2_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile2:tile2")][["hg19_id", "mm9_id"]].drop_duplicates()
 len(tile2_ids)
 
 
-# In[ ]:
+# In[31]:
 
 
 tss_map_tile1 = tile1_ids.merge(tss_map, on=["hg19_id", "mm9_id"], how="left")
@@ -280,7 +280,7 @@ tss_map_tile1 = tss_map_tile1.merge(human_vals_tile1, on="hg19_id").merge(mouse_
 print(len(tss_map_tile1))
 
 
-# In[ ]:
+# In[32]:
 
 
 tss_map_tile2 = tile2_ids.merge(tss_map, on=["hg19_id", "mm9_id"], how="left")
@@ -288,7 +288,7 @@ tss_map_tile2 = tss_map_tile2.merge(human_vals_tile2, on="hg19_id").merge(mouse_
 print(len(tss_map_tile2))
 
 
-# In[ ]:
+# In[33]:
 
 
 tss_map_tile1 = tss_map_tile1.merge(alpha, 
@@ -301,7 +301,7 @@ tss_map_tile1["tss_tile_num"] = "tile1"
 tss_map_tile1.head()
 
 
-# In[ ]:
+# In[34]:
 
 
 tss_map_tile2 = tss_map_tile2.merge(alpha, 
@@ -314,14 +314,14 @@ tss_map_tile2["tss_tile_num"] = "tile2"
 tss_map_tile2.head()
 
 
-# In[ ]:
+# In[35]:
 
 
 tss_map = tss_map_tile1.append(tss_map_tile2)
 tss_map.biotype_hg19.value_counts()
 
 
-# In[ ]:
+# In[36]:
 
 
 data = tss_map[["hg19_id", "chr_tss_hg19", "start_tss_hg19", "biotype_hg19", 
@@ -334,7 +334,7 @@ data = tss_map[["hg19_id", "chr_tss_hg19", "start_tss_hg19", "biotype_hg19",
 data.sample(5)
 
 
-# In[ ]:
+# In[37]:
 
 
 len(data)
@@ -343,7 +343,7 @@ len(data)
 # ## 4. find appropriate FDR cutoffs for each model
 # choose FDR cutoff as the one that calls < 10% of controls as significant
 
-# In[ ]:
+# In[38]:
 
 
 native_ctrls = native[native["index"].str.contains("CONTROL")]
@@ -354,7 +354,7 @@ trans_mouse_ctrls = mouse_trans[mouse_trans["index"].str.contains("CONTROL")]
 cis_trans_int_ctrls = cis_trans_int[cis_trans_int["index"].str.contains("CONTROL")]
 
 
-# In[ ]:
+# In[39]:
 
 
 print(len(native_ctrls))
@@ -367,7 +367,7 @@ print(len(cis_trans_int_ctrls))
 
 # make plots to show different #s of controls called as "significant" at alpha < 0.05 in each model
 
-# In[ ]:
+# In[40]:
 
 
 n_sig_models = {}
@@ -384,13 +384,13 @@ n_sig_models.columns = ["model", "n_sig"]
 n_sig_models
 
 
-# In[ ]:
+# In[41]:
 
 
 order = ["native effects", "HUES64 cis effects", "mESC cis effects", "human trans effects", "mouse trans effects"]
 
 
-# In[ ]:
+# In[42]:
 
 
 fig, ax = plt.subplots(figsize=(2.2, 1.5), nrows=1, ncols=1)
@@ -407,42 +407,42 @@ fig.savefig("perc_ctrls_sig.05.pdf", dpi="figure", bbox_inches="tight")
 
 # now always cut off at the 10th percentile of FDRs of controls within a given model
 
-# In[ ]:
+# In[43]:
 
 
 NATIVE_THRESH = np.percentile(native_ctrls["fdr_native"], 5)
 NATIVE_THRESH
 
 
-# In[ ]:
+# In[44]:
 
 
 CIS_HUES64_THRESH = np.percentile(cis_HUES64_ctrls["fdr_cis_HUES64"], 5)
 CIS_HUES64_THRESH
 
 
-# In[ ]:
+# In[45]:
 
 
 CIS_MESC_THRESH = np.percentile(cis_mESC_ctrls["fdr_cis_mESC"], 5)
 CIS_MESC_THRESH
 
 
-# In[ ]:
+# In[46]:
 
 
 TRANS_HUMAN_THRESH = np.percentile(trans_human_ctrls["fdr_trans_human"], 5)
 TRANS_HUMAN_THRESH
 
 
-# In[ ]:
+# In[47]:
 
 
 TRANS_MOUSE_THRESH = np.percentile(trans_mouse_ctrls["fdr_trans_mouse"], 5)
 TRANS_MOUSE_THRESH
 
 
-# In[ ]:
+# In[48]:
 
 
 INT_THRESH = np.percentile(cis_trans_int_ctrls["fdr_int"], 5)
@@ -451,7 +451,7 @@ INT_THRESH
 
 # now re-plot with threshold
 
-# In[ ]:
+# In[49]:
 
 
 n_sig_models = {}
@@ -470,7 +470,7 @@ n_sig_models.columns = ["model", "n_sig"]
 n_sig_models
 
 
-# In[ ]:
+# In[50]:
 
 
 fig, ax = plt.subplots(figsize=(2.2, 1.5), nrows=1, ncols=1)
@@ -489,7 +489,7 @@ fig.savefig("perc_ctrls_sig.thresh.pdf", dpi="figure", bbox_inches="tight")
 
 # control boxplots
 
-# In[ ]:
+# In[51]:
 
 
 order = ["control", "TSS"]
@@ -555,7 +555,7 @@ for model, df, logFC, fdr, label, thresh in zip(models, dfs, logFCs, fdrs, label
     neg_ctrls = df[df["is_ctrl"] == "control"]
     tss = df[df["is_ctrl"] != "control"]
     
-    fig, ax = plt.subplots(figsize=(1.75, 1.75), nrows=1, ncols=1)
+    fig, ax = plt.subplots(figsize=(1.75, 1), nrows=1, ncols=1)
 
     ax.scatter(tss[logFC], -np.log10(tss[fdr]), s=10, alpha=0.75, 
                color="black", linewidths=0.5, edgecolors="white")
@@ -575,7 +575,7 @@ for model, df, logFC, fdr, label, thresh in zip(models, dfs, logFCs, fdrs, label
 
 # ## 6. split result file indeces
 
-# In[ ]:
+# In[53]:
 
 
 native["hg19_id"] = native["index"].str.split("__", expand=True)[0]
@@ -585,7 +585,7 @@ native["biotype_mm9"] = native["index"].str.split("__", expand=True)[3]
 native["tss_tile_num"] = native["index"].str.split("__", expand=True)[4]
 
 
-# In[ ]:
+# In[54]:
 
 
 HUES64_cis["hg19_id"] = HUES64_cis["index"].str.split("__", expand=True)[0]
@@ -595,7 +595,7 @@ HUES64_cis["biotype_mm9"] = HUES64_cis["index"].str.split("__", expand=True)[3]
 HUES64_cis["tss_tile_num"] = HUES64_cis["index"].str.split("__", expand=True)[4]
 
 
-# In[ ]:
+# In[55]:
 
 
 mESC_cis["hg19_id"] = mESC_cis["index"].str.split("__", expand=True)[0]
@@ -605,7 +605,7 @@ mESC_cis["biotype_mm9"] = mESC_cis["index"].str.split("__", expand=True)[3]
 mESC_cis["tss_tile_num"] = mESC_cis["index"].str.split("__", expand=True)[4]
 
 
-# In[ ]:
+# In[56]:
 
 
 human_trans["hg19_id"] = human_trans["index"].str.split("__", expand=True)[0]
@@ -615,7 +615,7 @@ human_trans["biotype_mm9"] = human_trans["index"].str.split("__", expand=True)[3
 human_trans["tss_tile_num"] = human_trans["index"].str.split("__", expand=True)[4]
 
 
-# In[ ]:
+# In[57]:
 
 
 mouse_trans["hg19_id"] = mouse_trans["index"].str.split("__", expand=True)[0]
@@ -625,7 +625,7 @@ mouse_trans["biotype_mm9"] = mouse_trans["index"].str.split("__", expand=True)[3
 mouse_trans["tss_tile_num"] = mouse_trans["index"].str.split("__", expand=True)[4]
 
 
-# In[ ]:
+# In[58]:
 
 
 cis_trans_int["hg19_id"] = cis_trans_int["index"].str.split("__", expand=True)[0]
@@ -637,13 +637,13 @@ cis_trans_int["tss_tile_num"] = cis_trans_int["index"].str.split("__", expand=Tr
 
 # ## 7. merge result files w/ activity data
 
-# In[ ]:
+# In[59]:
 
 
 len(data)
 
 
-# In[ ]:
+# In[60]:
 
 
 tmp = data.merge(native[["hg19_id", "mm9_id", "tss_tile_num", "logFC_native", "fdr_native"]], 
@@ -651,7 +651,7 @@ tmp = data.merge(native[["hg19_id", "mm9_id", "tss_tile_num", "logFC_native", "f
 len(tmp)
 
 
-# In[ ]:
+# In[61]:
 
 
 tmp = tmp.merge(HUES64_cis[["hg19_id", "mm9_id", "tss_tile_num", "logFC_cis_HUES64", "fdr_cis_HUES64"]], 
@@ -659,7 +659,7 @@ tmp = tmp.merge(HUES64_cis[["hg19_id", "mm9_id", "tss_tile_num", "logFC_cis_HUES
 len(tmp)
 
 
-# In[ ]:
+# In[62]:
 
 
 tmp = tmp.merge(mESC_cis[["hg19_id", "mm9_id", "tss_tile_num", "logFC_cis_mESC", "fdr_cis_mESC"]], 
@@ -667,7 +667,7 @@ tmp = tmp.merge(mESC_cis[["hg19_id", "mm9_id", "tss_tile_num", "logFC_cis_mESC",
 len(tmp)
 
 
-# In[ ]:
+# In[63]:
 
 
 tmp = tmp.merge(human_trans[["hg19_id", "mm9_id", "tss_tile_num", "logFC_trans_human", "fdr_trans_human"]], 
@@ -675,7 +675,7 @@ tmp = tmp.merge(human_trans[["hg19_id", "mm9_id", "tss_tile_num", "logFC_trans_h
 len(tmp)
 
 
-# In[ ]:
+# In[64]:
 
 
 tmp = tmp.merge(mouse_trans[["hg19_id", "mm9_id", "tss_tile_num", "logFC_trans_mouse", "fdr_trans_mouse"]], 
@@ -683,7 +683,7 @@ tmp = tmp.merge(mouse_trans[["hg19_id", "mm9_id", "tss_tile_num", "logFC_trans_m
 len(tmp)
 
 
-# In[ ]:
+# In[65]:
 
 
 tmp = tmp.merge(cis_trans_int[["hg19_id", "mm9_id", "tss_tile_num", "logFC_int", "fdr_int"]], 
@@ -692,13 +692,13 @@ print(len(tmp))
 tmp.sample(5)
 
 
-# In[ ]:
+# In[66]:
 
 
 data = tmp.copy()
 
 
-# In[ ]:
+# In[67]:
 
 
 data.columns
@@ -706,7 +706,7 @@ data.columns
 
 # ## 8. classify comparison effects as sig vs. not sig
 
-# In[ ]:
+# In[68]:
 
 
 data["native_status"] = data.apply(comp_status, fdr_col="fdr_native", thresh=NATIVE_THRESH, txt="native", axis=1)
@@ -720,7 +720,7 @@ data["trans_mouse_status"] = data.apply(comp_status, fdr_col="fdr_trans_mouse", 
 data["cis_trans_int_status"] = data.apply(comp_status, fdr_col="fdr_int", thresh=0.05, txt="cis/trans int.", axis=1)
 
 
-# In[ ]:
+# In[69]:
 
 
 # data["native_status"] = data.apply(comp_status, fdr_col="fdr_native", thresh=0.05, txt="native", axis=1)
@@ -734,7 +734,7 @@ data["cis_trans_int_status"] = data.apply(comp_status, fdr_col="fdr_int", thresh
 # data["cis_trans_int_status"] = data.apply(comp_status, fdr_col="fdr_int", thresh=0.05, txt="cis/trans int.", axis=1)
 
 
-# In[ ]:
+# In[70]:
 
 
 data.sample(5)
@@ -742,14 +742,14 @@ data.sample(5)
 
 # ## 9. compare l2fcs for elements called significant for each biotype & re-classify
 
-# In[ ]:
+# In[71]:
 
 
 min_order = ["no CAGE activity", "eRNA", "lncRNA", "mRNA", "other"]
 palette = sns.husl_palette(n_colors=len(min_order))
 
 
-# In[ ]:
+# In[72]:
 
 
 l2fc_cols = ["logFC_native", "logFC_cis_HUES64", "logFC_cis_mESC", "logFC_trans_human", "logFC_trans_mouse", 
@@ -785,16 +785,17 @@ for l2fc_col, sig_col, xlabel, x in zip(l2fc_cols, sig_cols, xlabels, xs):
     ax.axvline(x=x, linestyle="dashed", color="black")
     plt.legend(loc=2, bbox_to_anchor=(1.05, 1))
     plt.show()
+    fig.savefig("%s_effect_size_dist.pdf" % l2fc_col, dpi="figure", bbox_inches="tight")
     plt.close()
 
 
-# In[ ]:
+# In[73]:
 
 
 data.native_status.value_counts()
 
 
-# In[ ]:
+# In[74]:
 
 
 data["native_status"] = data.apply(comp_status_stringent, status_col="native_status", 
@@ -811,7 +812,7 @@ data["cis_trans_int_status"] = data.apply(comp_status_stringent, status_col="cis
                                           l2fc_col="logFC_int", l2fc_thresh=0, txt="cis/trans int.", axis=1)
 
 
-# In[ ]:
+# In[75]:
 
 
 data.native_status.value_counts()
@@ -819,7 +820,7 @@ data.native_status.value_counts()
 
 # ## 9. classify effects as higher in mouse or human
 
-# In[ ]:
+# In[76]:
 
 
 data["native_status_det"] = data.apply(comp_status_detail, status_col="native_status",
@@ -836,7 +837,7 @@ data["cis_trans_int_status_det"] = data.apply(comp_status_detail, status_col="ci
                                               logFC_col="logFC_int", txt="cis/trans int.", axis=1)
 
 
-# In[ ]:
+# In[77]:
 
 
 data.sample(5)
@@ -844,7 +845,7 @@ data.sample(5)
 
 # ## 10. classify cis & trans effects into one effect (since we measured in 2 contexts)
 
-# In[ ]:
+# In[78]:
 
 
 data["cis_status_one"] = data.apply(comp_status_one, status_col1="cis_HUES64_status", 
@@ -853,7 +854,7 @@ data["trans_status_one"] = data.apply(comp_status_one, status_col1="trans_human_
                                       status_col2="trans_mouse_status", txt="trans", axis=1)
 
 
-# In[ ]:
+# In[79]:
 
 
 data["cis_status_det_one"] = data.apply(comp_status_detail_one, status_col1="cis_HUES64_status", 
@@ -864,7 +865,7 @@ data["trans_status_det_one"] = data.apply(comp_status_detail_one, status_col1="t
                                           logFC_col2="logFC_trans_mouse", txt="trans", axis=1)
 
 
-# In[ ]:
+# In[80]:
 
 
 data["logFC_cis_one"] = data.apply(comp_logFC_one, status_col1="cis_HUES64_status", status_col2="cis_mESC_status",
@@ -875,7 +876,7 @@ data["logFC_trans_one"] = data.apply(comp_logFC_one, status_col1="trans_human_st
 
 # ## 11. print numbers with each effect
 
-# In[ ]:
+# In[81]:
 
 
 # remove ctrls
@@ -885,7 +886,7 @@ len(data)
 
 # ## native
 
-# In[ ]:
+# In[82]:
 
 
 data.native_status.value_counts()
@@ -893,7 +894,7 @@ data.native_status.value_counts()
 
 # ## cis - HUES64
 
-# In[ ]:
+# In[83]:
 
 
 data.cis_HUES64_status.value_counts()
@@ -901,7 +902,7 @@ data.cis_HUES64_status.value_counts()
 
 # ## cis - mESC
 
-# In[ ]:
+# In[84]:
 
 
 data.cis_mESC_status.value_counts()
@@ -909,7 +910,7 @@ data.cis_mESC_status.value_counts()
 
 # ## trans - human
 
-# In[ ]:
+# In[85]:
 
 
 data.trans_human_status.value_counts()
@@ -917,7 +918,7 @@ data.trans_human_status.value_counts()
 
 # ## trans - mouse
 
-# In[ ]:
+# In[86]:
 
 
 data.trans_mouse_status.value_counts()
@@ -925,13 +926,13 @@ data.trans_mouse_status.value_counts()
 
 # ## cis/trans interactions
 
-# In[ ]:
+# In[87]:
 
 
 data.cis_trans_int_status.value_counts()
 
 
-# In[ ]:
+# In[88]:
 
 
 np.max(np.abs(data[data["trans_mouse_status"].str.contains("significant")]["fdr_trans_mouse"]))
@@ -939,7 +940,7 @@ np.max(np.abs(data[data["trans_mouse_status"].str.contains("significant")]["fdr_
 
 # ## 12. write files
 
-# In[ ]:
+# In[89]:
 
 
 # rearrange columns for readability
@@ -957,19 +958,19 @@ data = data[['hg19_id', 'chr_tss_hg19', 'start_tss_hg19', 'biotype_hg19', 'cage_
              'fdr_int', 'cis_trans_int_status', 'cis_trans_int_status_det']]
 
 
-# In[ ]:
+# In[90]:
 
 
 len(data)
 
 
-# In[ ]:
+# In[91]:
 
 
 data.head()
 
 
-# In[ ]:
+# In[92]:
 
 
 data.to_csv("../../../data/02__mpra/03__results/all_processed_results.txt", sep="\t", index=False)
