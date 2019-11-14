@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[47]:
+# In[1]:
 
 
 import warnings
@@ -470,7 +470,7 @@ non_cons_mo_sub.head()
 
 # ## 7. do pairwise seq alignments
 
-# In[115]:
+# In[47]:
 
 
 orig_scores = []
@@ -497,7 +497,7 @@ for tup in non_cons_hu_sub.iterrows():
         closest_alignment_strings.append(pairwise2.format_alignment(*a))
 
 
-# In[116]:
+# In[48]:
 
 
 non_cons_hu_sub["orig_align_score"] = orig_scores
@@ -507,7 +507,7 @@ non_cons_hu_sub["closest_align_str"] = closest_alignment_strings
 non_cons_hu_sub.head()
 
 
-# In[117]:
+# In[49]:
 
 
 orig_scores = []
@@ -534,7 +534,7 @@ for tup in non_cons_mo_sub.iterrows():
         closest_alignment_strings.append(pairwise2.format_alignment(*a))
 
 
-# In[118]:
+# In[50]:
 
 
 non_cons_mo_sub["orig_align_score"] = orig_scores
@@ -546,7 +546,7 @@ non_cons_mo_sub.head()
 
 # ## 8. make some plots
 
-# In[119]:
+# In[51]:
 
 
 align_hu = non_cons_hu_sub[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9",
@@ -557,7 +557,7 @@ align = align_hu.append(align_mo)
 align.sample(5)
 
 
-# In[127]:
+# In[52]:
 
 
 fig = plt.figure(figsize=(2, 2))
@@ -572,32 +572,69 @@ ax.set_ylabel("pairwise alignment score\nwith closest TSS to liftover region")
 fig.savefig("pairwise_score_scatter.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[121]:
+# In[53]:
 
 
 len(align)
 
 
-# In[122]:
+# In[54]:
 
 
 len(align[align["orig_align_score"] > align["closest_align_score"]])
 
 
-# In[123]:
+# In[55]:
 
 
 len(align[align["orig_align_score"] < align["closest_align_score"]])
 
 
-# In[124]:
+# In[56]:
 
 
 align[align["orig_align_score"] < align["closest_align_score"]]
 
 
-# In[128]:
+# In[57]:
 
 
 align[align["hg19_id"] == "h.1534"]
+
+
+# In[59]:
+
+
+mo_closest[mo_closest["mm9_id"] == "m.1346"]
+
+
+# In[60]:
+
+
+test = "TGTTTTGGGCTATACTGCCCCTGAGGCCCAGGGTCAAAGGCCACTGGGGAACTGCTGTCGTTCCCATCTCCACGTTAGGGCAGTTATAAAAGAGAACAAGGAAGCTCCCACAGGAAGAAAGCCGCCTGGCCTTGTTCCTATGTCT"
+
+
+# In[62]:
+
+
+hu_seq = non_cons_mo_sub[non_cons_mo_sub["mm9_id"] == "m.1346"]["orig_human_seq"].iloc[0]
+hu_seq
+
+
+# In[63]:
+
+
+pairwise2.align.localms(hu_seq, test, 2, -1, -1, -0.1, one_alignment_only=True)
+
+
+# In[64]:
+
+
+neg_test = "AGACATAGGAACAAGGCCAGGCGGCTTTCTTCCTGTGGGAGCTTCCTTGTTCTCTTTTATAACTGCCCTAACGTGGAGATGGGAACGACAGCAGTTCCCCAGTGGCCTTTGACCCTGGGCCTCAGGGGCAGTATAGCCCAAAACA"
+
+
+# In[65]:
+
+
+pairwise2.align.localms(hu_seq, neg_test, 2, -1, -1, -0.1, one_alignment_only=True)
 

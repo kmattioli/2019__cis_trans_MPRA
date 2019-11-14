@@ -543,7 +543,7 @@ for model, df, logFC, label, ylim, px in zip(models, dfs, logFCs, labels, ylims,
 
 # volcano plots
 
-# In[ ]:
+# In[52]:
 
 
 threshs = [NATIVE_THRESH, CIS_HUES64_THRESH, CIS_MESC_THRESH, TRANS_HUMAN_THRESH, TRANS_MOUSE_THRESH, 0.05]
@@ -565,7 +565,7 @@ for model, df, logFC, fdr, label, thresh in zip(models, dfs, logFCs, fdrs, label
     plt.xlabel("%s effect size" % model)
     if model == "HUES64 cis":
         plt.xlabel("hESC cis effect size")
-    plt.ylabel("-log10(MPRAnalyze q-value)")
+    plt.ylabel("-log10(q-value)")
     ax.axhline(y=-np.log10(thresh), color="black", linestyle="dashed")
 
     plt.show()
