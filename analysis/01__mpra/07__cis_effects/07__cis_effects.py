@@ -672,7 +672,7 @@ plt.close()
 # In[35]:
 
 
-ex = df[df["hg19_id"] == "h.1096"]
+ex = df[df["hg19_id"] == "h.1534"]
 ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HUES64_hg19", "HUES64_mm9",
          "mESC_hg19", "mESC_mm9", "cis_HUES64_status_det", "fdr_cis_HUES64", "cis_mESC_status_det", "fdr_cis_mESC"]]
 ex
@@ -701,7 +701,7 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[39]:
+# In[45]:
 
 
 fig = plt.figure(figsize=(1.2, 1.4))
@@ -713,9 +713,9 @@ ax.set_ylabel("MPRA activity")
 ax.set_xlabel("")
 ax.get_legend().remove()
 
-ax.set_ylim((0, 4.25))
-annotate_pval(ax, -0.25, 0.25, 3.75, 0, 3.75, ex[ex["variable"] == "fdr_cis_HUES64"]["value"].iloc[0], fontsize-1)
-annotate_pval(ax, 0.75, 1.25, 2.25, 0, 2.25, ex[ex["variable"] == "fdr_cis_mESC"]["value"].iloc[0], fontsize-1)
+ax.set_ylim((0, 14))
+annotate_pval(ax, -0.25, 0.25, 12.25, 0, 12.25, ex[ex["variable"] == "fdr_cis_HUES64"]["value"].iloc[0], fontsize-1)
+annotate_pval(ax, 0.75, 1.25, 4, 0, 4, ex[ex["variable"] == "fdr_cis_mESC"]["value"].iloc[0], fontsize-1)
 
 fig.savefig("cis_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 
