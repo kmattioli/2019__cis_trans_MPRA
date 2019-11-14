@@ -731,3 +731,36 @@ new_map[pd.isnull(new_map["minimal_biotype_hg19"])]
 tss_map_f = "../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED.txt"
 new_map.to_csv(tss_map_f, sep="\t", index=False)
 
+
+# ### make supplemental file tss map
+
+# In[78]:
+
+
+new_map.columns
+
+
+# In[91]:
+
+
+supp_table = new_map[["cage_id_hg19", "cage_id_mm9", "name_peak_hg19", "name_peak_mm9",
+                      "minimal_biotype_hg19", "minimal_biotype_mm9", "chr_tss_hg19", "start_tss_hg19", 
+                      "strand_tss_hg19", "chr_tss_mm9", "start_tss_mm9", "strand_tss_mm9",
+                      "max_cage_hg19", "max_cage_mm9", "stem_exp_hg19", "stem_exp_mm9"]].drop_duplicates()
+len(supp_table)
+
+
+# In[92]:
+
+
+supp_table.columns = ["cage_id_hg19", "cage_id_mm9", "tss_name_hg19", "tss_name_mm9", "biotype_hg19", "biotype_mm9",
+                      "chr_hg19", "tss_coord_hg19", "strand_hg19", "chr_mm9", "tss_coord_mm9", "strand_mm9",
+                      "max_cage_hg19", "max_cage_mm9", "stem_cage_hg19", "stem_cage_mm9"]
+supp_table.head()
+
+
+# In[93]:
+
+
+supp_table.to_csv("../../../data/01__design/01__mpra_list/SuppTable_Pool.txt", sep="\t", index=False)
+

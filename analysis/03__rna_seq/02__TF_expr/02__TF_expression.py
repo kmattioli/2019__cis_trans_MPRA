@@ -662,7 +662,7 @@ mESC_TFs.to_csv(mESC_TF_expr_f, sep="\t", index=False)
 len(orth_tf_expr)
 
 
-# In[67]:
+# In[65]:
 
 
 supp_table = orth_tf_expr[["gene_name_human", "gene_name_mouse", "gene_id_human", "gene_id_mouse",
@@ -671,8 +671,8 @@ supp_table.columns = ["gene_name_human", "gene_name_mouse", "gene_id_human", "ge
                       "mean_tpm_hESCs", "mean_tpm_mESCs", "logFC", "padj"]
 
 
-# In[68]:
+# In[66]:
 
 
-supp_table.to_csv("../../../data/03__rna_seq/04__TF_expr/SuppTable_TFs.txt", sep="\t")
+supp_table.to_csv("../../../data/03__rna_seq/04__TF_expr/SuppTable_TFs.txt", sep="\t", index=False)
 
