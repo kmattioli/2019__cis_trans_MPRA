@@ -161,6 +161,26 @@ print(p)
 stats.binom_test(95, 159)
 
 
+# In[70]:
+
+
+tmp = cis_trans[((cis_trans["minimal_biotype_hg19"] == "mRNA") & (cis_trans["minimal_biotype_mm9"] == "mRNA"))]
+tmp.cis_trans_status.value_counts()
+
+
+# In[71]:
+
+
+tmp = cis_trans[((cis_trans["minimal_biotype_hg19"] == "lncRNA") & (cis_trans["minimal_biotype_mm9"] == "lncRNA"))]
+tmp.cis_trans_status.value_counts()
+
+
+# In[72]:
+
+
+stats.binom_test(38, 66)
+
+
 # In[15]:
 
 

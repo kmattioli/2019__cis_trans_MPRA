@@ -140,7 +140,7 @@ tss_map.head()
 
 # ## 2. merge alphas w/ index
 
-# In[16]:
+# In[15]:
 
 
 pos_ctrls = alpha[alpha["index"].str.contains("__samp")]
@@ -149,14 +149,14 @@ pos_ctrls["mESC_log"] = np.log10(pos_ctrls["mESC"])
 len(pos_ctrls)
 
 
-# In[17]:
+# In[16]:
 
 
 alpha = alpha[~alpha["index"].str.contains("__samp")]
 len(alpha)
 
 
-# In[18]:
+# In[17]:
 
 
 data = alpha.merge(index_elem, left_on="index", right_on="element", how="left")
@@ -164,7 +164,7 @@ data.drop("index", axis=1, inplace=True)
 data.head()
 
 
-# In[19]:
+# In[18]:
 
 
 data["HUES64_log"] = np.log10(data["HUES64"])
@@ -174,7 +174,7 @@ data.sample(5)
 
 # ## 3. compare activities across biotypes + controls
 
-# In[20]:
+# In[19]:
 
 
 data["tss_id"] = data["name"].str.split("__", expand=True)[1]
@@ -183,7 +183,7 @@ data["tss_tile_num"] = data["name"].str.split("__", expand=True)[2]
 data.sample(5)
 
 
-# In[21]:
+# In[20]:
 
 
 pos_ctrls.columns = ["element", "HUES64", "mESC", "HUES64_pval", "mESC_pval", "HUES64_padj", "mESC_padj", 
@@ -191,7 +191,7 @@ pos_ctrls.columns = ["element", "HUES64", "mESC", "HUES64_pval", "mESC_pval", "H
 pos_ctrls.head()
 
 
-# In[22]:
+# In[21]:
 
 
 human_df = data[(data["species"] == "HUMAN") | (data["name"] == "random_sequence")]
@@ -209,7 +209,7 @@ mouse_df_w_ctrls = mouse_df_w_ctrls.merge(tss_map[["mm9_id", "biotype_mm9", "min
 mouse_df_w_ctrls.sample(5)
 
 
-# In[23]:
+# In[22]:
 
 
 human_df_w_ctrls["minimal_biotype_hg19"] = human_df_w_ctrls.apply(fix_cleaner_biotype, 
@@ -218,7 +218,7 @@ human_df_w_ctrls["minimal_biotype_hg19"] = human_df_w_ctrls.apply(fix_cleaner_bi
 human_df_w_ctrls.minimal_biotype_hg19.value_counts()
 
 
-# In[24]:
+# In[23]:
 
 
 mouse_df_w_ctrls["minimal_biotype_mm9"] = mouse_df_w_ctrls.apply(fix_cleaner_biotype, 
@@ -227,7 +227,7 @@ mouse_df_w_ctrls["minimal_biotype_mm9"] = mouse_df_w_ctrls.apply(fix_cleaner_bio
 mouse_df_w_ctrls.minimal_biotype_mm9.value_counts()
 
 
-# In[25]:
+# In[24]:
 
 
 min_ctrl_order = ["negative control", "no CAGE activity", "eRNA", 
@@ -242,7 +242,7 @@ min_mouse_ctrl_pal = {"negative control": "lightgray", "no CAGE activity": "gray
                       "mRNA": sns.color_palette("Set2")[0],"positive control": "black"}
 
 
-# In[26]:
+# In[25]:
 
 
 fig = plt.figure(figsize=(2.35, 1.5))
@@ -268,7 +268,7 @@ fig.savefig("better_neg_ctrl_boxplot.human.pdf", dpi="figure", bbox_inches="tigh
 plt.close()
 
 
-# In[27]:
+# In[26]:
 
 
 fig = plt.figure(figsize=(2.35, 1.5))
@@ -296,7 +296,7 @@ plt.close()
 
 # ## 4. compare activities across tiles
 
-# In[28]:
+# In[27]:
 
 
 df = data[data["tss_tile_num"].isin(["tile1", "tile2"])]
@@ -310,7 +310,7 @@ mouse_df = mouse_df.merge(tss_map[["mm9_id", "minimal_biotype_mm9", "stem_exp_mm
 mouse_df.sample(5)
 
 
-# In[29]:
+# In[28]:
 
 
 for df, species, colname, color, sp in zip([human_df, mouse_df], ["hESCs", "mESCs"], ["HUES64", "mESC"], 
@@ -347,7 +347,7 @@ for df, species, colname, color, sp in zip([human_df, mouse_df], ["hESCs", "mESC
     fig.savefig("tile_comp_biotype.%s.pdf" % species, dpi="figure", bbox_inches="tight")
 
 
-# In[30]:
+# In[29]:
 
 
 for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "mESCs"], ["HUES64", "mESC"], 
@@ -392,7 +392,7 @@ for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "
     plt.close()
 
 
-# In[31]:
+# In[30]:
 
 
 # for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "mESCs"], ["HUES64", "mESC"], 
@@ -432,7 +432,7 @@ for df, species, colname, color, suffix in zip([human_df, mouse_df], ["hESCs", "
 
 # find max tile in each species
 
-# In[32]:
+# In[31]:
 
 
 human_max = human_df[["hg19_id", "tss_tile_num", "HUES64"]]
@@ -442,7 +442,7 @@ human_max = human_max.sort_values(by="hg19_id")
 human_max.head()
 
 
-# In[33]:
+# In[32]:
 
 
 human_grp = human_df[["hg19_id", "tss_tile_num", "HUES64"]]
@@ -453,7 +453,7 @@ print(len(human_grp))
 len(human_grp[human_grp["n_tiles_hg19"] == 2])
 
 
-# In[34]:
+# In[33]:
 
 
 mouse_max = mouse_df[["mm9_id", "tss_tile_num", "mESC"]]
@@ -463,7 +463,7 @@ mouse_max = mouse_max.sort_values(by="mm9_id")
 mouse_max.head()
 
 
-# In[35]:
+# In[34]:
 
 
 mouse_grp = mouse_df[["mm9_id", "tss_tile_num", "mESC"]]
@@ -474,7 +474,7 @@ print(len(mouse_grp))
 len(mouse_grp[mouse_grp["n_tiles_mm9"] == 2])
 
 
-# In[36]:
+# In[35]:
 
 
 tss_map_mrg = tss_map.merge(human_max[["hg19_id", "tss_tile_num"]], on="hg19_id", how="left", 
@@ -485,26 +485,26 @@ tss_map_mrg = tss_map_mrg.merge(human_grp, on="hg19_id", how="left").merge(mouse
 tss_map_mrg.sample(10)
 
 
-# In[37]:
+# In[36]:
 
 
 print(len(tss_map_mrg))
 print(len(tss_map_mrg[(tss_map_mrg["n_tiles_hg19"] >= 2) & (tss_map_mrg["n_tiles_mm9"] >= 2)]))
 
 
-# In[38]:
+# In[37]:
 
 
 tss_map_mrg.tss_tile_num_max_hg19.value_counts()
 
 
-# In[39]:
+# In[38]:
 
 
 tss_map_mrg.tss_tile_num_max_mm9.value_counts()
 
 
-# In[40]:
+# In[39]:
 
 
 fig, axarr = plt.subplots(figsize=(3, 1.5), nrows=1, ncols=2, sharey=True)
@@ -535,7 +535,7 @@ ax1.set_ylabel("count of mouse seqs")
 fig.savefig("tile_max_comp.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[41]:
+# In[40]:
 
 
 def tile_match(row):
@@ -554,32 +554,32 @@ def tile_match(row):
                 return "tile1:tile2"
 
 
-# In[42]:
+# In[41]:
 
 
 tss_map_mrg["tile_match"] = tss_map_mrg.apply(tile_match, axis=1)
 tss_map_mrg.tile_match.value_counts()
 
 
-# In[43]:
+# In[42]:
 
 
 tss_map_mrg[tss_map_mrg["tile_match"] == "tile1:tile2"].sample(5)
 
 
-# In[44]:
+# In[43]:
 
 
 human_df[human_df["hg19_id"] == "h.299"][["hg19_id", "tss_tile_num", "HUES64"]].sort_values(by="tss_tile_num")
 
 
-# In[45]:
+# In[44]:
 
 
 mouse_df[mouse_df["mm9_id"] == "m.192"][["mm9_id", "tss_tile_num", "mESC"]].sort_values(by="tss_tile_num")
 
 
-# In[47]:
+# In[45]:
 
 
 fig = plt.figure(figsize=(1, 1))
@@ -594,21 +594,21 @@ fig.savefig("tile_match_counts.pdf", dpi="figure", bbox_inches="tight")
 
 # ## 5. correlate MPRA activities w/ endogenous activs
 
-# In[48]:
+# In[46]:
 
 
 human_tmp = human_df_w_ctrls
 human_tmp.columns
 
 
-# In[49]:
+# In[47]:
 
 
 human_tmp["stem_exp_hg19_fixed"] = human_tmp.apply(fix_cage_exp, col="stem_exp_hg19", axis=1)
 human_tmp.sample(5)
 
 
-# In[50]:
+# In[48]:
 
 
 for tile_num in ["tile1", "tile2"]:
@@ -641,7 +641,7 @@ for tile_num in ["tile1", "tile2"]:
     plt.close()
 
 
-# In[48]:
+# In[49]:
 
 
 for tile_num in ["tile1", "tile2"]:
@@ -673,7 +673,7 @@ for tile_num in ["tile1", "tile2"]:
     plt.close()
 
 
-# In[49]:
+# In[50]:
 
 
 mouse_tmp = mouse_df_w_ctrls
@@ -681,7 +681,7 @@ mouse_tmp["stem_exp_mm9_fixed"] = mouse_tmp.apply(fix_cage_exp, col="stem_exp_mm
 len(mouse_tmp)
 
 
-# In[50]:
+# In[51]:
 
 
 for tile_num in ["tile1", "tile2"]:
@@ -714,7 +714,7 @@ for tile_num in ["tile1", "tile2"]:
     plt.close()
 
 
-# In[51]:
+# In[52]:
 
 
 for tile_num in ["tile1", "tile2"]:
@@ -748,7 +748,7 @@ for tile_num in ["tile1", "tile2"]:
 
 # ## 6. how does endogenous CAGE expr compare between human and mouse
 
-# In[52]:
+# In[53]:
 
 
 human_tmp["species"] = "human"
@@ -765,13 +765,13 @@ tmp["log_max"] = np.log10(tmp["max_cage"]+1)
 tmp.head(5)
 
 
-# In[53]:
+# In[54]:
 
 
 tmp_pal = {"human": sns.color_palette("Set2")[1], "mouse": sns.color_palette("Set2")[0]}
 
 
-# In[54]:
+# In[55]:
 
 
 fig = plt.figure(figsize=(2.5, 1.5))
@@ -821,7 +821,7 @@ ax.set_ylim((-1.25, 1500))
 fig.savefig("human_v_mouse_cage.min.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[55]:
+# In[56]:
 
 
 fig = plt.figure(figsize=(2.5, 1.5))
@@ -873,22 +873,55 @@ for i, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
 
 # ## 7. write files
 
-# In[56]:
+# In[57]:
 
 
 human_df_filename = "%s/human_TSS_vals.both_tiles.txt" % data_dir
 mouse_df_filename = "%s/mouse_TSS_vals.both_tiles.txt" % data_dir
 
 
-# In[57]:
+# In[58]:
 
 
 human_df.to_csv(human_df_filename, sep="\t", index=False)
 mouse_df.to_csv(mouse_df_filename, sep="\t", index=False)
 
 
-# In[58]:
+# In[59]:
 
 
 tss_map_mrg.to_csv("../../../data/01__design/01__mpra_list/mpra_tss.with_ids.RECLASSIFIED_WITH_MAX.txt", sep="\t", index=False)
+
+
+# ### clean up index
+
+# In[60]:
+
+
+index.columns
+
+
+# In[66]:
+
+
+index_sub = index[["element", "tile_type", "tile_id", "name", "chrom", "start", "end", "strand",
+                   "actual_start", "actual_end", "tile_number", "tile_start", "tile_end", "barcode"]]
+index_sub = index_sub[(index_sub["name"].str.contains("EVO_TSS")) | (index_sub["name"].str.contains("CMV"))
+                      | (index_sub["name"].str.contains("random"))]
+print(len(index_sub))
+index_sub.sample(5)
+
+
+# In[67]:
+
+
+index_sub.tile_type.value_counts()
+
+
+# In[70]:
+
+
+index_sub = index_sub[["barcode", "element", "tile_type", "name", "chrom", "start", "end", "strand"]]
+index_sub = index_sub.sort_values(by="name")
+index_sub.head()
 
