@@ -4,10 +4,11 @@ This repository contains all of the MPRA analysis performed in this paper. Each 
 
 Most of the code in this repository runs on Python 3 and requires the following packages:
 
-matplotlib
-numpy
-pandas
-seaborn
-statsmodels
+- matplotlib
+- numpy
+- pandas
+- seaborn
+- statsmodels
+- scikit-learn
 
 MPRA analysis runs in R and requires the MPRAnalyze package. RNA-seq analysis also runs in R and requires the DESeq2 and edgeR/limma packages.
