@@ -1,7 +1,9 @@
 
 # coding: utf-8
 
-# # 03__TF_expr
+# # 02__TF_expression
+# 
+# notebook to plot expression of TFs in hESCs and mESCs
 
 # In[1]:
 
@@ -496,7 +498,7 @@ ax.text(0.05, 0.97, "r = {:.2f}".format(r), ha="left", va="top", fontsize=fontsi
         transform=ax.transAxes)
 ax.text(0.05, 0.90, "n = %s" % (len(no_nan)), ha="left", va="top", fontsize=fontsize,
         transform=ax.transAxes)
-fig.savefig("TF_human_v_mouse_scatter.pdf", dpi="figure", bbox_inches="tight")
+#fig.savefig("TF_human_v_mouse_scatter.pdf", dpi="figure", bbox_inches="tight")
 
 
 # In[52]:
@@ -544,7 +546,7 @@ ax.text(0.05, 0.90, "# sig = %s" % (len(sig)), ha="left", va="top", fontsize=fon
         transform=ax.transAxes)
 ax.text(0.05, 0.83, "# not sig = %s" % (len(not_sig)), ha="left", va="top", fontsize=fontsize, color="gray",
         transform=ax.transAxes)
-fig.savefig("TF_human_v_mouse_scatter.w_sig_outline.pdf", dpi="figure", bbox_inches="tight")
+#fig.savefig("TF_human_v_mouse_scatter.w_sig_outline.pdf", dpi="figure", bbox_inches="tight")
 
 
 # In[54]:
@@ -602,7 +604,7 @@ ax.set_ylabel("-log10(adjusted p-value)")
 ax.axvline(x=0, linestyle="dashed", color="black")
 
 
-fig.savefig("TF_human_v_mouse_volcano.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig5A.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ## 6. write files

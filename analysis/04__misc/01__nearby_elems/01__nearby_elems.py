@@ -1,6 +1,10 @@
 
 # coding: utf-8
 
+# # 01__nearby_elems
+# 
+# in this notebook, i examine the relationship between cis/trans compensation and # of nearby regulatory elements
+
 # In[1]:
 
 
@@ -182,7 +186,7 @@ ax.set_xlabel("number of regulatory elements within 1 Mb")
 ax.set_ylabel("density")
 ax.get_legend().remove()
 
-fig.savefig("n_elems_distplot.pdf", dpi="figure", bbox_inches="tight")
+# fig.savefig("n_elems_distplot.pdf", dpi="figure", bbox_inches="tight")
 
 
 # In[18]:
@@ -197,7 +201,7 @@ ax.set_xlabel("number of TSSs within 1 Mb")
 ax.set_ylabel("density")
 ax.get_legend().remove()
 
-fig.savefig("n_tss_distplot.pdf", dpi="figure", bbox_inches="tight")
+# fig.savefig("n_tss_distplot.pdf", dpi="figure", bbox_inches="tight")
 
 
 # In[19]:
@@ -212,7 +216,7 @@ ax.set_xlabel("number of enhancers within 1 Mb")
 ax.set_ylabel("density")
 ax.get_legend().remove()
 
-fig.savefig("n_enh_distplot.pdf", dpi="figure", bbox_inches="tight")
+# fig.savefig("n_enh_distplot.pdf", dpi="figure", bbox_inches="tight")
 
 
 # In[20]:
@@ -279,38 +283,9 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[26]:
-
-
-# data_filt_tile1_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile1"]
-# len(data_filt_tile1_sp)
-
-
-# In[27]:
-
-
-# data_filt_tile2 = data_filt[data_filt["tss_tile_num"] == "tile2"]
-# len(data_filt_tile2)
-
-
-# In[28]:
-
-
-# data_filt_tile2_sp = data_filt_sp[data_filt_sp["tss_tile_num"] == "tile2"]
-# len(data_filt_tile2_sp)
-
-
-# In[29]:
-
-
-# dfs = [data_filt_sp, data_filt_tile1_sp, data_filt_tile2_sp]
-# titles = ["both tiles", "tile1 only", "tile2 only"]
-# labels = ["both_tiles", "tile1_only", "tile2_only"]
-
-
 # ## 5. look at reg elems vs. cis/trans status
 
-# In[30]:
+# In[26]:
 
 
 order = ["no cis or trans effects", "cis/trans compensatory", "cis effect only", "trans effect only",
@@ -323,207 +298,13 @@ pal = {"no cis or trans effects": sns.color_palette("Set2")[7], "cis effect only
 
 # ### all REs
 
-# In[31]:
-
-
-# for df, title, label in zip(dfs, titles, labels):
-    
-#     fig = plt.figure(figsize=(1, 1.5))
-
-#     ax = sns.boxplot(data=df, x="cis_trans_status", y="n_elems_hg19", order=min_order, 
-#                      flierprops = dict(marker='o', markersize=5), palette=pal)
-#     mimic_r_boxplot(ax)
-
-#     ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-#     ax.set_xlabel("")
-#     ax.set_ylabel("# total REs within 1 Mb\n(human)")
-    
-#     for i, l in enumerate(min_order):
-#         sub = df[df["cis_trans_status"] == l]
-#         n = len(sub)
-#         print("%s median REs: %s" % (l, sub["n_elems_hg19"].median()))
-#         color = pal[l]
-#         ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-#                     textcoords="offset pixels", ha='center', va='bottom', 
-#                     color=color, size=fontsize)
-        
-#     ### pvals ###
-#     vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_elems_hg19"])
-#     vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_elems_hg19"])
-    
-#     vals1 = vals1[~np.isnan(vals1)]
-#     vals2 = vals2[~np.isnan(vals2)]
-    
-#     _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-    
-#     annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-    
-#     ax.set_ylim((-150, 1100))
-#     ax.set_title(title)
-#     fig.savefig("cis_trans_n_elems_hg19.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-
-
-# In[32]:
+# In[27]:
 
 
 df = data_filt_sp
 
 
-# In[33]:
-
-
-fig = plt.figure(figsize=(1, 1.5))
-
-ax = sns.boxplot(data=df, x="cis_trans_status", y="n_elems_hg19", order=min_order, 
-                 flierprops = dict(marker='o', markersize=5), palette=pal)
-mimic_r_boxplot(ax)
-
-ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-ax.set_xlabel("")
-ax.set_ylabel("# total REs within 1 Mb\n(human)")
-
-for i, l in enumerate(min_order):
-    sub = df[df["cis_trans_status"] == l]
-    n = len(sub)
-    print("%s median REs: %s" % (l, sub["n_elems_hg19"].median()))
-    color = pal[l]
-    ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-                textcoords="offset pixels", ha='center', va='bottom', 
-                color=color, size=fontsize)
-
-### pvals ###
-vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_elems_hg19"])
-vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_elems_hg19"])
-
-vals1 = vals1[~np.isnan(vals1)]
-vals2 = vals2[~np.isnan(vals2)]
-
-_, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-
-annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-
-ax.set_ylim((-150, 1100))
-fig.savefig("cis_trans_n_elems_hg19.pdf", dpi="figure", bbox_inches="tight")
-
-
-# In[34]:
-
-
-# for df, title, label in zip(dfs, titles, labels):
-    
-#     fig = plt.figure(figsize=(1, 1.5))
-
-#     ax = sns.boxplot(data=df, x="cis_trans_status", y="n_elems_mm9", order=min_order, 
-#                      flierprops = dict(marker='o', markersize=5), palette=pal)
-#     mimic_r_boxplot(ax)
-
-#     ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-#     ax.set_xlabel("")
-#     ax.set_ylabel("# total REs within 1 Mb\n(mouse)")
-    
-#     for i, l in enumerate(min_order):
-#         sub = df[df["cis_trans_status"] == l]
-#         n = len(sub)
-#         print("%s median REs: %s" % (l, sub["n_elems_mm9"].median()))
-#         color = pal[l]
-#         ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-#                     textcoords="offset pixels", ha='center', va='bottom', 
-#                     color=color, size=fontsize)
-        
-#     ### pvals ###
-#     vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_elems_mm9"])
-#     vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_elems_mm9"])
-    
-#     vals1 = vals1[~np.isnan(vals1)]
-#     vals2 = vals2[~np.isnan(vals2)]
-    
-#     _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-    
-#     annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-    
-#     ax.set_ylim((-150, 1100))
-#     ax.set_title(title)
-#     fig.savefig("cis_trans_n_elems_mm9.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-
-
-# In[35]:
-
-
-fig = plt.figure(figsize=(1, 1.5))
-
-ax = sns.boxplot(data=df, x="cis_trans_status", y="n_elems_mm9", order=min_order, 
-                 flierprops = dict(marker='o', markersize=5), palette=pal)
-mimic_r_boxplot(ax)
-
-ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-ax.set_xlabel("")
-ax.set_ylabel("# total REs within 1 Mb\n(mouse)")
-
-for i, l in enumerate(min_order):
-    sub = df[df["cis_trans_status"] == l]
-    n = len(sub)
-    print("%s median REs: %s" % (l, sub["n_elems_mm9"].median()))
-    color = pal[l]
-    ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-                textcoords="offset pixels", ha='center', va='bottom', 
-                color=color, size=fontsize)
-
-### pvals ###
-vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_elems_mm9"])
-vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_elems_mm9"])
-
-vals1 = vals1[~np.isnan(vals1)]
-vals2 = vals2[~np.isnan(vals2)]
-
-_, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-
-annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-
-ax.set_ylim((-150, 1100))
-fig.savefig("cis_trans_n_elems_mm9.pdf", dpi="figure", bbox_inches="tight")
-
-
-# In[36]:
-
-
-# for df, title, label in zip(dfs, titles, labels):
-    
-#     fig = plt.figure(figsize=(1, 1.5))
-
-#     ax = sns.boxplot(data=df, x="cis_trans_status", y="mean_elems", order=min_order, 
-#                      flierprops = dict(marker='o', markersize=5), palette=pal)
-#     mimic_r_boxplot(ax)
-
-#     ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-#     ax.set_xlabel("")
-#     ax.set_ylabel("# total REs within 1 Mb\n(mean human & mouse)")
-    
-#     for i, l in enumerate(min_order):
-#         sub = df[df["cis_trans_status"] == l]
-#         n = len(sub)
-#         print("%s median REs: %s" % (l, sub["mean_elems"].median()))
-#         color = pal[l]
-#         ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-#                     textcoords="offset pixels", ha='center', va='bottom', 
-#                     color=color, size=fontsize)
-        
-#     ### pvals ###
-#     vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["mean_elems"])
-#     vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["mean_elems"])
-    
-#     vals1 = vals1[~np.isnan(vals1)]
-#     vals2 = vals2[~np.isnan(vals2)]
-    
-#     _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-    
-#     annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-    
-#     ax.set_ylim((-150, 1100))
-#     ax.set_title(title)
-#     fig.savefig("cis_trans_n_elems_mean.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-
-
-# In[37]:
+# In[28]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -557,206 +338,12 @@ _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_contin
 annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
 
 ax.set_ylim((-150, 1100))
-fig.savefig("cis_trans_n_elems_mean.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig6G.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ### TSSs only
 
-# In[38]:
-
-
-# for df, title, label in zip(dfs, titles, labels):
-    
-#     fig = plt.figure(figsize=(1, 1.5))
-
-#     ax = sns.boxplot(data=df, x="cis_trans_status", y="n_tss_hg19", order=min_order, 
-#                      flierprops = dict(marker='o', markersize=5), palette=pal)
-#     mimic_r_boxplot(ax)
-
-#     ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-#     ax.set_xlabel("")
-#     ax.set_ylabel("# TSSs within 1 Mb\n(human)")
-    
-#     for i, l in enumerate(min_order):
-#         sub = df[df["cis_trans_status"] == l]
-#         n = len(sub)
-#         print("%s median REs: %s" % (l, sub["n_tss_hg19"].median()))
-#         color = pal[l]
-#         ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-#                     textcoords="offset pixels", ha='center', va='bottom', 
-#                     color=color, size=fontsize)
-        
-#     ### pvals ###
-#     vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_tss_hg19"])
-#     vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_tss_hg19"])
-    
-#     vals1 = vals1[~np.isnan(vals1)]
-#     vals2 = vals2[~np.isnan(vals2)]
-    
-#     _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-    
-#     annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-    
-#     ax.set_ylim((-150, 1100))
-#     ax.set_title(title)
-#     fig.savefig("cis_trans_n_tss_hg19.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-
-
-# In[39]:
-
-
-fig = plt.figure(figsize=(1, 1.5))
-
-ax = sns.boxplot(data=df, x="cis_trans_status", y="n_tss_hg19", order=min_order, 
-                 flierprops = dict(marker='o', markersize=5), palette=pal)
-mimic_r_boxplot(ax)
-
-ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-ax.set_xlabel("")
-ax.set_ylabel("# TSSs within 1 Mb\n(human)")
-
-for i, l in enumerate(min_order):
-    sub = df[df["cis_trans_status"] == l]
-    n = len(sub)
-    print("%s median REs: %s" % (l, sub["n_tss_hg19"].median()))
-    color = pal[l]
-    ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-                textcoords="offset pixels", ha='center', va='bottom', 
-                color=color, size=fontsize)
-
-### pvals ###
-vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_tss_hg19"])
-vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_tss_hg19"])
-
-vals1 = vals1[~np.isnan(vals1)]
-vals2 = vals2[~np.isnan(vals2)]
-
-_, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-
-annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-
-ax.set_ylim((-150, 1100))
-fig.savefig("cis_trans_n_tss_hg19.pdf", dpi="figure", bbox_inches="tight")
-
-
-# In[40]:
-
-
-# for df, title, label in zip(dfs, titles, labels):
-    
-#     fig = plt.figure(figsize=(1, 1.5))
-
-#     ax = sns.boxplot(data=df, x="cis_trans_status", y="n_tss_mm9", order=min_order, 
-#                      flierprops = dict(marker='o', markersize=5), palette=pal)
-#     mimic_r_boxplot(ax)
-
-#     ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-#     ax.set_xlabel("")
-#     ax.set_ylabel("# TSSs within 1 Mb\n(mouse)")
-    
-#     for i, l in enumerate(min_order):
-#         sub = df[df["cis_trans_status"] == l]
-#         n = len(sub)
-#         print("%s median REs: %s" % (l, sub["n_tss_mm9"].median()))
-#         color = pal[l]
-#         ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-#                     textcoords="offset pixels", ha='center', va='bottom', 
-#                     color=color, size=fontsize)
-        
-#     ### pvals ###
-#     vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_tss_mm9"])
-#     vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_tss_mm9"])
-    
-#     vals1 = vals1[~np.isnan(vals1)]
-#     vals2 = vals2[~np.isnan(vals2)]
-    
-#     _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-    
-#     annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-    
-#     ax.set_ylim((-150, 1200))
-#     ax.set_title(title)
-#     fig.savefig("cis_trans_n_tss_mm9.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-
-
-# In[41]:
-
-
-fig = plt.figure(figsize=(1, 1.5))
-
-ax = sns.boxplot(data=df, x="cis_trans_status", y="n_tss_mm9", order=min_order, 
-                 flierprops = dict(marker='o', markersize=5), palette=pal)
-mimic_r_boxplot(ax)
-
-ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-ax.set_xlabel("")
-ax.set_ylabel("# TSSs within 1 Mb\n(mouse)")
-
-for i, l in enumerate(min_order):
-    sub = df[df["cis_trans_status"] == l]
-    n = len(sub)
-    print("%s median REs: %s" % (l, sub["n_tss_mm9"].median()))
-    color = pal[l]
-    ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-                textcoords="offset pixels", ha='center', va='bottom', 
-                color=color, size=fontsize)
-
-### pvals ###
-vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_tss_mm9"])
-vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_tss_mm9"])
-
-vals1 = vals1[~np.isnan(vals1)]
-vals2 = vals2[~np.isnan(vals2)]
-
-_, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-
-annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-
-ax.set_ylim((-150, 1200))
-fig.savefig("cis_trans_n_tss_mm9.pdf", dpi="figure", bbox_inches="tight")
-
-
-# In[42]:
-
-
-# for df, title, label in zip(dfs, titles, labels):
-    
-#     fig = plt.figure(figsize=(1, 1.5))
-
-#     ax = sns.boxplot(data=df, x="cis_trans_status", y="mean_tss", order=min_order, 
-#                      flierprops = dict(marker='o', markersize=5), palette=pal)
-#     mimic_r_boxplot(ax)
-
-#     ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-#     ax.set_xlabel("")
-#     ax.set_ylabel("# TSSs within 1 Mb\n(mean human & mouse)")
-    
-#     for i, l in enumerate(min_order):
-#         sub = df[df["cis_trans_status"] == l]
-#         n = len(sub)
-#         print("%s median REs: %s" % (l, sub["mean_tss"].median()))
-#         color = pal[l]
-#         ax.annotate(str(n), xy=(i, -120), xycoords="data", xytext=(0, 0), 
-#                     textcoords="offset pixels", ha='center', va='bottom', 
-#                     color=color, size=fontsize)
-        
-#     ### pvals ###
-#     vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["mean_tss"])
-#     vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["mean_tss"])
-    
-#     vals1 = vals1[~np.isnan(vals1)]
-#     vals2 = vals2[~np.isnan(vals2)]
-    
-#     _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-    
-#     annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
-    
-#     ax.set_ylim((-150, 1100))
-#     ax.set_title(title)
-#     fig.savefig("cis_trans_n_tss_mean.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-
-
-# In[43]:
+# In[29]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -790,206 +377,12 @@ _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_contin
 annotate_pval(ax, 0.2, 0.8, 400, 0, 400, pval12, fontsize-1)
 
 ax.set_ylim((-150, 1100))
-fig.savefig("cis_trans_n_tss_mean.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig6I.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ### enhancers only
 
-# In[44]:
-
-
-# for df, title, label in zip(dfs, titles, labels):
-    
-#     fig = plt.figure(figsize=(1, 1.5))
-
-#     ax = sns.boxplot(data=df, x="cis_trans_status", y="n_enh_hg19", order=min_order, 
-#                      flierprops = dict(marker='o', markersize=5), palette=pal)
-#     mimic_r_boxplot(ax)
-
-#     ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-#     ax.set_xlabel("")
-#     ax.set_ylabel("# enhancers within 1 Mb\n(human)")
-    
-#     for i, l in enumerate(min_order):
-#         sub = df[df["cis_trans_status"] == l]
-#         n = len(sub)
-#         print("%s median REs: %s" % (l, sub["n_enh_hg19"].median()))
-#         color = pal[l]
-#         ax.annotate(str(n), xy=(i, -20), xycoords="data", xytext=(0, 0), 
-#                     textcoords="offset pixels", ha='center', va='bottom', 
-#                     color=color, size=fontsize)
-        
-#     ### pvals ###
-#     vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_enh_hg19"])
-#     vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_enh_hg19"])
-    
-#     vals1 = vals1[~np.isnan(vals1)]
-#     vals2 = vals2[~np.isnan(vals2)]
-    
-#     _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-    
-#     annotate_pval(ax, 0.2, 0.8, 100, 0, 100, pval12, fontsize-1)
-    
-#     ax.set_ylim((-30, 150))
-#     ax.set_title(title)
-#     fig.savefig("cis_trans_n_enh_hg19.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-
-
-# In[45]:
-
-
-fig = plt.figure(figsize=(1, 1.5))
-
-ax = sns.boxplot(data=df, x="cis_trans_status", y="n_enh_hg19", order=min_order, 
-                 flierprops = dict(marker='o', markersize=5), palette=pal)
-mimic_r_boxplot(ax)
-
-ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-ax.set_xlabel("")
-ax.set_ylabel("# enhancers within 1 Mb\n(human)")
-
-for i, l in enumerate(min_order):
-    sub = df[df["cis_trans_status"] == l]
-    n = len(sub)
-    print("%s median REs: %s" % (l, sub["n_enh_hg19"].median()))
-    color = pal[l]
-    ax.annotate(str(n), xy=(i, -20), xycoords="data", xytext=(0, 0), 
-                textcoords="offset pixels", ha='center', va='bottom', 
-                color=color, size=fontsize)
-
-### pvals ###
-vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_enh_hg19"])
-vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_enh_hg19"])
-
-vals1 = vals1[~np.isnan(vals1)]
-vals2 = vals2[~np.isnan(vals2)]
-
-_, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-
-annotate_pval(ax, 0.2, 0.8, 100, 0, 100, pval12, fontsize-1)
-
-ax.set_ylim((-30, 150))
-fig.savefig("cis_trans_n_enh_hg19.pdf", dpi="figure", bbox_inches="tight")
-
-
-# In[46]:
-
-
-# for df, title, label in zip(dfs, titles, labels):
-    
-#     fig = plt.figure(figsize=(1, 1.5))
-
-#     ax = sns.boxplot(data=df, x="cis_trans_status", y="n_enh_mm9", order=min_order, 
-#                      flierprops = dict(marker='o', markersize=5), palette=pal)
-#     mimic_r_boxplot(ax)
-
-#     ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-#     ax.set_xlabel("")
-#     ax.set_ylabel("# enhancers within 1 Mb\n(mouse)")
-    
-#     for i, l in enumerate(min_order):
-#         sub = df[df["cis_trans_status"] == l]
-#         n = len(sub)
-#         print("%s median REs: %s" % (l, sub["n_tss_mm9"].median()))
-#         color = pal[l]
-#         ax.annotate(str(n), xy=(i, -20), xycoords="data", xytext=(0, 0), 
-#                     textcoords="offset pixels", ha='center', va='bottom', 
-#                     color=color, size=fontsize)
-        
-#     ### pvals ###
-#     vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_enh_mm9"])
-#     vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_enh_mm9"])
-    
-#     vals1 = vals1[~np.isnan(vals1)]
-#     vals2 = vals2[~np.isnan(vals2)]
-    
-#     _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-    
-#     annotate_pval(ax, 0.2, 0.8, 90, 0, 90, pval12, fontsize-1)
-    
-#     ax.set_ylim((-30, 150))
-#     ax.set_title(title)
-#     fig.savefig("cis_trans_n_enh_mm9.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-
-
-# In[47]:
-
-
-fig = plt.figure(figsize=(1, 1.5))
-
-ax = sns.boxplot(data=df, x="cis_trans_status", y="n_enh_mm9", order=min_order, 
-                 flierprops = dict(marker='o', markersize=5), palette=pal)
-mimic_r_boxplot(ax)
-
-ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-ax.set_xlabel("")
-ax.set_ylabel("# enhancers within 1 Mb\n(mouse)")
-
-for i, l in enumerate(min_order):
-    sub = df[df["cis_trans_status"] == l]
-    n = len(sub)
-    print("%s median REs: %s" % (l, sub["n_tss_mm9"].median()))
-    color = pal[l]
-    ax.annotate(str(n), xy=(i, -20), xycoords="data", xytext=(0, 0), 
-                textcoords="offset pixels", ha='center', va='bottom', 
-                color=color, size=fontsize)
-
-### pvals ###
-vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["n_enh_mm9"])
-vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["n_enh_mm9"])
-
-vals1 = vals1[~np.isnan(vals1)]
-vals2 = vals2[~np.isnan(vals2)]
-
-_, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-
-annotate_pval(ax, 0.2, 0.8, 90, 0, 90, pval12, fontsize-1)
-
-ax.set_ylim((-30, 150))
-fig.savefig("cis_trans_n_enh_mm9.pdf", dpi="figure", bbox_inches="tight")
-
-
-# In[48]:
-
-
-# for df, title, label in zip(dfs, titles, labels):
-    
-#     fig = plt.figure(figsize=(1, 1.5))
-
-#     ax = sns.boxplot(data=df, x="cis_trans_status", y="mean_enh", order=min_order, 
-#                      flierprops = dict(marker='o', markersize=5), palette=pal)
-#     mimic_r_boxplot(ax)
-
-#     ax.set_xticklabels(min_order, rotation=50, ha='right', va='top')
-#     ax.set_xlabel("")
-#     ax.set_ylabel("# enhancers within 1 Mb\n(mean human & mouse)")
-    
-#     for i, l in enumerate(min_order):
-#         sub = df[df["cis_trans_status"] == l]
-#         n = len(sub)
-#         print("%s median REs: %s" % (l, sub["mean_enh"].median()))
-#         color = pal[l]
-#         ax.annotate(str(n), xy=(i, -20), xycoords="data", xytext=(0, 0), 
-#                     textcoords="offset pixels", ha='center', va='bottom', 
-#                     color=color, size=fontsize)
-        
-#     ### pvals ###
-#     vals1 = np.asarray(df[df["cis_trans_status"] == "cis/trans compensatory"]["mean_enh"])
-#     vals2 = np.asarray(df[df["cis_trans_status"] == "cis/trans directional"]["mean_enh"])
-    
-#     vals1 = vals1[~np.isnan(vals1)]
-#     vals2 = vals2[~np.isnan(vals2)]
-    
-#     _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
-    
-#     annotate_pval(ax, 0.2, 0.8, 100, 0, 100, pval12, fontsize-1)
-    
-#     ax.set_ylim((-30, 150))
-#     ax.set_title(title)
-#     fig.savefig("cis_trans_n_enh_mean.%s.pdf" % label, dpi="figure", bbox_inches="tight")
-
-
-# In[49]:
+# In[30]:
 
 
 fig = plt.figure(figsize=(1, 1.75))
@@ -1023,49 +416,5 @@ _, pval12 = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_contin
 annotate_pval(ax, 0.2, 0.8, 100, 0, 100, pval12, fontsize-1)
 
 ax.set_ylim((-30, 150))
-fig.savefig("cis_trans_n_enh_mean.pdf", dpi="figure", bbox_inches="tight")
-
-
-# In[50]:
-
-
-print("")
-print("===")
-print("COMPENSATORY")
-sub = df[df["cis_trans_status"].str.contains("compensatory")]
-int = sub[sub["cis_trans_int_status"].str.contains("significant")]
-print((len(int))/(len(sub)))
-print("")
-print("DIRECTIONAL")
-sub = df[df["cis_trans_status"].str.contains("directional")]
-int = sub[sub["cis_trans_int_status"].str.contains("significant")]
-print((len(int))/(len(sub)))
-print("")
-print("CIS ONLY")
-sub = df[df["cis_trans_status"].str.contains("cis effect only")]
-int = sub[sub["cis_trans_int_status"].str.contains("significant")]
-print((len(int))/(len(sub)))
-print("")
-print("TRANS ONLY")
-sub = df[df["cis_trans_status"].str.contains("trans effect only")]
-int = sub[sub["cis_trans_int_status"].str.contains("significant")]
-print((len(int))/(len(sub)))
-print("")
-print("NOTHING")
-sub = df[df["cis_trans_status"].str.contains("no cis or trans")]
-int = sub[sub["cis_trans_int_status"].str.contains("significant")]
-print((len(int))/(len(sub)))
-print("===")
-
-
-# In[51]:
-
-
-df[df["cis_trans_int_status"].str.contains("significant")]
-
-
-# In[52]:
-
-
-df[df["hg19_id"] == "h.1389"]
+fig.savefig("Fig6H.pdf", dpi="figure", bbox_inches="tight")
 

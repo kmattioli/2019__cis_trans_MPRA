@@ -2,6 +2,8 @@
 # coding: utf-8
 
 # # 01__conservation
+# 
+# in this notebook, i plot the percentage of sequence orthologs and conserved TSSs across biotypes (from human to mouse and mouse to human)
 
 # In[1]:
 
@@ -210,13 +212,13 @@ mouse_cage_perc.head()
 
 # ## 5. make plots
 
-# In[ ]:
+# In[16]:
 
 
 order = ["eRNA", "lncRNA", "mRNA"]
 
 
-# In[ ]:
+# In[17]:
 
 
 fig, axarr = plt.subplots(figsize=(1.4, 2), ncols=1, nrows=2, sharex=True, sharey=True)
@@ -235,10 +237,10 @@ ax.set_xlabel("")
 ax.set_ylabel("% conserved")
 ax.set_xticklabels(order, rotation=50, ha='right', va='top')
 ax.set_ylim((0, 100))
-fig.savefig("human_orth_percents.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig1B.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[ ]:
+# In[18]:
 
 
 fig, axarr = plt.subplots(figsize=(1.4, 2), ncols=1, nrows=2, sharex=True, sharey=True)
@@ -257,5 +259,5 @@ ax.set_xlabel("")
 ax.set_ylabel("% conserved")
 ax.set_xticklabels(order, rotation=50, ha='right', va='top')
 ax.set_ylim((0, 100))
-fig.savefig("mouse_orth_percents.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("FigS1.pdf", dpi="figure", bbox_inches="tight")
 

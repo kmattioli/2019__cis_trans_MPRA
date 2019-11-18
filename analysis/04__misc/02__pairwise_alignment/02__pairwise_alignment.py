@@ -1,6 +1,10 @@
 
 # coding: utf-8
 
+# # 02__pairwise_alignment
+# 
+# in this notebook, i determine the pairwise seq alignment scores between non-conserved TSS regions vs. closest TSS
+
 # In[1]:
 
 
@@ -569,7 +573,7 @@ ax.set_ylim((70, 300))
 ax.plot([70, 300], [70, 300], linestyle="dashed", color="black")
 ax.set_xlabel("pairwise alignment score\nwith liftover region (no TSS)")
 ax.set_ylabel("pairwise alignment score\nwith closest TSS to liftover region")
-fig.savefig("pairwise_score_scatter.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("FigS8B.pdf", dpi="figure", bbox_inches="tight")
 
 
 # In[53]:
@@ -602,38 +606,38 @@ align[align["orig_align_score"] < align["closest_align_score"]]
 align[align["hg19_id"] == "h.1534"]
 
 
-# In[59]:
+# In[58]:
 
 
 mo_closest[mo_closest["mm9_id"] == "m.1346"]
 
 
-# In[60]:
+# In[59]:
 
 
 test = "TGTTTTGGGCTATACTGCCCCTGAGGCCCAGGGTCAAAGGCCACTGGGGAACTGCTGTCGTTCCCATCTCCACGTTAGGGCAGTTATAAAAGAGAACAAGGAAGCTCCCACAGGAAGAAAGCCGCCTGGCCTTGTTCCTATGTCT"
 
 
-# In[62]:
+# In[60]:
 
 
 hu_seq = non_cons_mo_sub[non_cons_mo_sub["mm9_id"] == "m.1346"]["orig_human_seq"].iloc[0]
 hu_seq
 
 
-# In[63]:
+# In[61]:
 
 
 pairwise2.align.localms(hu_seq, test, 2, -1, -1, -0.1, one_alignment_only=True)
 
 
-# In[64]:
+# In[62]:
 
 
 neg_test = "AGACATAGGAACAAGGCCAGGCGGCTTTCTTCCTGTGGGAGCTTCCTTGTTCTCTTTTATAACTGCCCTAACGTGGAGATGGGAACGACAGCAGTTCCCCAGTGGCCTTTGACCCTGGGCCTCAGGGGCAGTATAGCCCAAAACA"
 
 
-# In[65]:
+# In[63]:
 
 
 pairwise2.align.localms(hu_seq, neg_test, 2, -1, -1, -0.1, one_alignment_only=True)

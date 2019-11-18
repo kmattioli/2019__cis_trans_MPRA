@@ -1,6 +1,10 @@
 
 # coding: utf-8
 
+# # 00__make_files
+# 
+# in this notebook, i make the files necessary for finding CAGE reads that intersect our regions of interest (orthologous TSSs between human and mouse). final files are BED files with a 50 bp buffer surrounding the TSS (in both human and mouse).
+
 # In[1]:
 
 
@@ -94,7 +98,7 @@ human_bed_mm9.head()
 human_bed_mm9[human_bed_mm9["cage_id_hg19"] == "chr1:203273760..203273784,-"]
 
 
-# In[9]:
+# In[10]:
 
 
 mouse_bed_mm9 = mouse_master_filt[["chr_tss_mm9", "start_tss_mm9", "end_tss_mm9", "cage_id_mm9",
@@ -103,7 +107,7 @@ print(len(mouse_bed_mm9))
 mouse_bed_mm9.head()
 
 
-# In[10]:
+# In[11]:
 
 
 mouse_bed_hg19 = mouse_master_filt[["chr_tss_hg19", "start_tss_hg19", "end_tss_hg19", "cage_id_mm9",
@@ -114,7 +118,7 @@ mouse_bed_hg19.head()
 
 # ## 4. group hg19/mm9 files together for bed intersect
 
-# In[11]:
+# In[12]:
 
 
 human_bed_hg19["cage_id"] = "HUMAN_CAGE_ID__" + human_bed_hg19["cage_id_hg19"]
@@ -124,7 +128,7 @@ mouse_bed_hg19["score"] = "MOUSE_SCORE__" + mouse_bed_hg19["score_tss_mm9"].asty
 human_bed_hg19.head()
 
 
-# In[12]:
+# In[13]:
 
 
 human_bed_mm9["cage_id"] = "HUMAN_CAGE_ID__" + human_bed_mm9["cage_id_hg19"]
@@ -134,7 +138,7 @@ mouse_bed_mm9["score"] = "MOUSE_SCORE__" + mouse_bed_hg19["score_tss_mm9"].astyp
 human_bed_mm9.head()
 
 
-# In[13]:
+# In[14]:
 
 
 hg19_bed = human_bed_hg19[["chr_tss_hg19", "start_tss_hg19", "end_tss_hg19", "cage_id", "score", "strand_tss_hg19"]]
@@ -144,7 +148,7 @@ print(len(hg19_bed))
 hg19_bed.sample(5)
 
 
-# In[14]:
+# In[15]:
 
 
 mm9_bed = human_bed_mm9[["chr_tss_mm9", "start_tss_mm9", "end_tss_mm9", "cage_id", "score", "strand_tss_mm9"]]
@@ -156,7 +160,7 @@ mm9_bed.sample(5)
 
 # ## 5. add buffer of +/- 50 bp
 
-# In[15]:
+# In[16]:
 
 
 hg19_bed["start_tss_hg19"] = hg19_bed["start_tss_hg19"].astype(int) - 49
@@ -165,7 +169,7 @@ hg19_bed["score"] = 0
 hg19_bed.head()
 
 
-# In[16]:
+# In[17]:
 
 
 mm9_bed["start_tss_mm9"] = mm9_bed["start_tss_mm9"].astype(int) - 49
@@ -176,7 +180,7 @@ mm9_bed.head()
 
 # ## 6. write files
 
-# In[17]:
+# In[18]:
 
 
 hg19_bed.to_csv("../../../data/01__design/00__genome_list/hg19_master.50buff.bed", header=False, index=False, sep="\t")

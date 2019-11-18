@@ -138,36 +138,3 @@ write.table(tt, file = "../../../data/03__rna_seq/03__DE/orth.voom.tt_table.with
 
 write.table(DEgenes, file = "../../../data/03__rna_seq/03__DE/DEgenes_treatment.voom.txt", sep = "\t",
             quote = FALSE)
-
-# orth_cts <- read.csv("../../../data/03__rna_seq/02__orths/01__featurecounts/orths.counts.txt", sep="\t", row.names="orth_id")
-# orth_cts <- as.matrix(orth_cts)
-# head(orth_cts)
-
-# orth_cols <- read.csv("../../../data/03__rna_seq/02__orths/01__featurecounts/orths.cols.txt", sep="\t", row.names="column")
-# head(orth_cols)
-
-# dge <- DGEList(counts = orth_cts)
-
-# sample <- as.factor(orth_cols_new$sample)
-# treatment <- as.factor(orth_cols_new$treatment)
-# condition <- as.factor(orth_cols_new$condition)
-
-# design <- model.matrix(~condition, orth_cols)
-# par(mfrow = c(1, 1))
-# v <- voom(dge, design, plot=TRUE)
-
-# plotMDS(v)
-
-# fitDupCor <- lmFit(v, design)
-
-# fit <- eBayes(fitDupCor)
-
-# tt <- topTable(fit, coef = "conditionmESC", n = Inf)
-
-# res <- decideTests(fit)
-# summary(res)
-
-# head(tt)
-
-# write.table(tt, file = "for_winona/RNA-Seq/diff_expr/orth.voom.tt_table.simple_model.txt", sep = "\t",
-#             quote = FALSE)

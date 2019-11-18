@@ -1,6 +1,12 @@
 
 # coding: utf-8
 
+# ## 01__remap_peaks
+# 
+# in this notebook, i re-classify regions based on their maximum CAGE read counts. if regions have < 10 maximum CAGE read counts, they are classified as "no CAGE activity". otherwise, they are classified as a TSS. the biotype of these re-classified TSSs is assigned to be the biotype of the orthologous TSS in the other species.
+# 
+# i also clean up the TSS map to make the supplemental table S2.
+
 # In[1]:
 
 
@@ -385,7 +391,7 @@ ax.get_legend().remove()
 
 ax.axvline(x=np.log10(10+1), color="black", linestyle="dashed")
 
-fig.savefig("mouse_no_peak_counts.pdf", dpi="figure", bbox_inches="tight")
+#fig.savefig("mouse_no_peak_counts.pdf", dpi="figure", bbox_inches="tight")
 
 
 # In[37]:
@@ -403,7 +409,7 @@ ax.get_legend().remove()
 
 ax.axvline(x=np.log10(10+1), color="black", linestyle="dashed")
 
-fig.savefig("human_no_peak_counts.pdf", dpi="figure", bbox_inches="tight")
+#fig.savefig("human_no_peak_counts.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ## 5. re-classify CAGE peaks
@@ -734,13 +740,13 @@ new_map.to_csv(tss_map_f, sep="\t", index=False)
 
 # ### make supplemental file tss map
 
-# In[78]:
+# In[77]:
 
 
 new_map.columns
 
 
-# In[91]:
+# In[78]:
 
 
 supp_table = new_map[["cage_id_hg19", "cage_id_mm9", "name_peak_hg19", "name_peak_mm9",
@@ -750,7 +756,7 @@ supp_table = new_map[["cage_id_hg19", "cage_id_mm9", "name_peak_hg19", "name_pea
 len(supp_table)
 
 
-# In[92]:
+# In[79]:
 
 
 supp_table.columns = ["cage_id_hg19", "cage_id_mm9", "tss_name_hg19", "tss_name_mm9", "biotype_hg19", "biotype_mm9",
@@ -759,7 +765,7 @@ supp_table.columns = ["cage_id_hg19", "cage_id_mm9", "tss_name_hg19", "tss_name_
 supp_table.head()
 
 
-# In[93]:
+# In[80]:
 
 
 supp_table.to_csv("../../../data/01__design/01__mpra_list/SuppTable_Pool.txt", sep="\t", index=False)

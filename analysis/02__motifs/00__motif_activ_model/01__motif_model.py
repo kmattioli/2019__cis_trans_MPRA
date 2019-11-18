@@ -1,6 +1,10 @@
 
 # coding: utf-8
 
+# # 01__motif_model
+# 
+# in this notebook, i find motifs that are significantly associated w/ mean MPRA activity using linear models
+
 # In[1]:
 
 
@@ -297,7 +301,7 @@ res = avg_mod.resid
 fig, ax = plt.subplots(figsize=(2.2, 2.2), ncols=1, nrows=1)
 sm.qqplot(res, line='s', ax=ax)
 ax.set_title("Normal QQ: average hESC/mESC model")
-fig.savefig("avg_activ_qq.pdf", dpi="figure", bbox_inches="tight")
+# fig.savefig("avg_activ_qq.pdf", dpi="figure", bbox_inches="tight")
 
 
 # In[35]:
@@ -479,56 +483,23 @@ for i, row in over_1p.iterrows():
     full_pal[row["HGNC symbol"]] = pal[row["activ_or_repr"]]
 
 
-# In[56]:
-
-
-fig, axarr = plt.subplots(figsize=(6, 10), nrows=1, ncols=3)
-
-ax = axarr[0]
-sub = over_1p.head(83)
-print(len(sub))
-sns.barplot(y="HGNC symbol", x="rsq", data=sub, palette=full_pal, ax=ax)
-ax.set_ylabel("")
-ax.set_xlabel("additional variance explained")
-ax.set_xlim((0, 0.055))
-
-ax = axarr[1]
-sub = over_1p.head(166).tail(83)
-print(len(sub))
-sns.barplot(y="HGNC symbol", x="rsq", data=sub, palette=full_pal, ax=ax)
-ax.set_ylabel("")
-ax.set_xlabel("additional variance explained")
-ax.set_xlim((0, 0.01))
-
-ax = axarr[2]
-sub = over_1p.tail(83)
-print(len(sub))
-sns.barplot(y="HGNC symbol", x="rsq", data=sub, palette=full_pal, ax=ax)
-ax.set_ylabel("")
-ax.set_xlabel("additional variance explained")
-ax.set_xlim((0, 0.002))
-
-plt.subplots_adjust(wspace=0.7)
-# fig.savefig("sig_motifs.pdf", dpi="figure", bbox_inches="tight")
-
-
 # ## 7. merge elements with metadata (tss_id, biotype)
 
-# In[57]:
+# In[56]:
 
 
 motifs_merged = mapped_best_motifs.merge(elem_map, left_on="sequence name", right_on="elem_key")
 motifs_merged.head()
 
 
-# In[58]:
+# In[57]:
 
 
 motifs_merged = motifs_merged.merge(index_elem, left_on="elem", right_on="element")
 motifs_merged.head()
 
 
-# In[59]:
+# In[58]:
 
 
 motifs_merged["tss_id"] = motifs_merged["name"].str.split("__", expand=True)[1]
@@ -537,7 +508,7 @@ motifs_merged["tss_tile_num"] = motifs_merged["name"].str.split("__", expand=Tru
 motifs_merged.sample(5)
 
 
-# In[60]:
+# In[59]:
 
 
 human_df = motifs_merged[(motifs_merged["species"] == "HUMAN") | (motifs_merged["name"] == "random_sequence")]
@@ -552,7 +523,7 @@ mouse_df = mouse_df.merge(tss_map[["mm9_id", "biotype_mm9", "minimal_biotype_mm9
 mouse_df.sample(5)
 
 
-# In[61]:
+# In[60]:
 
 
 mouse_df.columns
@@ -560,14 +531,14 @@ mouse_df.columns
 
 # ## 8. find enrichment of motifs across biotypes
 
-# In[62]:
+# In[61]:
 
 
 both_tile_ids = tss_map[(~pd.isnull(tss_map["n_tiles_hg19"]) & ~(pd.isnull(tss_map["n_tiles_mm9"])))]
 len(both_tile_ids)
 
 
-# In[63]:
+# In[62]:
 
 
 tile1_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile1:tile1") | 
@@ -575,14 +546,14 @@ tile1_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile1:tile1") |
 len(tile1_ids)
 
 
-# In[64]:
+# In[63]:
 
 
 tile2_ids = both_tile_ids[(both_tile_ids["tile_match"] == "tile2:tile2")][["hg19_id", "mm9_id"]].drop_duplicates()
 len(tile2_ids)
 
 
-# In[65]:
+# In[64]:
 
 
 # limit dfs to tile1s where appropriate and tile2 where appropriate
@@ -592,7 +563,7 @@ human_tile1 = human_tile1.drop(["orig_species", "mm9_id", "tile_match"], axis=1)
 len(human_tile1)
 
 
-# In[66]:
+# In[65]:
 
 
 human_tile2 = human_df.merge(tile2_ids, on=["hg19_id", "mm9_id"])
@@ -601,7 +572,7 @@ human_tile2 = human_tile2.drop(["orig_species", "mm9_id", "tile_match"], axis=1)
 len(human_tile2)
 
 
-# In[67]:
+# In[66]:
 
 
 mouse_tile1 = mouse_df.merge(tile1_ids, on=["mm9_id", "hg19_id"])
@@ -610,7 +581,7 @@ mouse_tile1 = mouse_tile1.drop(["orig_species", "hg19_id", "tile_match"], axis=1
 len(mouse_tile1)
 
 
-# In[68]:
+# In[67]:
 
 
 mouse_tile2 = mouse_df.merge(tile2_ids, on=["mm9_id", "hg19_id"])
@@ -619,28 +590,28 @@ mouse_tile2 = mouse_tile2.drop(["orig_species", "hg19_id", "tile_match"], axis=1
 len(mouse_tile2)
 
 
-# In[69]:
+# In[68]:
 
 
 print(len(human_tile1.hg19_id.unique()))
 print(len(mouse_tile1.mm9_id.unique()))
 
 
-# In[70]:
+# In[69]:
 
 
 print(len(human_tile2.hg19_id.unique()))
 print(len(mouse_tile2.mm9_id.unique()))
 
 
-# In[71]:
+# In[70]:
 
 
 human_df = human_tile1.append(human_tile2)
 mouse_df = mouse_tile1.append(mouse_tile2)
 
 
-# In[72]:
+# In[71]:
 
 
 biotype_motif_res = {}
@@ -703,34 +674,34 @@ for i, row in sig_motif_results.iterrows():
     
 
 
-# In[73]:
+# In[72]:
 
 
 biotype_res = pd.DataFrame.from_dict(biotype_motif_res, orient="index").reset_index()
 biotype_res.head()
 
 
-# In[74]:
+# In[73]:
 
 
 biotype_melt = pd.melt(biotype_res, id_vars="index")
 biotype_melt.head()
 
 
-# In[75]:
+# In[74]:
 
 
 biotype_melt["padj"] = multicomp.multipletests(biotype_melt["value"], method="fdr_bh")[1]
 len(biotype_melt[biotype_melt["padj"] < 0.05])
 
 
-# In[76]:
+# In[75]:
 
 
 biotype_melt.sample(5)
 
 
-# In[77]:
+# In[76]:
 
 
 def is_sig(row):
@@ -740,21 +711,21 @@ def is_sig(row):
         return 0
 
 
-# In[78]:
+# In[77]:
 
 
 biotype_melt["sig"] = biotype_melt.apply(is_sig, axis=1)
 biotype_melt.head()
 
 
-# In[79]:
+# In[78]:
 
 
 biotype_res = biotype_melt.pivot(index="index", columns="variable")["padj"]
 biotype_res.head()
 
 
-# In[80]:
+# In[79]:
 
 
 def no_cage_vars(row):
@@ -788,26 +759,20 @@ biotype_res["mRNA_enr"] = biotype_res.apply(mrna_vars, axis=1)
 biotype_res = biotype_res.reset_index()
 
 
-# In[81]:
+# In[80]:
 
 
 biotype_res.head()
 
 
-# In[82]:
+# In[81]:
 
 
 biotype_melt = pd.melt(biotype_res, id_vars="index", value_vars=["no_CAGE_enr", "eRNA_enr", "lncRNA_enr", "mRNA_enr"])
 biotype_melt.head()
 
 
-# In[83]:
-
-
-sub.head()
-
-
-# In[84]:
+# In[82]:
 
 
 all_tfs = over_1p["HGNC symbol"].unique()
@@ -815,7 +780,7 @@ print(len(all_tfs))
 all_tfs[0:5]
 
 
-# In[85]:
+# In[83]:
 
 
 all_tfs1 = all_tfs[0:72]
@@ -826,7 +791,7 @@ print(len(all_tfs2))
 print(len(all_tfs3))
 
 
-# In[86]:
+# In[84]:
 
 
 for tfs, xlims, pt in zip([all_tfs1, all_tfs2, all_tfs3],
@@ -868,7 +833,7 @@ for tfs, xlims, pt in zip([all_tfs1, all_tfs2, all_tfs3],
     ax2.set_xticklabels(["no CAGE", "eRNA", "lncRNA", "mRNA"], rotation=60, ha="left", va="bottom")
     
     plt.show()
-    fig.savefig("motif_var_and_enr.part%s.pdf" % (pt), dpi="figure", bbox_inches="tight")
+    fig.savefig("FigS9_%s.pdf" % (pt), dpi="figure", bbox_inches="tight")
     plt.close()
 
 
@@ -876,7 +841,7 @@ for tfs, xlims, pt in zip([all_tfs1, all_tfs2, all_tfs3],
 
 # ### clean up file for supplement
 
-# In[87]:
+# In[85]:
 
 
 supp_file = all_motif_results[["HGNC symbol", "short_id", "rsq", "beta", "padj", "activ_or_repr"]]
@@ -884,32 +849,32 @@ supp_file = supp_file.sort_values(by="HGNC symbol")
 supp_file.head()
 
 
-# In[88]:
+# In[86]:
 
 
 supp_file.columns = ["gene_name", "cisbp_motif_id", "var_explained", "beta", "padj", "activ_or_repr"]
 supp_file.head()
 
 
-# In[89]:
+# In[87]:
 
 
 len(supp_file)
 
 
-# In[90]:
+# In[88]:
 
 
 len(supp_file.gene_name.unique())
 
 
-# In[91]:
+# In[89]:
 
 
 len(supp_file[supp_file["padj"] < 0.05])
 
 
-# In[92]:
+# In[90]:
 
 
 supp_file.to_csv("../../../data/04__mapped_motifs/SuppTable_Motifs.txt", sep="\t", index=False)
@@ -917,7 +882,7 @@ supp_file.to_csv("../../../data/04__mapped_motifs/SuppTable_Motifs.txt", sep="\t
 
 # ### make file for downstream analyses
 
-# In[93]:
+# In[91]:
 
 
 all_motif_results = all_motif_results.merge(biotype_res[["index", "no_CAGE_enr", "eRNA_enr", "lncRNA_enr",
@@ -925,7 +890,7 @@ all_motif_results = all_motif_results.merge(biotype_res[["index", "no_CAGE_enr",
 all_motif_results.head()
 
 
-# In[94]:
+# In[92]:
 
 
 all_motif_results.to_csv("../../../data/04__mapped_motifs/sig_motifs.txt", sep="\t", index=False)
