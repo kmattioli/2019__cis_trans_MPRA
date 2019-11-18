@@ -925,3 +925,25 @@ index_sub = index_sub[["barcode", "element", "tile_type", "name", "chrom", "star
 index_sub = index_sub.sort_values(by="name")
 index_sub.head()
 
+
+# In[75]:
+
+
+index_sub["chrom"] = pd.replace("chrV", np.nan)
+index_sub["start"] = pd.replace(100, 0)
+index_sub["end"] = pd.replace(200, 0)
+index_sub["strand"] =pd.replace("*", np.nan)
+index_sub.head()
+
+
+# In[72]:
+
+
+index_sub.to_csv("../../../data/01__design/02__index/index.txt.gz", sep="\t", index=False, compression="gzip")
+
+
+# In[ ]:
+
+
+def fix_chrom
+
