@@ -885,3 +885,77 @@ mouse_trans_col_ann.to_csv("%s/mouse_col_ann.cell_comp.mpranalyze.txt" % mpranal
 human_trans.to_csv("%s/human_rna_counts.cell_comp.mpranalyze.txt" % mpranalyze_dir, sep="\t", index=True)
 mouse_trans.to_csv("%s/mouse_rna_counts.cell_comp.mpranalyze.txt" % mpranalyze_dir, sep="\t", index=True)
 
+
+# # down-sample cis and trans files to estimate cis & trans effects from separate replicates
+
+# In[82]:
+
+
+all_rna_human_rep1_cols = [x for x in all_rna_human.columns if "rep1" in x]
+all_rna_human_rep1 = all_rna_human[all_rna_human_rep1_cols]
+all_rna_human_rep1.columns
+
+
+# In[83]:
+
+
+all_rna_mouse_rep1_cols = [x for x in all_rna_mouse.columns if "rep1" in x]
+all_rna_mouse_rep1 = all_rna_mouse[all_rna_mouse_rep1_cols]
+all_rna_mouse_rep1.columns
+
+
+# In[85]:
+
+
+human_col_ann_rep1 = human_col_ann[human_col_ann["index"].str.contains("rep1")]
+mouse_col_ann_rep1 = mouse_col_ann[mouse_col_ann["index"].str.contains("rep1")]
+mouse_col_ann_rep1.sample(5)
+
+
+# In[87]:
+
+
+human_trans_rep2_cols = [x for x in human_trans.columns if "rep2" in x]
+human_trans_rep2 = human_trans[human_trans_rep2_cols]
+
+mouse_trans_rep2_cols = [x for x in mouse_trans.columns if "rep2" in x]
+mouse_trans_rep2 = mouse_trans[mouse_trans_rep2_cols]
+
+
+# In[89]:
+
+
+human_trans_col_ann_rep2 = human_trans_col_ann.reset_index()
+human_trans_col_ann_rep2 = human_trans_col_ann_rep2[human_trans_col_ann_rep2["index"].str.contains("rep2")]
+human_trans_col_ann_rep2.set_index("index", inplace=True)
+human_trans_col_ann_rep2.sample(5)
+
+
+# In[90]:
+
+
+mouse_trans_col_ann_rep2 = mouse_trans_col_ann.reset_index()
+mouse_trans_col_ann_rep2 = mouse_trans_col_ann_rep2[mouse_trans_col_ann_rep2["index"].str.contains("rep2")]
+mouse_trans_col_ann_rep2.set_index("index", inplace=True)
+mouse_trans_col_ann_rep2.sample(5)
+
+
+# In[91]:
+
+
+human_col_ann_rep1.to_csv("%s/HUES64_col_ann.seq_comp.REP1_ONLY.mpranalyze.txt" % mpranalyze_dir, sep="\t")
+mouse_col_ann_rep1.to_csv("%s/mESC_col_ann.seq_comp.REP1_ONLY.mpranalyze.txt" % mpranalyze_dir, sep="\t")
+
+all_rna_human_rep1.to_csv("%s/HUES64_rna_counts.seq_comp.REP1_ONLY.mpranalyze.txt" % mpranalyze_dir, sep="\t", index=True)
+all_rna_mouse_rep1.to_csv("%s/mESC_rna_counts.seq_comp.REP1_ONLY.mpranalyze.txt" % mpranalyze_dir, sep="\t", index=True)
+
+
+# In[92]:
+
+
+human_trans_col_ann_rep2.to_csv("%s/human_col_ann.cell_comp.REP2_ONLY.mpranalyze.txt" % mpranalyze_dir, sep="\t")
+mouse_trans_col_ann_rep2.to_csv("%s/mouse_col_ann.cell_comp.REP2_ONLY.mpranalyze.txt" % mpranalyze_dir, sep="\t")
+
+human_trans_rep2.to_csv("%s/human_rna_counts.cell_comp.REP2_ONLY.mpranalyze.txt" % mpranalyze_dir, sep="\t", index=True)
+mouse_trans_rep2.to_csv("%s/mouse_rna_counts.cell_comp.REP2_ONLY.mpranalyze.txt" % mpranalyze_dir, sep="\t", index=True)
+

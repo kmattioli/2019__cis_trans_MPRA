@@ -356,6 +356,41 @@ ax.set_ylim((-0.8, 6))
 fig.savefig("Fig6F.pdf", dpi="figure", bbox_inches="tight")
 
 
+# In[25]:
+
+
+df.columns
+
+
+# In[28]:
+
+
+fig, ax = plt.subplots(figsize=(1.75, 1.75), nrows=1, ncols=1)
+
+ax.scatter(df["logFC_cis_one"], df["logFC_trans_one"], s=12, alpha=1, 
+           color="black", linewidths=0.5, edgecolors="white")
+
+plt.xlabel("cis effect size")
+plt.ylabel("trans effect size")
+
+ax.axhline(y=0, color="black", linestyle="dashed")
+ax.axvline(x=0, color="black", linestyle="dashed")
+ax.set_xlim((-6, 6))
+ax.set_ylim((-3, 3))
+
+# annotate corr
+no_nan = df[(~pd.isnull(df["logFC_cis_one"])) & (~pd.isnull(df["logFC_trans_one"]))]
+r, p = spearmanr(no_nan["logFC_cis_one"], no_nan["logFC_trans_one"])
+print(p)
+ax.text(0.05, 0.97, "r = {:.2f}".format(r), ha="left", va="top", fontsize=fontsize,
+        transform=ax.transAxes)
+ax.text(0.05, 0.90, "n = %s" % (len(no_nan)), ha="left", va="top", fontsize=fontsize,
+        transform=ax.transAxes)
+plt.show()
+fig.savefig("cis_effect_bw_cells_scatter.sig_status_color.pdf", dpi="figure", bbox_inches="tight")
+plt.close()
+
+
 # ## 5. plot some examples
 
 # ### compensatory
