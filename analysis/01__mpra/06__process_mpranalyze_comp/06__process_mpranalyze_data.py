@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # 06__process_mpranalyze_data
@@ -502,25 +502,31 @@ threshs = [NATIVE_THRESH, CIS_HUES64_THRESH, CIS_MESC_THRESH, TRANS_HUMAN_THRESH
 fdrs = ["fdr_native", "fdr_cis_HUES64", "fdr_cis_mESC", "fdr_trans_human", "fdr_trans_mouse", "fdr_int"]
 saves = [True, True, True, True, True, False]
 names = ["Fig6E.pdf", "Fig2B_1.pdf", "Fig2B_2.pdf", "Fig4B_1.pdf", "Fig4B_2.pdf", None]
+xlims = [(-5, 5), (-5.5, 5.5), (-5.5, 5.5), (-2, 2), (-2, 2), (-2, 2)]
 
-for model, df, logFC, fdr, label, thresh, save, name in zip(models, dfs, logFCs, fdrs, labels, threshs, saves, names):
+for model, df, logFC, fdr, label, thresh, save, name, xlim in zip(models, dfs, logFCs, fdrs, labels, 
+                                                                  threshs, saves, names, xlims):
     df["is_ctrl"] = df.apply(is_ctrl, axis=1)
     
     neg_ctrls = df[df["is_ctrl"] == "control"]
     tss = df[df["is_ctrl"] != "control"]
     
-    fig, ax = plt.subplots(figsize=(1.75, 1), nrows=1, ncols=1)
+    if fdr != "fdr_native":
+        fig, ax = plt.subplots(figsize=(1.5, 1.5), nrows=1, ncols=1)
+    else:
+        fig, ax = plt.subplots(figsize=(1.5, 1.75), nrows=1, ncols=1)
 
-    ax.scatter(tss[logFC], -np.log10(tss[fdr]), s=10, alpha=0.75, 
-               color="black", linewidths=0.5, edgecolors="white")
-    ax.scatter(neg_ctrls[logFC], -np.log10(neg_ctrls[fdr]), s=8, alpha=0.5, 
-               color="gray", linewidths=0.5, edgecolors="white")
+    ax.scatter(tss[logFC], -np.log10(tss[fdr]), s=10, alpha=1, 
+               color="black", linewidths=0.25, edgecolors="white")
+    ax.scatter(neg_ctrls[logFC], -np.log10(neg_ctrls[fdr]), s=8, alpha=1, 
+               color="gray", linewidths=0.25, edgecolors="white")
 
     plt.xlabel("%s effect size" % model)
     if model == "HUES64 cis":
         plt.xlabel("hESC cis effect size")
     plt.ylabel("-log10(q-value)")
     ax.axhline(y=-np.log10(thresh), color="black", linestyle="dashed")
+    ax.set_xlim(xlim)
 
     plt.show()
     if save:
@@ -917,4 +923,16 @@ data.head()
 
 
 data.to_csv("../../../data/02__mpra/03__results/all_processed_results.txt", sep="\t", index=False)
+
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 

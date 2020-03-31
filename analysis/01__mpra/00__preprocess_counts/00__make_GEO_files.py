@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # In[1]:
@@ -312,4 +312,10 @@ mESC_rep2_tfxn1.to_csv("../../../GEO_submission/MPRA__mESC__rep2__tfxn1.BARCODES
 
 
 mESC_rep3_tfxn1.to_csv("../../../GEO_submission/MPRA__mESC__rep3__tfxn1.BARCODES.txt", sep="\t", index=False)
+
+
+# In[ ]:
+
+
+
 

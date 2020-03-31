@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # 00__preprocess_counts
@@ -142,12 +142,19 @@ index = pd.read_table(index_f, sep="\t")
 # In[13]:
 
 
+n_barc = len(index)
+n_barc
+
+
+# In[14]:
+
+
 index_elem = index[["element", "tile_type"]].drop_duplicates()
 
 
 # ## 2. import dna
 
-# In[14]:
+# In[15]:
 
 
 dna = import_dna(counts_dir, dna_f)
@@ -156,21 +163,21 @@ dna.head()
 
 # ## 3. import rna
 
-# In[15]:
+# In[16]:
 
 
 HUES64_data, HUES64_cols = import_rna(counts_dir, HUES64_rna_f, dna)
 HUES64_data.head()
 
 
-# In[16]:
+# In[17]:
 
 
 mESC_data, mESC_cols = import_rna(counts_dir, mESC_rna_f, dna)
 mESC_data.head()
 
 
-# In[17]:
+# In[18]:
 
 
 HUES64_data.columns = ["barcode", "dna_1", "HUES64_rep1_tfxn1", "HUES64_rep1_tfxn2", "HUES64_rep1_tfxn3",
@@ -178,7 +185,7 @@ HUES64_data.columns = ["barcode", "dna_1", "HUES64_rep1_tfxn1", "HUES64_rep1_tfx
                        "HUES64_rep3_tfxn2", "HUES64_rep3_tfxn3"]
 
 
-# In[18]:
+# In[19]:
 
 
 mESC_data.columns = ["barcode", "dna_1", "mESC_rep1_tfxn1", "mESC_rep2_tfxn1", "mESC_rep3_tfxn1"]
@@ -186,7 +193,7 @@ mESC_data.columns = ["barcode", "dna_1", "mESC_rep1_tfxn1", "mESC_rep2_tfxn1", "
 
 # ## 4. heatmap showing replicate corrs and clustering
 
-# In[19]:
+# In[20]:
 
 
 # heatmap incl all libraries
@@ -206,7 +213,7 @@ plt.suptitle("pearson correlation of replicates\nlog10+1 counts of all barcodes"
 
 # ## 5. sum technical replicates
 
-# In[20]:
+# In[21]:
 
 
 HUES64_data["HUES64_rep1"] = HUES64_data[["HUES64_rep1_tfxn1", "HUES64_rep1_tfxn2", "HUES64_rep1_tfxn3"]].sum(axis=1)
@@ -219,20 +226,20 @@ HUES64_data.columns = ["barcode", "dna_1", "rep_1", "rep_2", "rep_3"]
 HUES64_data.head()
 
 
-# In[21]:
+# In[22]:
 
 
 mESC_data.columns = ["barcode", "dna_1", "rep_1", "rep_2", "rep_3"]
 mESC_data.head()
 
 
-# In[22]:
+# In[23]:
 
 
 HUES64_data[["rep_1", "rep_2", "rep_3"]].sum(axis=0)
 
 
-# In[23]:
+# In[24]:
 
 
 mESC_data[["rep_1", "rep_2", "rep_3"]].sum(axis=0)
@@ -240,42 +247,46 @@ mESC_data[["rep_1", "rep_2", "rep_3"]].sum(axis=0)
 
 # ## 6. filter barcodes
 
-# In[24]:
+# In[25]:
 
 
 HUES64_data = HUES64_data.fillna(0)
 mESC_data = mESC_data.fillna(0)
 
 
-# In[25]:
+# In[26]:
 
 
 HUES64_data_filt = HUES64_data[HUES64_data["dna_1"] >= barcode_dna_read_threshold]
+HUES64_data_filt.set_index("barcode", inplace=True)
 mESC_data_filt = mESC_data[mESC_data["dna_1"] >= barcode_dna_read_threshold]
+mESC_data_filt.set_index("barcode", inplace=True)
 
 
-# In[26]:
+# In[27]:
 
 
 HUES64_reps = [x for x in HUES64_data_filt.columns if "rep_" in x]
 mESC_reps = [x for x in mESC_data_filt.columns if "rep_" in x]
 
 
-# In[27]:
-
-
-HUES64_data_filt[HUES64_reps] = HUES64_data_filt[HUES64_data_filt > barcode_rna_read_threshold][HUES64_reps]
-HUES64_data_filt.head()
-
-
 # In[28]:
 
 
-mESC_data_filt[mESC_reps] = mESC_data_filt[mESC_data_filt > barcode_rna_read_threshold][mESC_reps]
-mESC_data_filt.head()
+HUES64_data_filt[HUES64_reps] = HUES64_data_filt[HUES64_data_filt > barcode_rna_read_threshold][HUES64_reps]
+HUES64_data_filt.reset_index(inplace=True)
+HUES64_data_filt.head()
 
 
 # In[29]:
+
+
+mESC_data_filt[mESC_reps] = mESC_data_filt[mESC_data_filt > barcode_rna_read_threshold][mESC_reps]
+mESC_data_filt.reset_index(inplace=True)
+mESC_data_filt.head()
+
+
+# In[30]:
 
 
 all_names = ["HUES64", "mESC"]
@@ -308,14 +319,14 @@ for n, df, cs in zip(all_names, all_dfs, all_cols):
 
 # ## 7. filter elements
 
-# In[30]:
+# In[31]:
 
 
 HUES64_data_filt = HUES64_data_filt.merge(index, on="barcode", how="inner")
 mESC_data_filt = mESC_data_filt.merge(index, on="barcode", how="inner")
 
 
-# In[31]:
+# In[32]:
 
 
 HUES64_barcodes_per_elem = HUES64_data_filt.groupby(["unique_name", "tile_type"])["barcode"].agg("count").reset_index()
@@ -327,7 +338,7 @@ HUES64_total_elems_rep = len(HUES64_barcodes_per_elem_no_neg)
 HUES64_total_elems_filt_rep = len(HUES64_barcodes_per_elem_no_neg_filt)
 
 
-# In[32]:
+# In[33]:
 
 
 mESC_barcodes_per_elem = mESC_data_filt.groupby(["unique_name", "tile_type"])["barcode"].agg("count").reset_index()
@@ -339,7 +350,7 @@ mESC_total_elems_rep = len(mESC_barcodes_per_elem_no_neg)
 mESC_total_elems_filt_rep = len(mESC_barcodes_per_elem_no_neg_filt)
 
 
-# In[33]:
+# In[34]:
 
 
 print("ELEMENT FILTERING RESULTS:")
@@ -348,7 +359,7 @@ print("HUES64: filtered %s elements to %s represented at >= %s barcodes (%s%%)" 
                                                                                    float(HUES64_total_elems_filt_rep)/HUES64_total_elems_rep*100))
 
 
-# In[34]:
+# In[35]:
 
 
 print("HUES64: filtered %s elements to %s represented at >= %s barcodes (%s%%)" % (mESC_total_elems_rep, mESC_total_elems_filt_rep,
@@ -356,14 +367,14 @@ print("HUES64: filtered %s elements to %s represented at >= %s barcodes (%s%%)" 
                                                                                    float(mESC_total_elems_filt_rep)/mESC_total_elems_rep*100))
 
 
-# In[35]:
+# In[36]:
 
 
 HUES64_good_elems = list(HUES64_barcodes_per_elem_no_neg_filt["unique_name"]) + list(HUES64_barcodes_per_elem_neg["unique_name"])
 mESC_good_elems = list(mESC_barcodes_per_elem_no_neg_filt["unique_name"]) + list(mESC_barcodes_per_elem_neg["unique_name"])
 
 
-# In[36]:
+# In[37]:
 
 
 HUES64_data_filt = HUES64_data_filt[HUES64_data_filt["unique_name"].isin(HUES64_good_elems)]
@@ -372,14 +383,14 @@ mESC_data_filt = mESC_data_filt[mESC_data_filt["unique_name"].isin(mESC_good_ele
 
 # ## 8. heatmap comparing barcode counts [biological replicates only]
 
-# In[37]:
+# In[38]:
 
 
 HUES64_cols = ["barcode"]
 mESC_cols = ["barcode"]
 
 
-# In[38]:
+# In[39]:
 
 
 HUES64_cols.extend(["HUES64_%s" % x for x in HUES64_reps])
@@ -387,7 +398,7 @@ mESC_cols.extend(["mESC_%s" % x for x in mESC_reps])
 HUES64_cols
 
 
-# In[39]:
+# In[40]:
 
 
 HUES64_counts = HUES64_data_filt.copy()
@@ -395,7 +406,7 @@ mESC_counts = mESC_data_filt.copy()
 mESC_counts.head()
 
 
-# In[40]:
+# In[41]:
 
 
 HUES64_counts = HUES64_counts[["barcode", "rep_1", "rep_2", "rep_3"]]
@@ -403,7 +414,7 @@ mESC_counts = mESC_counts[["barcode", "rep_1", "rep_2", "rep_3"]]
 HUES64_counts.head()
 
 
-# In[41]:
+# In[42]:
 
 
 HUES64_counts.columns = HUES64_cols
@@ -411,7 +422,7 @@ mESC_counts.columns = mESC_cols
 HUES64_cols
 
 
-# In[42]:
+# In[43]:
 
 
 all_samples = HUES64_counts.merge(mESC_counts, on="barcode", how="outer")
@@ -421,11 +432,11 @@ all_samples[cols] = np.log10(all_samples[cols]+1)
 all_samples_corr = all_samples.corr(method="pearson")
 
 
-# In[43]:
+# In[44]:
 
 
 cmap = sns.cubehelix_palette(as_cmap=True)
-cg = sns.clustermap(all_samples_corr, figsize=(2.5,2.5), cmap=cmap, annot=True)
+cg = sns.clustermap(all_samples_corr, figsize=(3,3), cmap=cmap, annot=True)
 _ = plt.setp(cg.ax_heatmap.yaxis.get_majorticklabels(), rotation=0)
 plt.suptitle("pearson correlation of replicates\nlog10+1 counts of barcodes with >5 DNA counts")
 plt.subplots_adjust(top=0.8)
@@ -434,21 +445,27 @@ cg.savefig("FigS4.pdf", dpi="figure", transparent=True, bbox_inches="tight")
 
 # ## 10. write final files
 
-# In[44]:
+# In[45]:
 
 
 HUES64_counts = HUES64_data_filt[["barcode", "dna_1", "rep_1", "rep_2", "rep_3"]]
 mESC_counts = mESC_data_filt[["barcode", "dna_1", "rep_1", "rep_2", "rep_3"]]
 
 
-# In[45]:
+# In[46]:
 
 
 HUES64_counts.to_csv("%s/%s" % (counts_dir, HUES64_out_f), sep="\t", header=True, index=False)
 
 
-# In[46]:
+# In[47]:
 
 
 mESC_counts.to_csv("%s/%s" % (counts_dir, mESC_out_f), sep="\t", header=True, index=False)
+
+
+# In[ ]:
+
+
+
 

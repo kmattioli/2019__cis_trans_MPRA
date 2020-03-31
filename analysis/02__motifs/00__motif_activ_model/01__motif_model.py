@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # 01__motif_model
@@ -894,4 +894,10 @@ all_motif_results.head()
 
 
 all_motif_results.to_csv("../../../data/04__mapped_motifs/sig_motifs.txt", sep="\t", index=False)
+
+
+# In[ ]:
+
+
+
 

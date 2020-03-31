@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # 01__preprocess_mpranalyze_quantify
@@ -499,4 +499,10 @@ ctrls.to_csv("%s/ctrl_status.mpranalyze.for_quantification.txt" % mpranalyze_dir
 
 dna_counts_piv_filt.to_csv("%s/dna_counts.mpranalyze.for_quantification.txt" % mpranalyze_dir, sep="\t", index=True)
 rna_counts_piv_filt.to_csv("%s/rna_counts.mpranalyze.for_quantification.txt" % mpranalyze_dir, sep="\t", index=True)
+
+
+# In[ ]:
+
+
+
 

@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # 07__cis_effects
@@ -125,9 +125,15 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
+# In[13]:
+
+
+data_filt_sp.biotype_switch_minimal.value_counts()
+
+
 # ## 3. counts of cis effects
 
-# In[13]:
+# In[14]:
 
 
 cis_order = ["no cis effect", "significant cis effect"]
@@ -140,7 +146,7 @@ det_pal = {"cis effect\n(higher in human)": sns.light_palette(sns.color_palette(
            "cis effect\n(higher in mouse)": sns.light_palette(sns.color_palette("Set2")[0])[2]}
 
 
-# In[14]:
+# In[15]:
 
 
 fig, ax = plt.subplots(figsize=(0.75, 1.75), nrows=1, ncols=1)
@@ -166,19 +172,19 @@ plt.close()
 
 # ## 4. plot cis effect sizes between HUES64 and mESC
 
-# In[15]:
+# In[16]:
 
 
 df = data_filt_sp
 
 
-# In[16]:
+# In[17]:
 
 
 df["cis_sig_status"] = df.apply(cis_sig_status, axis=1)
 
 # plot effect size agreement b/w the two cells
-fig, ax = plt.subplots(figsize=(1.75, 1.75), nrows=1, ncols=1)
+fig, ax = plt.subplots(figsize=(1.6, 1.75), nrows=1, ncols=1)
 
 sig_human = df[df["cis_sig_status"] == "sig_human"]
 sig_mouse = df[df["cis_sig_status"] == "sig_mouse"]
@@ -186,13 +192,13 @@ sig_both = df[df["cis_sig_status"] == "sig_both"]
 not_sig = df[df["cis_sig_status"] == "not_sig_both"]
 
 ax.scatter(sig_both["logFC_cis_HUES64"], sig_both["logFC_cis_mESC"], s=12, alpha=1, 
-           color="black", linewidths=0.5, edgecolors="white")
+           color="black", linewidths=0.25, edgecolors="white")
 ax.scatter(sig_human["logFC_cis_HUES64"], sig_human["logFC_cis_mESC"], s=10, alpha=0.75, 
-           color=sns.color_palette("Set2")[1], linewidths=0.5, edgecolors="white")
+           color=sns.color_palette("Set2")[1], linewidths=0.25, edgecolors="white")
 ax.scatter(not_sig["logFC_cis_HUES64"], not_sig["logFC_cis_mESC"], s=10, alpha=0.75, 
-           color="gray", linewidths=0.5, edgecolors="white")
+           color="gray", linewidths=0.25, edgecolors="white")
 ax.scatter(sig_mouse["logFC_cis_HUES64"], sig_mouse["logFC_cis_mESC"], s=10, alpha=0.75, 
-           color=sns.color_palette("Set2")[0], linewidths=0.5, edgecolors="white")
+           color=sns.color_palette("Set2")[0], linewidths=0.25, edgecolors="white")
 
 plt.xlabel("cis effect size in hESCs")
 plt.ylabel("cis effect size in mESCs")
@@ -210,13 +216,13 @@ ax.text(0.05, 0.97, "r = {:.2f}".format(r), ha="left", va="top", fontsize=fontsi
 ax.text(0.05, 0.90, "n = %s" % (len(no_nan)), ha="left", va="top", fontsize=fontsize,
         transform=ax.transAxes)
 plt.show()
-#fig.savefig("cis_effect_bw_cells_scatter.sig_status_color.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig2D.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
 # ## 5. effect size differences across biotypes
 
-# In[17]:
+# In[18]:
 
 
 min_switch_order = ["CAGE turnover - eRNA", "CAGE turnover - lncRNA", "CAGE turnover - mRNA", 
@@ -229,7 +235,7 @@ min_switch_pal = {"CAGE turnover - eRNA": sns.color_palette("Set2")[2],
                   "mRNA": sns.color_palette("Set2")[7]}
 
 
-# In[18]:
+# In[19]:
 
 
 df["abs_logFC_cis"] = np.abs(df["logFC_cis_one"])
@@ -287,11 +293,11 @@ ax.set_ylim((-0.9, 7))
 ax.axvline(x=2.5, linestyle="dashed", color="black")
 
 plt.show()
-fig.savefig("Fig2E.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig2F.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[19]:
+# In[20]:
 
 
 def cage_status(row):
@@ -301,7 +307,7 @@ def cage_status(row):
         return "conserved"
 
 
-# In[20]:
+# In[21]:
 
 
 def one_biotype(row):
@@ -313,13 +319,13 @@ def one_biotype(row):
         return row.minimal_biotype_hg19
 
 
-# In[21]:
+# In[22]:
 
 
 pal = {"conserved": sns.color_palette("Set2")[7], "turnover": sns.color_palette("Set2")[2]}
 
 
-# In[22]:
+# In[23]:
 
 
 df["abs_logFC_cis"] = np.abs(df["logFC_cis_one"])
@@ -369,12 +375,12 @@ for i, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
                 color=pal["conserved"], size=fontsize)
 
 ax.set_ylim((-1, 6))
-fig.savefig("Fig2D.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig2E.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ## 6. percent sig across biotypes
 
-# In[23]:
+# In[24]:
 
 
 tots = df.groupby("biotype_switch_minimal")["hg19_id"].agg("count").reset_index()
@@ -408,7 +414,7 @@ plt.close()
 
 # ### cis effect 
 
-# In[24]:
+# In[25]:
 
 
 ex = df[df["hg19_id"] == "h.1534"]
@@ -417,14 +423,14 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[25]:
+# In[26]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
 ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9", "fdr_cis_HUES64", "fdr_cis_mESC"])]
 
 
-# In[26]:
+# In[27]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -432,7 +438,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[27]:
+# In[28]:
 
 
 order = ["HUES64", "mESC"]
@@ -440,7 +446,7 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[28]:
+# In[29]:
 
 
 fig = plt.figure(figsize=(1.2, 2))
@@ -459,8 +465,14 @@ annotate_pval(ax, 0.75, 1.25, 4, 0, 4, ex[ex["variable"] == "fdr_cis_mESC"]["val
 fig.savefig("Fig3E.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[29]:
+# In[30]:
 
 
 np.median(np.abs(df[df["cis_status_one"] == "significant cis effect"]["logFC_cis_one"]))
+
+
+# In[ ]:
+
+
+
 

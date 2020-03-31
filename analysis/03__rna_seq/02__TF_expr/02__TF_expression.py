@@ -1,7 +1,7 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
-# # 02__TF_expression
+# # 03__TF_expression
 # 
 # notebook to plot expression of TFs in hESCs and mESCs
 
@@ -677,4 +677,10 @@ supp_table.columns = ["gene_name_human", "gene_name_mouse", "gene_id_human", "ge
 
 
 supp_table.to_csv("../../../data/03__rna_seq/04__TF_expr/SuppTable_TFs.txt", sep="\t", index=False)
+
+
+# In[ ]:
+
+
+
 

@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # ## 01__remap_peaks
@@ -769,4 +769,10 @@ supp_table.head()
 
 
 supp_table.to_csv("../../../data/01__design/01__mpra_list/SuppTable_Pool.txt", sep="\t", index=False)
+
+
+# In[ ]:
+
+
+
 

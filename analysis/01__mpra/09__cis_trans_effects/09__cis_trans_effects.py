@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # 09__cis_trans_effects
@@ -25,8 +25,8 @@ from scipy.stats import linregress
 from scipy.stats import spearmanr
 from scipy.stats import pearsonr
 
-from sklearn.preprocessing import StandardScaler
-from sklearn.neighbors import NearestNeighbors
+#from sklearn.preprocessing import StandardScaler
+#from sklearn.neighbors import NearestNeighbors
 
 # import utils
 sys.path.append("../../../utils")
@@ -299,12 +299,12 @@ sns.barplot(data=clean_sig, x="biotype_switch_minimal", y="percent_sig",
 
 ax.set_xticklabels(["eRNA", "lncRNA", "mRNA", "eRNA", "lncRNA", "mRNA"], rotation=50, ha='right', va='top')
 ax.set_xlabel("")
-ax.set_ylabel("% directional effects")
+ax.set_ylabel("percentage")
 ax.axvline(x=2.5, linestyle="dashed", color="black")
 
 for i, l in enumerate(min_switch_order):
     sub = clean_sig[clean_sig["biotype_switch_minimal"] == l]
-    print("%s perc sig: %s" % (l, sub["percent_sig"].iloc[0]))
+    print("%s perc sig: %s | (# sig: %s)" % (l, sub["percent_sig"].iloc[0], sub["hg19_id_y"].iloc[0]))
     n = sub["hg19_id_x"].iloc[0]
     ax.annotate(str(n), xy=(i, 5), xycoords="data", xytext=(0, 0), 
                 textcoords="offset pixels", ha='center', va='bottom', 
@@ -316,6 +316,12 @@ plt.close()
 
 
 # In[24]:
+
+
+sub
+
+
+# In[26]:
 
 
 cis_trans_order = ["cis/trans compensatory", "cis/trans directional"]
@@ -350,19 +356,13 @@ vals2 = np.asarray(sub2["abs_logFC_native"])
 vals1 = vals1[~np.isnan(vals1)]
 vals2 = vals2[~np.isnan(vals2)]
 
-u, pval = stats.mannwhitneyu(vals1, vals2, alternative="two-sided", use_continuity=False)
+u, pval = stats.mannwhitneyu(vals1, vals2, alternative="less", use_continuity=False)
 annotate_pval(ax, 0, 1, 5, 0, 5, pval, fontsize-1)
 ax.set_ylim((-0.8, 6))
 fig.savefig("Fig6F.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[25]:
-
-
-df.columns
-
-
-# In[28]:
+# In[27]:
 
 
 fig, ax = plt.subplots(figsize=(1.75, 1.75), nrows=1, ncols=1)
@@ -387,7 +387,7 @@ ax.text(0.05, 0.97, "r = {:.2f}".format(r), ha="left", va="top", fontsize=fontsi
 ax.text(0.05, 0.90, "n = %s" % (len(no_nan)), ha="left", va="top", fontsize=fontsize,
         transform=ax.transAxes)
 plt.show()
-fig.savefig("cis_effect_bw_cells_scatter.sig_status_color.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig_S12.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
@@ -395,7 +395,7 @@ plt.close()
 
 # ### compensatory
 
-# In[25]:
+# In[28]:
 
 
 ex = df[df["hg19_id"] == "h.1433"]
@@ -406,7 +406,7 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[26]:
+# In[29]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
@@ -416,7 +416,7 @@ ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9
                              "logFC_trans_human", "logFC_trans_mouse"])]
 
 
-# In[27]:
+# In[30]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -424,7 +424,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[28]:
+# In[31]:
 
 
 order = ["HUES64", "mESC"]
@@ -432,7 +432,7 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[29]:
+# In[32]:
 
 
 fig = plt.figure(figsize=(1.5, 1.5))
@@ -453,7 +453,7 @@ annotate_pval(ax, 0.25, 1.25, 12.75, 0, 12.75, ex[ex["variable"] == "fdr_trans_m
 # fig.savefig("compensatory_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[30]:
+# In[33]:
 
 
 ex_sub = ex[ex["variable"].str.contains("logFC")]
@@ -462,7 +462,7 @@ ex_sub = ex_sub.sort_values(by=["seq", "sp"])
 ex_sub
 
 
-# In[31]:
+# In[34]:
 
 
 def sp(row):
@@ -475,13 +475,13 @@ ex_sub["sp"] = ex_sub.apply(sp, axis=1)
 ex_sub
 
 
-# In[32]:
+# In[35]:
 
 
 order = ["cis", "trans"]
 
 
-# In[33]:
+# In[36]:
 
 
 fig, axarr = plt.subplots(figsize=(1.5, 1.5), nrows=1, ncols=2, sharey=True)
@@ -501,12 +501,12 @@ mouse_ax.set_xticklabels(order, rotation=50, va="top", ha="right")
 mouse_ax.set_ylabel("")
 mouse_ax.set_xlabel("")
 mouse_ax.axhline(y=0, linestyle="dashed", color="black")
-fig.savefig("Fig5A.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig6A.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ### directional
 
-# In[34]:
+# In[37]:
 
 
 ex = df[df["hg19_id"] == "h.1389"]
@@ -517,7 +517,7 @@ ex = ex[["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9", "HU
 ex
 
 
-# In[35]:
+# In[38]:
 
 
 ex = pd.melt(ex, id_vars=["hg19_id", "mm9_id", "minimal_biotype_hg19", "minimal_biotype_mm9"])
@@ -527,7 +527,7 @@ ex = ex[ex["variable"].isin(["HUES64_hg19", "HUES64_mm9", "mESC_hg19", "mESC_mm9
                              "logFC_trans_human", "logFC_trans_mouse"])]
 
 
-# In[36]:
+# In[39]:
 
 
 ex["cell"] = ex["variable"].str.split("_", expand=True)[0]
@@ -535,7 +535,7 @@ ex["seq"] = ex["variable"].str.split("_", expand=True)[1]
 ex.head()
 
 
-# In[37]:
+# In[40]:
 
 
 order = ["HUES64", "mESC"]
@@ -543,7 +543,7 @@ hue_order = ["hg19", "mm9"]
 pal = {"hg19": sns.color_palette("Set2")[1], "mm9": sns.color_palette("Set2")[0]}
 
 
-# In[38]:
+# In[41]:
 
 
 fig = plt.figure(figsize=(1.5, 1.5))
@@ -564,7 +564,7 @@ annotate_pval(ax, 0.25, 1.25, 3.25, 0, 3.25, ex[ex["variable"] == "fdr_trans_mou
 # fig.savefig("directional_example_barplot.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[39]:
+# In[42]:
 
 
 ex_sub = ex[ex["variable"].str.contains("logFC")]
@@ -574,13 +574,13 @@ ex_sub["sp"] = ex_sub.apply(sp, axis=1)
 ex_sub
 
 
-# In[40]:
+# In[43]:
 
 
 order = ["cis", "trans"]
 
 
-# In[41]:
+# In[44]:
 
 
 fig, axarr = plt.subplots(figsize=(1.5, 1.5), nrows=1, ncols=2, sharey=True)
@@ -600,5 +600,11 @@ mouse_ax.set_xticklabels(order, rotation=50, va="top", ha="right")
 mouse_ax.set_ylabel("")
 mouse_ax.set_xlabel("")
 mouse_ax.axhline(y=0, linestyle="dashed", color="black")
-fig.savefig("Fig5B.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig6B.pdf", dpi="figure", bbox_inches="tight")
+
+
+# In[ ]:
+
+
+
 

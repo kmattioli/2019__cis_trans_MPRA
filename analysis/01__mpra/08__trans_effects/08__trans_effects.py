@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # 08__trans_effects
@@ -165,7 +165,7 @@ plt.close()
 
 df["trans_sig_status"] = df.apply(trans_sig_status, axis=1)
 # plot effect size agreement b/w the two seqs
-fig, ax = plt.subplots(figsize=(1.75, 1.75), nrows=1, ncols=1)
+fig, ax = plt.subplots(figsize=(1.6, 1.75), nrows=1, ncols=1)
 
 sig_human = df[df["trans_sig_status"] == "sig_human"]
 sig_mouse = df[df["trans_sig_status"] == "sig_mouse"]
@@ -173,13 +173,13 @@ sig_both = df[df["trans_sig_status"] == "sig_both"]
 not_sig = df[df["trans_sig_status"] == "not_sig_both"]
 
 ax.scatter(not_sig["logFC_trans_human"], not_sig["logFC_trans_mouse"], s=10, alpha=0.75, 
-           color="gray", linewidths=0.5, edgecolors="white")
+           color="gray", linewidths=0.25, edgecolors="white")
 ax.scatter(sig_human["logFC_trans_human"], sig_human["logFC_trans_mouse"], s=10, alpha=0.75, 
-           color=sns.color_palette("Set2")[1], linewidths=0.5, edgecolors="white")
+           color=sns.color_palette("Set2")[1], linewidths=0.25, edgecolors="white")
 ax.scatter(sig_mouse["logFC_trans_human"], sig_mouse["logFC_trans_mouse"], s=10, alpha=0.75, 
-           color=sns.color_palette("Set2")[0], linewidths=0.5, edgecolors="white")
+           color=sns.color_palette("Set2")[0], linewidths=0.25, edgecolors="white")
 ax.scatter(sig_both["logFC_trans_human"], sig_both["logFC_trans_mouse"], s=12, alpha=1, 
-           color="black", linewidths=0.5, edgecolors="white")
+           color="black", linewidths=0.25, edgecolors="white")
 
 plt.xlabel("human seq. trans effect size")
 plt.ylabel("mouse seq. trans effect size")
@@ -196,7 +196,7 @@ ax.text(0.05, 0.97, "r = {:.2f}".format(r), ha="left", va="top", fontsize=fontsi
         transform=ax.transAxes)
 ax.text(0.05, 0.90, "n = %s" % (len(no_nan)), ha="left", va="top", fontsize=fontsize,
         transform=ax.transAxes)
-#fig.savefig("trans_effect_bw_seqs_scatter.sig_status_color.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig4D.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ## 5. effect size differences across biotypes
@@ -278,7 +278,7 @@ ax.set_ylim((-0.4, 2))
 ax.axvline(x=2.5, linestyle="dashed", color="black")
 
 plt.show()
-fig.savefig("Fig4E.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig4F.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
@@ -360,7 +360,7 @@ for i, label in enumerate(["eRNA", "lncRNA", "mRNA"]):
                 color=pal["conserved"], size=fontsize)
 
 ax.set_ylim((-0.4, 2))
-fig.savefig("Fig4D.pdf", dpi="figure", bbox_inches="tight")
+fig.savefig("Fig4E.pdf", dpi="figure", bbox_inches="tight")
 
 
 # ## 6. percent sig across biotypes
@@ -453,4 +453,10 @@ fig.savefig("Fig5E.pdf", dpi="figure", bbox_inches="tight")
 
 
 np.median(np.abs(df[df["trans_status_one"] == "significant trans effect"]["logFC_trans_one"]))
+
+
+# In[ ]:
+
+
+
 

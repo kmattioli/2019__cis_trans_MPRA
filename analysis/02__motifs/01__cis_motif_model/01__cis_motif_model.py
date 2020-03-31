@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # 01__cis_motif_model
@@ -426,13 +426,15 @@ data_elem.columns
 
 # ## 5. build reduced model
 
+# first using raw cis effect size (no abs val)
+
 # In[48]:
 
 
-scaled_features = StandardScaler().fit_transform(data_elem[["box_abs_logFC_cis", "abs_delta_gc", "abs_delta_cpg",
+scaled_features = StandardScaler().fit_transform(data_elem[["logFC_cis_one", "delta_gc", "delta_cpg",
                                                             "mean_gc", "mean_cpg"]])
-data_norm = pd.DataFrame(scaled_features, index=data_elem.index, columns=["box_abs_logFC_cis", "abs_delta_gc", 
-                                                                          "abs_delta_cpg", "mean_gc", "mean_cpg"])
+data_norm = pd.DataFrame(scaled_features, index=data_elem.index, columns=["logFC_cis_one", "delta_gc", 
+                                                                          "delta_cpg", "mean_gc", "mean_cpg"])
 data_norm["HUES64_padj_hg19"] = data_elem["HUES64_padj_hg19"]
 data_norm["mESC_padj_mm9"] = data_elem["mESC_padj_mm9"]
 data_norm["element_human"] = data_elem["element_human"]
@@ -455,7 +457,7 @@ data_filt.head()
 # In[50]:
 
 
-mod = smf.ols(formula='box_abs_logFC_cis ~ mean_gc + mean_cpg + abs_delta_gc + abs_delta_cpg', 
+mod = smf.ols(formula='logFC_cis_one ~ mean_gc + mean_cpg + delta_gc + delta_cpg', 
               data=data_filt).fit()
 
 
@@ -483,7 +485,66 @@ reduced_llf = mod.llf
 reduced_llf
 
 
+# then using absolute value of cis effects
+
 # In[54]:
+
+
+scaled_features = StandardScaler().fit_transform(data_elem[["box_abs_logFC_cis", "abs_delta_gc", "abs_delta_cpg",
+                                                            "mean_gc", "mean_cpg"]])
+data_norm = pd.DataFrame(scaled_features, index=data_elem.index, columns=["box_abs_logFC_cis", "abs_delta_gc", 
+                                                                          "abs_delta_cpg", "mean_gc", "mean_cpg"])
+data_norm["HUES64_padj_hg19"] = data_elem["HUES64_padj_hg19"]
+data_norm["mESC_padj_mm9"] = data_elem["mESC_padj_mm9"]
+data_norm["element_human"] = data_elem["element_human"]
+data_norm["element_mouse"] = data_elem["element_mouse"]
+data_norm["hg19_id"] = data_elem["hg19_id"]
+data_norm["mm9_id"] = data_elem["mm9_id"]
+data_norm["tss_tile_num"] = data_elem["tss_tile_num"]
+data_norm["cis_status_one"] = data_elem["cis_status_one"]
+data_norm.head()
+
+
+# In[55]:
+
+
+data_filt = data_norm[((data_norm["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_norm["mESC_padj_mm9"] < QUANT_ALPHA))]
+print(len(data_filt))
+data_filt.head()
+
+
+# In[56]:
+
+
+mod = smf.ols(formula='box_abs_logFC_cis ~ mean_gc + mean_cpg + abs_delta_gc + abs_delta_cpg', 
+              data=data_filt).fit()
+
+
+# In[57]:
+
+
+mod.summary()
+
+
+# In[58]:
+
+
+res = mod.resid
+
+fig, ax = plt.subplots(figsize=(2.2, 2.2), ncols=1, nrows=1)
+sm.qqplot(res, line='s', ax=ax)
+ax.set_title("Normal QQ: cis effects model")
+# fig.savefig("avg_activ_qq.pdf", dpi="figure", bbox_inches="tight")
+
+
+# In[59]:
+
+
+reduced_llf = mod.llf
+reduced_llf
+
+
+# In[60]:
 
 
 reduced_rsq = mod.rsquared
@@ -492,27 +553,27 @@ reduced_rsq
 
 # ## 6. add motifs to model
 
-# In[55]:
+# In[61]:
 
 
 len(data_filt)
 
 
-# In[56]:
+# In[62]:
 
 
 data_filt["hg19_index"] = data_filt["hg19_id"] + "__" + data_filt["tss_tile_num"]
 data_filt["mm9_index"] = data_filt["mm9_id"] + "__" + data_filt["tss_tile_num"]
 
 
-# In[57]:
+# In[63]:
 
 
 human_df["hg19_index"] = human_df["hg19_id"] + "__" + human_df["tss_tile_num"]
 mouse_df["mm9_index"] = mouse_df["mm9_id"] + "__" + mouse_df["tss_tile_num"]
 
 
-# In[58]:
+# In[64]:
 
 
 def motif_disrupted(row):
@@ -524,13 +585,13 @@ def motif_disrupted(row):
         return "a - maintained"
 
 
-# In[59]:
+# In[65]:
 
 
 len(human_df[human_df["tss_tile_num"] == "tile2"]["hg19_id"].unique())
 
 
-# In[60]:
+# In[66]:
 
 
 motif_results = {}
@@ -578,7 +639,7 @@ for i, motif_id in enumerate(uniq_motifs):
                                "n_maintained": n_maintained}
 
 
-# In[61]:
+# In[67]:
 
 
 motif_results = pd.DataFrame.from_dict(motif_results, orient="index").reset_index()
@@ -587,21 +648,21 @@ print(len(motif_results))
 motif_results.head()
 
 
-# In[62]:
+# In[68]:
 
 
 motif_results["padj"] = multicomp.multipletests(motif_results["pval"], method="fdr_bh")[1]
 len(motif_results[motif_results["padj"] < 0.05])
 
 
-# In[63]:
+# In[69]:
 
 
 motif_results["beta_padj"] = multicomp.multipletests(motif_results["beta_p"], method="fdr_bh")[1]
 len(motif_results[motif_results["beta_padj"] < 0.05])
 
 
-# In[64]:
+# In[70]:
 
 
 motif_results.sort_values(by="beta_padj").head(10)
@@ -609,14 +670,14 @@ motif_results.sort_values(by="beta_padj").head(10)
 
 # ## 7. join w/ TF info
 
-# In[65]:
+# In[71]:
 
 
 motif_results_mrg = motif_results.merge(sig_motifs, on="index", suffixes=("_cis", "_activ"))
 motif_results_mrg.sort_values(by="padj_cis").head()
 
 
-# In[66]:
+# In[72]:
 
 
 #sig_results = motif_results_mrg[(motif_results_mrg["padj_cis"] < 0.05) & (motif_results_mrg["beta_cis"] > 0)]
@@ -624,13 +685,13 @@ sig_results = motif_results_mrg[(motif_results_mrg["beta_padj"] < 0.05) & (motif
 sig_results = sig_results.sort_values(by="beta_cis", ascending=False)
 
 
-# In[67]:
+# In[73]:
 
 
 pal = {"repressing": sns.color_palette("pastel")[3], "activating": sns.color_palette("pastel")[0]}
 
 
-# In[68]:
+# In[74]:
 
 
 full_pal = {}
@@ -638,14 +699,14 @@ for i, row in sig_results.iterrows():
     full_pal[row["HGNC symbol"]] = pal[row["activ_or_repr"]]
 
 
-# In[69]:
+# In[75]:
 
 
 sig_activ = sig_results[sig_results["activ_or_repr"] == "activating"]
 sig_repr = sig_results[sig_results["activ_or_repr"] == "repressing"]
 
 
-# In[70]:
+# In[76]:
 
 
 fig = plt.figure(figsize=(3.5, 2))
@@ -691,7 +752,7 @@ fig.savefig("Fig3B.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[71]:
+# In[77]:
 
 
 fig = plt.figure(figsize=(4, 0.5))
@@ -736,7 +797,7 @@ fig.savefig("FigS10.pdf", dpi="figure", bbox_inches="tight")
 plt.close()
 
 
-# In[72]:
+# In[78]:
 
 
 data_filt = data_elem[((data_elem["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_elem["mESC_padj_mm9"] < QUANT_ALPHA))]
@@ -745,7 +806,7 @@ print(len(data_filt))
 # len(data_filt)
 
 
-# In[73]:
+# In[79]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -753,14 +814,14 @@ data_filt_sp.drop_duplicates(inplace=True)
 len(data_filt_sp)
 
 
-# In[74]:
+# In[80]:
 
 
 data_filt_sp["hg19_index"] = data_filt_sp["hg19_id"] + "__" + data_filt_sp["tss_tile_num"]
 data_filt_sp["mm9_index"] = data_filt_sp["mm9_id"] + "__" + data_filt_sp["tss_tile_num"]
 
 
-# In[75]:
+# In[81]:
 
 
 def uniq_motif(row):
@@ -776,13 +837,13 @@ def uniq_motif(row):
             return "not present"
 
 
-# In[76]:
+# In[82]:
 
 
 sns.palplot(sns.color_palette("Set2"))
 
 
-# In[77]:
+# In[83]:
 
 
 # plot some examples
@@ -877,14 +938,14 @@ for symb in examps:
 # - full turnover = motifs that are only present in one species
 # - partial turnover = motifs that are in both species but don't map to the exact same sequence
 
-# In[78]:
+# In[84]:
 
 
 print(len(data))
 data.tss_tile_num.value_counts()
 
 
-# In[79]:
+# In[85]:
 
 
 turnover_results = {}
@@ -946,7 +1007,7 @@ for i, row in data.iterrows():
                                                                        "delta_motifs": delta_motifs}
 
 
-# In[80]:
+# In[86]:
 
 
 turnover_df = pd.DataFrame.from_dict(turnover_results, orient="index").reset_index()
@@ -968,7 +1029,7 @@ turnover_df.head()
 
 # ## 9. merge motif turnover data w/ cis effects
 
-# In[81]:
+# In[87]:
 
 
 data_motifs = data.merge(turnover_df, on=["hg19_id", "mm9_id", "tss_tile_num"], how="left")
@@ -978,14 +1039,14 @@ data_motifs.head()
 
 # ## 6. filter data
 
-# In[82]:
+# In[88]:
 
 
 data_filt = data_motifs[((data_motifs["HUES64_padj_hg19"] < QUANT_ALPHA) | (data_motifs["mESC_padj_mm9"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[83]:
+# In[89]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -995,7 +1056,7 @@ len(data_filt_sp)
 
 # ## 7. plot cis effects v motif turnover
 
-# In[84]:
+# In[90]:
 
 
 order = ["no cis effect", "significant cis effect"]
@@ -1004,13 +1065,13 @@ palette = {"no cis effect": "gray", "significant cis effect": sns.color_palette(
 
 # ### % shared motifs
 
-# In[85]:
+# In[91]:
 
 
 df = data_filt_sp
 
 
-# In[86]:
+# In[92]:
 
 
 fig = plt.figure(figsize=(1.25, 2))
@@ -1037,7 +1098,7 @@ dist2 = np.asarray(df[df["cis_status_one"] != "no cis effect"]["perc_shared_moti
 dist1 = dist1[~np.isnan(dist1)]
 dist2 = dist2[~np.isnan(dist2)]
 
-u, pval = stats.mannwhitneyu(dist1, dist2, alternative="two-sided", use_continuity=False)
+u, pval = stats.mannwhitneyu(dist1, dist2, alternative="greater", use_continuity=False)
 print(pval)
 
 annotate_pval(ax, 0.2, 0.8, 55, 0, 55, pval, fontsize)
@@ -1049,28 +1110,34 @@ plt.close()
 
 # ## 8. write motif files
 
-# In[87]:
+# In[93]:
 
 
 len(human_df)
 
 
-# In[88]:
+# In[94]:
 
 
 len(mouse_df)
 
 
-# In[89]:
+# In[95]:
 
 
 human_f = "../../../data/04__mapped_motifs/human_motifs_filtered.txt.gz"
 human_df.to_csv(human_f, sep="\t", index=False, compression="gzip")
 
 
-# In[90]:
+# In[96]:
 
 
 mouse_f = "../../../data/04__mapped_motifs/mouse_motifs_filtered.txt.gz"
 mouse_df.to_csv(mouse_f, sep="\t", index=False, compression="gzip")
+
+
+# In[ ]:
+
+
+
 

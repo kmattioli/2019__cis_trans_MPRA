@@ -1,4 +1,3 @@
-
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
@@ -33,6 +32,12 @@ head(orth_cols)
 
 orth_cols_new <- read.csv("../../../data/03__rna_seq/02__orths/01__featurecounts/orths.cols.voom.samples.txt", sep="\t", row.names="column")
 head(orth_cols_new)
+
+gene_lengths <- readRDS('../../../misc/00__ensembl_orthologs/orth_gene_lengths.rds')
+head(gene_lengths)
+
+gene_lengths$median_hESC <- as.numeric(gene_lengths$median_hESC)
+gene_lengths$median_mESC <- as.numeric(gene_lengths$median_mESC)
 
 dds <- DESeqDataSetFromMatrix(countData = human_cts,
                               colData = human_cols,

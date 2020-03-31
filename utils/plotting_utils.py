@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # In[3]:
@@ -154,7 +154,7 @@ def mimic_r_boxplot(ax):
 def annotate_pval(ax, x1, x2, y, h, text_y, val, fontsize):
     from decimal import Decimal
     ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1, c="black", linewidth=0.5)
-    if val < 0.0001:
+    if val < 0.0004:
         text = "{:.2e}".format(Decimal(val))
         #text = "**"
     elif val < 0.05:

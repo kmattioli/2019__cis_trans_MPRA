@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # 00__make_files
@@ -185,4 +185,10 @@ mm9_bed.head()
 
 hg19_bed.to_csv("../../../data/01__design/00__genome_list/hg19_master.50buff.bed", header=False, index=False, sep="\t")
 mm9_bed.to_csv("../../../data/01__design/00__genome_list/mm9_master.50buff.bed", header=False, index=False, sep="\t")
+
+
+# In[ ]:
+
+
+
 
