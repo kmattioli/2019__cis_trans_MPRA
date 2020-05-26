@@ -1,0 +1,31 @@
+## ignore large BED files needed for intermediate analysis steps ##
+*single_bp.bed
+
+## ignore raw seq files ##
+data/02__mpra/00__seq_data/*
+GEO_submission/*
+*/00__make_GEO_files.*
+*.fastq.gz
+*.fq.gz
+*.fastq
+data/03__rna_seq/00__HUES64/*
+data/03__rna_seq/01__mESC/*
+
+## ignore large mpranalyze files ##
+data/02__mpra/01__counts/mpranalyze_files/*
+
+## ignore large PWM file ##
+misc/01__motif_info/00__lambert_et_al_files/01__pwms
+
+## ignore old analysis files ##
+analysis/04__misc/02__redundant_enhancers/old/*
+
+## ignore large pairwise correlation files (for redundant enhancer analysis) ##
+data/05__enhancer_expr/*
+misc/04__enh_tss_corrs/human/*
+misc/04__enh_tss_corrs/mouse/*
+misc/05__tads/hESC/*
+misc/05__tads/mESC/*
+misc/05__tads/*
+misc/03__nearby_elems/hg19.all_TSS_and_enh_within_tad.txt
+misc/03__nearby_elems/mm9.all_TSS_and_enh_within_tad.txt

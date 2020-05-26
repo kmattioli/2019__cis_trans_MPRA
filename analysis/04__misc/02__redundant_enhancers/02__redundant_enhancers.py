@@ -271,7 +271,7 @@ len(mm9_nearby_elems_filt)
 NEARBY_CUTOFF = 10
 
 
-# In[ ]:
+# In[24]:
 
 
 human_chroms = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", 
@@ -321,14 +321,14 @@ for chroms, otsu, corr_dict, nearby_elems_filt, suffix in zip([human_chroms, mou
             otsu[mpra_id] = mpra_id_dict
 
 
-# In[ ]:
+# In[25]:
 
 
 hg19_otsu_df = pd.DataFrame.from_dict(hg19_otsu, orient="index").reset_index()
 hg19_otsu_df.head()
 
 
-# In[ ]:
+# In[26]:
 
 
 mm9_otsu_df = pd.DataFrame.from_dict(mm9_otsu, orient="index").reset_index()
@@ -339,7 +339,7 @@ mm9_otsu_df.head()
 # 
 # do human only for simplicity
 
-# In[ ]:
+# In[27]:
 
 
 ex_chroms = ["8"]
@@ -380,28 +380,28 @@ for chrom, idx in zip(ex_chroms, ids):
 
 # ## 3. assign cis/trans status
 
-# In[ ]:
+# In[28]:
 
 
 data["cis_trans_status"] = data.apply(cis_trans_status, axis=1)
 data.cis_trans_status.value_counts()
 
 
-# In[ ]:
+# In[29]:
 
 
 data = data[~pd.isnull(data["minimal_biotype_hg19"])]
 len(data)
 
 
-# In[ ]:
+# In[30]:
 
 
 data_filt = data[((data["HUES64_padj_hg19"] < QUANT_ALPHA) | (data["mESC_padj_mm9"] < QUANT_ALPHA))]
 len(data_filt)
 
 
-# In[ ]:
+# In[31]:
 
 
 data_filt_sp = data_filt.drop("orig_species", axis=1)
@@ -411,7 +411,7 @@ len(data_filt_sp)
 
 # ## 4. merge cis/trans status with redundant enhancer info
 
-# In[ ]:
+# In[32]:
 
 
 data_filt_sp = data_filt_sp.merge(hg19_otsu_df, left_on="cage_id_hg19", right_on="index", how="left")
@@ -419,14 +419,14 @@ data_filt_sp = data_filt_sp.merge(mm9_otsu_df, left_on="cage_id_mm9", right_on="
                                   suffixes=("_hg19", "_mm9"))
 
 
-# In[ ]:
+# In[33]:
 
 
 data_filt_sp["mean_n_nearby_enh"] = data_filt_sp[["n_nearby_enh_hg19", "n_nearby_enh_mm9"]].mean(axis=1)
 data_filt_sp["mean_n_ov_otsu_enh"] = data_filt_sp[["n_ov_otsu_enh_hg19", "n_ov_otsu_enh_mm9"]].mean(axis=1)
 
 
-# In[ ]:
+# In[34]:
 
 
 data_filt_sp.sample(5)
@@ -434,7 +434,7 @@ data_filt_sp.sample(5)
 
 # ## 5. how many elements within the same TAD, broken up by cis/trans status?
 
-# In[ ]:
+# In[35]:
 
 
 order = ["no cis or trans effects", "cis/trans compensatory", "cis effect only", "trans effect only",
@@ -445,13 +445,13 @@ pal = {"no cis or trans effects": sns.color_palette("Set2")[7], "cis effect only
        "cis/trans compensatory": sns.color_palette("Set2")[7]}
 
 
-# In[ ]:
+# In[36]:
 
 
 df = data_filt_sp
 
 
-# In[ ]:
+# In[37]:
 
 
 cols = ["mean_n_nearby_enh"]
@@ -497,7 +497,7 @@ for col, ylabel, ylim, yp, plot in zip(cols, ylabels, ylims, yps, plots):
 
 # ## 6. how many elements w/in the same TAD, broken up by cis/trans status *and* conservation?
 
-# In[ ]:
+# In[38]:
 
 
 def cage_status(row):
@@ -507,7 +507,7 @@ def cage_status(row):
         return "conserved"
 
 
-# In[ ]:
+# In[39]:
 
 
 df["cage_status"] = df.apply(cage_status, axis=1)
@@ -515,7 +515,7 @@ df["tmp"] = df["cage_status"] + "__" + df["cis_trans_status"]
 df.tmp.value_counts()
 
 
-# In[ ]:
+# In[40]:
 
 
 order_cons = ["turnover__cis/trans compensatory", "turnover__cis/trans directional",
@@ -527,7 +527,7 @@ pal_cons = {"turnover__cis/trans compensatory": sns.color_palette("Set2")[7],
             "conserved__cis/trans directional": sns.color_palette("Set2")[2]}
 
 
-# In[ ]:
+# In[41]:
 
 
 ylims_sep = [(-17, 100)]
@@ -581,7 +581,7 @@ for col, ylabel, ylim, yp_a, yp_b, plot in zip(cols, ylabels, ylims_sep, yps_sep
 
 # how many "highly" correlated regulatory elements (both enhancers + TSSs), TSSs only, and enhancers only are there within the same TAD on average for elements that show either compensatory or directional cis/trans effects?
 
-# In[ ]:
+# In[42]:
 
 
 cols = ["mean_n_ov_otsu_enh"]
@@ -627,7 +627,7 @@ for col, ylabel, ylim, yp, plot in zip(cols, ylabels, ylims, yps, plots):
 
 # trend's there but weak; what happens if we subset by conservation pattern and ask the same question? 
 
-# In[ ]:
+# In[43]:
 
 
 ylims_sep = [(-5, 40)]
@@ -683,7 +683,7 @@ for col, ylabel, ylim, yp_a, yp_b, plot in zip(cols, ylabels, ylims_sep, yps_sep
 
 # cool! as expected, the trend we see is limited to *conserved* regulatory elements (i.e., those that have CAGE peak in both human and mouse). if there is a directional trend at a conserved element, it is associated w/ higher numbers of redundant elements within the same TAD. this is not true at non-conserved elements, which in general are just noisy and likely acquire directional effects but there is no strong selection to stabilize their activity.
 
-# In[ ]:
+# In[44]:
 
 
 def one_biotype(row):
@@ -695,20 +695,20 @@ def one_biotype(row):
         return row.minimal_biotype_hg19
 
 
-# In[ ]:
+# In[45]:
 
 
 df["one_biotype"] = df.apply(one_biotype, axis=1)
 df.one_biotype.value_counts()
 
 
-# In[ ]:
+# In[46]:
 
 
 df_cons = df[df["cage_status"] == "conserved"]
 
 
-# In[ ]:
+# In[47]:
 
 
 ylims = [(-5, 40)]
@@ -761,7 +761,7 @@ for col, ylabel, ylim, yp, plot in zip(cols, ylabels, ylims_sep, yps, plots):
 # 
 # since we have several examples of regulatory elements in the MPRA that are w/in close proximity, which could really bias this analysis, let's try and control for that. so what I did for that is to sub-sample regulatory elements based on their TAD assignment in human & mouse: only sample 1 element from each TAD and then plot. I made 10 plots after sub-sampling, and while it's much noisier (we lose precious data), the trend is still there, I think.
 
-# In[ ]:
+# In[48]:
 
 
 hg19_tads["hg19_id"] = hg19_tads["name"].str.split("__", expand=True)[1]
@@ -769,7 +769,7 @@ hg19_tads["tad_id"] = hg19_tads["tad_chr"] + ":" + hg19_tads["tad_start"].astype
 #hg19_tads.sample(5)
 
 
-# In[ ]:
+# In[49]:
 
 
 mm9_tads["mm9_id"] = mm9_tads["name"].str.split("__", expand=True)[1]
@@ -777,7 +777,7 @@ mm9_tads["tad_id"] = mm9_tads["tad_chr"] + ":" + mm9_tads["tad_start"].astype(st
 #mm9_tads.sample(5)
 
 
-# In[ ]:
+# In[50]:
 
 
 data_filt_tad = data_filt_sp.merge(hg19_tads[["hg19_id", "tad_id"]], on="hg19_id", how="left")
@@ -787,14 +787,14 @@ data_filt_tad.drop_duplicates(inplace=True)
 #len(data_filt_tad)
 
 
-# In[ ]:
+# In[51]:
 
 
 data_filt_tad["tad_id_both"] = data_filt_tad["tad_id_hg19"].astype(str) + "__" + data_filt_tad["tad_id_mm9"].astype(str)
 #data_filt_tad.sample(5)
 
 
-# In[ ]:
+# In[52]:
 
 
 col = "mean_n_ov_otsu_enh"
@@ -804,7 +804,7 @@ yp_a = 15
 yp_b = 20
 
 
-# In[ ]:
+# In[53]:
 
 
 print("sampling from unique TAD IDs 1000 times")
@@ -848,7 +848,7 @@ samp_results = pd.DataFrame.from_dict(samp_results, orient="index")
 samp_results.sample(5)
 
 
-# In[ ]:
+# In[54]:
 
 
 # calculate the 95% confidence interval for every statistic
@@ -887,7 +887,7 @@ med_cons_diff_ub = samp_results["med_cons_diff"].iloc[975]
 print("conserved median difference 95%% confidence interval: %s - %s" % (med_cons_diff_lb, med_cons_diff_ub))
 
 
-# In[ ]:
+# In[55]:
 
 
 fig = plt.figure(figsize=(2, 1.25))
@@ -902,7 +902,7 @@ ax.set_xlim((-10, 10))
 fig.savefig("FigS15A.pdf", dpi="figure", bbox_inches="tight")
 
 
-# In[ ]:
+# In[56]:
 
 
 fig = plt.figure(figsize=(2, 1.25))
