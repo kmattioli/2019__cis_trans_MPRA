@@ -362,15 +362,15 @@ for chrom, idx in zip(ex_chroms, ids):
     fig = plt.figure(figsize=(2, 1.25))
     ax = sns.distplot(vals, color=sns.color_palette("Set2")[1], kde=True, bins=15)
     if n_ov == 1:
-        text = "1\eRNA"
+        text = "1\ntranscribed\nenhancers"
     else:
-        text = "%s\neRNAs" % n_ov
+        text = "%s\ntranscribed\nenhancers" % n_ov
     ax.annotate(text, xy=(0.97, 0.95), xycoords="axes fraction", xytext=(0, 0), 
                 textcoords="offset pixels", ha='right', va='top', 
                 size=fontsize)
     
     ax.axvline(x=otsu, linestyle="dashed", color="black")
-    ax.set_xlabel("correlation with eRNAs\nwithin the same TAD")
+    ax.set_xlabel("expression correlation with transcribed\nenhancers within the same TAD")
     ax.set_ylabel("density")
     ax.set_title(idx)
     plt.show()
@@ -455,7 +455,7 @@ df = data_filt_sp
 
 
 cols = ["mean_n_nearby_enh"]
-ylabels = [ "# of eRNAs\nwithin the same TAD"]
+ylabels = [ "# of transcribed enhancers\nwithin the same TAD"]
 ylims = [(-30, 150)]
 yps = [55]
 plots = ["enh"]
@@ -585,7 +585,7 @@ for col, ylabel, ylim, yp_a, yp_b, plot in zip(cols, ylabels, ylims_sep, yps_sep
 
 
 cols = ["mean_n_ov_otsu_enh"]
-ylabels = ["# of correlated eRNAs\nwithin the same TAD"]
+ylabels = ["# of correlated transcribed\nenhancers within the same TAD"]
 ylims = [(-30, 200), (-30, 200), (-10, 50)]
 yps = [55, 50, 18]
 plots = ["both", "TSS", "enh"]
@@ -798,7 +798,7 @@ data_filt_tad["tad_id_both"] = data_filt_tad["tad_id_hg19"].astype(str) + "__" +
 
 
 col = "mean_n_ov_otsu_enh"
-ylabel = "# of correlated enhancers\nwithin the same TAD"
+ylabel = "# of correlated transcribed enhancers\nwithin the same TAD"
 ylim = (-8, 40)
 yp_a = 15
 yp_b = 20
@@ -896,7 +896,7 @@ ax.axvline(x=med_non_cons_diff_lb, linestyle="dotted", color=sns.color_palette("
 ax.axvline(x=med_non_cons_diff_ub, linestyle="dotted", color=sns.color_palette("Set2")[2])
 ax.axvline(x=0, linestyle="dashed", color="black")
 ax.set_ylabel("density")
-ax.set_xlabel("difference in median # redundant eRNAs\n(directional - compensatory)")
+ax.set_xlabel("difference in median # redundant transcribed enhancers\n(directional - compensatory)")
 ax.set_title("non-conserved elements")
 ax.set_xlim((-10, 10))
 fig.savefig("FigS15A.pdf", dpi="figure", bbox_inches="tight")
@@ -911,7 +911,7 @@ ax.axvline(x=med_cons_diff_lb, linestyle="dotted", color=sns.color_palette("Set2
 ax.axvline(x=med_cons_diff_ub, linestyle="dotted", color=sns.color_palette("Set2")[7])
 ax.axvline(x=0, linestyle="dashed", color="black")
 ax.set_ylabel("density")
-ax.set_xlabel("difference in median # redundant eRNAs\n(directional - compensatory)")
+ax.set_xlabel("difference in median # redundant transcribed enhancers\n(directional - compensatory)")
 ax.set_title("conserved elements")
 ax.set_xlim((-10, 10))
 fig.savefig("FigS15B.pdf", dpi="figure", bbox_inches="tight")
