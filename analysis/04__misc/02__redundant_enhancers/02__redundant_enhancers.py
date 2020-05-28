@@ -455,7 +455,7 @@ df = data_filt_sp
 
 
 cols = ["mean_n_nearby_enh"]
-ylabels = [ "# of transcribed enhancers\nwithin the same TAD"]
+ylabels = [ "# of total\ntranscribed enhancers\nwithin the same TAD"]
 ylims = [(-30, 150)]
 yps = [55]
 plots = ["enh"]
@@ -585,7 +585,7 @@ for col, ylabel, ylim, yp_a, yp_b, plot in zip(cols, ylabels, ylims_sep, yps_sep
 
 
 cols = ["mean_n_ov_otsu_enh"]
-ylabels = ["# of correlated transcribed\nenhancers within the same TAD"]
+ylabels = ["# of correlated\ntranscribed enhancers\nwithin the same TAD"]
 ylims = [(-30, 200), (-30, 200), (-10, 50)]
 yps = [55, 50, 18]
 plots = ["both", "TSS", "enh"]
