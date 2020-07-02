@@ -13,4 +13,7 @@ Most of the code in this repository runs on Python 3 and requires the following 
 
 MPRA analysis runs in R and requires the MPRAnalyze package. RNA-seq analysis also runs in R and requires the DESeq2 and edgeR/limma packages.
 
+This software is open source under the MIT License.
+
+
 [![DOI](https://zenodo.org/badge/209191347.svg)](https://zenodo.org/badge/latestdoi/209191347)
